@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Organization, Practice, FlowState } from './types'
 import { mockOrganizations } from './data/mockData'
 import HomePage from './components/HomePage'
@@ -99,20 +99,6 @@ function App() {
 
     organizations.forEach(searchInOrg)
     return results
-  }
-
-  const findOrgById = (id: string): Organization | undefined => {
-    const search = (orgs: Organization[]): Organization | undefined => {
-      for (const org of orgs) {
-        if (org.id === id) return org
-        if (org.children) {
-          const found = search(org.children)
-          if (found) return found
-        }
-      }
-      return undefined
-    }
-    return search(organizations)
   }
 
   const getPracticesForOrg = (orgId: string): Practice[] => {
