@@ -1,152 +1,232 @@
 import { useState, useMemo } from 'react'
-import { Organization } from './types'
-import { mockOrganizations, mockAuditHistory, mockMembers } from './data/mockData'
-import OrgTree from './components/OrgTree'
-import DetailPanel from './components/DetailPanel'
-import CreateOrgModal from './components/CreateOrgModal'
-import EditOrgModal from './components/EditOrgModal'
+import { Organization, Practice, FlowState } from './types'
+import { mockOrganizations } from './data/mockData'
+import HomePage from './components/HomePage'
+import CreateOrgPage from './components/CreateOrgPage'
+import CreateOrgSuccessPage from './components/CreateOrgSuccessPage'
+import AddChildChoicePage from './components/AddChildChoicePage'
+import AddChildOrgPage from './components/AddChildOrgPage'
+import AddPracticePage from './components/AddPracticePage'
+import SearchPage from './components/SearchPage'
+import SearchResultsPage from './components/SearchResultsPage'
+import OrgDetailPage from './components/OrgDetailPage'
+import SuccessPage from './components/SuccessPage'
 
 function App() {
-  const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
+  const [flowState, setFlowState] = useState<FlowState>({ step: 'home' })
   const [organizations, setOrganizations] = useState(mockOrganizations)
+  const [practices, setPractices] = useState<Practice[]>([])
 
-  const filteredOrgs = useMemo(() => {
-    if (!searchQuery.trim()) return organizations
+  const goTo = (step: FlowState['step'], extras?: Partial<FlowState>) => {
+    setFlowState({ ...flowState, step, ...extras })
+  }
 
-    const query = searchQuery.toLowerCase()
-
-    const filterOrg = (org: Organization): Organization | null => {
-      const matches = org.name.toLowerCase().includes(query) ||
-                     org.salesforceId?.toLowerCase().includes(query) ||
-                     org.city?.toLowerCase().includes(query)
-
-      const filteredChildren = org.children?.map(filterOrg).filter(Boolean) as Organization[] | undefined
-
-      if (matches || (filteredChildren && filteredChildren.length > 0)) {
-        return { ...org, children: filteredChildren }
-      }
-      return null
-    }
-
-    return organizations.map(filterOrg).filter(Boolean) as Organization[]
-  }, [organizations, searchQuery])
+  const goHome = () => {
+    setFlowState({ step: 'home' })
+  }
 
   const handleCreateOrg = (newOrg: Partial<Organization>) => {
     const org: Organization = {
-      id: `org-new-${Date.now()}`,
+      id: `org-${Date.now()}`,
       name: newOrg.name || 'New Organization',
       type: newOrg.type || 'Local',
       city: newOrg.city,
       state: newOrg.state,
       owner: newOrg.owner,
+      salesforceId: newOrg.salesforceId,
+      children: [],
     }
     setOrganizations([...organizations, org])
-    setShowCreateModal(false)
+    goTo('create-org-success', { currentOrg: org })
   }
 
-  const handleEditOrg = (updatedOrg: Partial<Organization>) => {
-    if (!selectedOrg) return
+  const handleAddChildOrg = (parentOrg: Organization, childOrg: Partial<Organization>) => {
+    const newChild: Organization = {
+      id: `org-${Date.now()}`,
+      name: childOrg.name || 'New Child Org',
+      type: childOrg.type || 'Local',
+      city: childOrg.city,
+      state: childOrg.state,
+      owner: childOrg.owner,
+      parentId: parentOrg.id,
+      children: [],
+    }
 
-    const updateOrg = (org: Organization): Organization => {
-      if (org.id === selectedOrg.id) {
-        return { ...org, ...updatedOrg }
+    const addChildToOrg = (org: Organization): Organization => {
+      if (org.id === parentOrg.id) {
+        return { ...org, children: [...(org.children || []), newChild] }
       }
       if (org.children) {
-        return { ...org, children: org.children.map(updateOrg) }
+        return { ...org, children: org.children.map(addChildToOrg) }
       }
       return org
     }
 
-    setOrganizations(organizations.map(updateOrg))
-    setSelectedOrg({ ...selectedOrg, ...updatedOrg })
-    setShowEditModal(false)
+    setOrganizations(organizations.map(addChildToOrg))
+    goTo('success', { currentOrg: newChild, parentOrg })
   }
 
-  const findOrgPath = (orgId: string, orgs: Organization[] = organizations, path: Organization[] = []): Organization[] => {
-    for (const org of orgs) {
-      if (org.id === orgId) {
-        return [...path, org]
-      }
-      if (org.children) {
-        const found = findOrgPath(orgId, org.children, [...path, org])
-        if (found.length > 0) return found
-      }
+  const handleAddPractice = (parentOrg: Organization, practice: Partial<Practice>) => {
+    const newPractice: Practice = {
+      id: `practice-${Date.now()}`,
+      name: practice.name || 'New Practice',
+      npi: practice.npi,
+      address: practice.address,
+      city: practice.city,
+      state: practice.state,
+      parentOrgId: parentOrg.id,
     }
-    return []
+    setPractices([...practices, newPractice])
+    goTo('success', { currentOrg: parentOrg })
   }
 
-  const breadcrumb = selectedOrg ? findOrgPath(selectedOrg.id) : []
+  const searchOrgs = (query: string): Organization[] => {
+    if (!query.trim()) return []
+
+    const q = query.toLowerCase()
+    const results: Organization[] = []
+
+    const searchInOrg = (org: Organization) => {
+      if (
+        org.name.toLowerCase().includes(q) ||
+        org.salesforceId?.toLowerCase().includes(q) ||
+        org.city?.toLowerCase().includes(q)
+      ) {
+        results.push(org)
+      }
+      org.children?.forEach(searchInOrg)
+    }
+
+    organizations.forEach(searchInOrg)
+    return results
+  }
+
+  const findOrgById = (id: string): Organization | undefined => {
+    const search = (orgs: Organization[]): Organization | undefined => {
+      for (const org of orgs) {
+        if (org.id === id) return org
+        if (org.children) {
+          const found = search(org.children)
+          if (found) return found
+        }
+      }
+      return undefined
+    }
+    return search(organizations)
+  }
+
+  const getPracticesForOrg = (orgId: string): Practice[] => {
+    return practices.filter(p => p.parentOrgId === orgId)
+  }
+
+  const renderStep = () => {
+    switch (flowState.step) {
+      case 'home':
+        return (
+          <HomePage
+            onCreateNew={() => goTo('create-org')}
+            onSearch={() => goTo('search')}
+          />
+        )
+
+      case 'create-org':
+        return (
+          <CreateOrgPage
+            onBack={goHome}
+            onCreate={handleCreateOrg}
+          />
+        )
+
+      case 'create-org-success':
+        return (
+          <CreateOrgSuccessPage
+            organization={flowState.currentOrg!}
+            onAddChild={() => goTo('add-child-choice', { parentOrg: flowState.currentOrg })}
+            onDone={goHome}
+          />
+        )
+
+      case 'add-child-choice':
+        return (
+          <AddChildChoicePage
+            parentOrg={flowState.parentOrg!}
+            onAddChildOrg={() => goTo('add-child-org')}
+            onAddPractice={() => goTo('add-practice')}
+            onBack={() => {
+              if (flowState.currentOrg) {
+                goTo('create-org-success', { currentOrg: flowState.parentOrg })
+              } else {
+                goTo('org-detail', { currentOrg: flowState.parentOrg })
+              }
+            }}
+          />
+        )
+
+      case 'add-child-org':
+        return (
+          <AddChildOrgPage
+            parentOrg={flowState.parentOrg!}
+            onBack={() => goTo('add-child-choice')}
+            onCreate={(childOrg) => handleAddChildOrg(flowState.parentOrg!, childOrg)}
+          />
+        )
+
+      case 'add-practice':
+        return (
+          <AddPracticePage
+            parentOrg={flowState.parentOrg!}
+            onBack={() => goTo('add-child-choice')}
+            onCreate={(practice) => handleAddPractice(flowState.parentOrg!, practice)}
+          />
+        )
+
+      case 'search':
+        return (
+          <SearchPage
+            onBack={goHome}
+            onSearch={(query) => goTo('search-results', { searchQuery: query })}
+          />
+        )
+
+      case 'search-results':
+        const results = searchOrgs(flowState.searchQuery || '')
+        return (
+          <SearchResultsPage
+            query={flowState.searchQuery || ''}
+            results={results}
+            onBack={() => goTo('search')}
+            onSelect={(org) => goTo('org-detail', { currentOrg: org })}
+          />
+        )
+
+      case 'org-detail':
+        return (
+          <OrgDetailPage
+            organization={flowState.currentOrg!}
+            practices={getPracticesForOrg(flowState.currentOrg!.id)}
+            onBack={() => goTo('search-results')}
+            onAddChild={() => goTo('add-child-choice', { parentOrg: flowState.currentOrg })}
+            onSelectChild={(child) => goTo('org-detail', { currentOrg: child })}
+          />
+        )
+
+      case 'success':
+        return (
+          <SuccessPage
+            message={flowState.currentOrg ? `Added to ${flowState.parentOrg?.name || 'organization'}` : 'Success!'}
+            onAddAnother={() => goTo('add-child-choice', { parentOrg: flowState.parentOrg })}
+            onDone={goHome}
+          />
+        )
+
+      default:
+        return <HomePage onCreateNew={() => goTo('create-org')} onSearch={() => goTo('search')} />
+    }
+  }
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>Org Management</h1>
-        <div className="header-actions">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search organizations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-            + New Org
-          </button>
-        </div>
-      </header>
-
-      <main className="main-content">
-        <div className="tree-panel">
-          {filteredOrgs.length > 0 ? (
-            <OrgTree
-              organizations={filteredOrgs}
-              selectedId={selectedOrg?.id}
-              onSelect={setSelectedOrg}
-            />
-          ) : (
-            <div className="no-results">
-              No organizations found matching "{searchQuery}"
-            </div>
-          )}
-        </div>
-
-        <div className={`detail-panel ${!selectedOrg ? 'empty' : ''}`}>
-          {selectedOrg ? (
-            <DetailPanel
-              organization={selectedOrg}
-              breadcrumb={breadcrumb}
-              auditHistory={mockAuditHistory[selectedOrg.id] || []}
-              members={mockMembers[selectedOrg.id] || []}
-              onEdit={() => setShowEditModal(true)}
-              onSelectOrg={setSelectedOrg}
-              allOrganizations={organizations}
-            />
-          ) : (
-            <div className="empty-state">
-              <div className="empty-state-icon">🏢</div>
-              <p>Select an organization to view details</p>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {showCreateModal && (
-        <CreateOrgModal
-          onClose={() => setShowCreateModal(false)}
-          onCreate={handleCreateOrg}
-        />
-      )}
-
-      {showEditModal && selectedOrg && (
-        <EditOrgModal
-          organization={selectedOrg}
-          onClose={() => setShowEditModal(false)}
-          onSave={handleEditOrg}
-        />
-      )}
+      {renderStep()}
     </div>
   )
 }

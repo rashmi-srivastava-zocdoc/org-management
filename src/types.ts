@@ -13,6 +13,16 @@ export interface Organization {
   children?: Organization[];
 }
 
+export interface Practice {
+  id: string;
+  name: string;
+  npi?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  parentOrgId: string;
+}
+
 export interface AuditEntry {
   id: string;
   timestamp: string;
@@ -27,4 +37,23 @@ export interface Member {
   id: string;
   type: 'Practice' | 'Group' | 'Organization';
   name: string;
+}
+
+export type FlowStep =
+  | 'home'
+  | 'create-org'
+  | 'create-org-success'
+  | 'add-child-choice'
+  | 'add-child-org'
+  | 'add-practice'
+  | 'search'
+  | 'search-results'
+  | 'org-detail'
+  | 'success';
+
+export interface FlowState {
+  step: FlowStep;
+  currentOrg?: Organization;
+  parentOrg?: Organization;
+  searchQuery?: string;
 }
