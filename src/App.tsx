@@ -114,8 +114,38 @@ function App() {
 
   return (
     <div className="app">
-      {/* Top Bar */}
-      <div className="top-bar">
+      {/* Header */}
+      <header className="header">
+        <div className="logo">
+          <div className="logo-icon">Z</div>
+          <span>Zocdoc</span>
+        </div>
+        <nav className="nav">
+          <span className="nav-item">Home</span>
+          <span className="nav-item active">Org Management</span>
+          <span className="nav-item">Providers</span>
+        </nav>
+        <div className="header-right">
+          <span className="nav-item">Internal user</span>
+        </div>
+      </header>
+
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="page-header-content">
+          <h1 className="page-title">Organization Management</h1>
+          <div className="page-actions">
+            <button className="btn btn-outline" onClick={() => setShowCreateOrgModal(true)}>
+              + New Ultimate Parent Org
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content">
+        {/* Search Bar */}
+        <div className="top-bar">
         <div className="search-section">
           <label>Search</label>
           <div className="search-wrapper">
@@ -153,14 +183,11 @@ function App() {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={() => setShowCreateOrgModal(true)}>
-          + New Ultimate Parent Org
-        </button>
       </div>
 
-      {/* Main Content */}
+      {/* Organization Content */}
       {selectedOrg ? (
-        <div className="main-content">
+        <div className="hierarchy-section">
           <div className="hierarchy-header">
             <h2>Edit Organization Hierarchy</h2>
             <div className="org-ids">
@@ -280,6 +307,7 @@ function App() {
           <p>Or create a new ultimate parent organization to get started</p>
         </div>
       )}
+      </div>
 
       {/* Create Org Modal */}
       {showCreateOrgModal && (
