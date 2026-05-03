@@ -187,7 +187,7 @@ function App() {
               onClick={(e) => toggleSelect(org.id, e)}
             />
           </div>
-          <div className="tree-expand" style={{ marginLeft: level * 20 }}>
+          <div className="tree-expand">
             {hasChildren ? (
               <button className="expand-btn" onClick={(e) => toggleExpand(org.id, e)}>
                 {isExpanded ? '▼' : '▶'}
@@ -199,7 +199,7 @@ function App() {
           <div className="tree-icon">
             {isUltimateParent ? '🏛️' : '🏢'}
           </div>
-          <div className="tree-name">{org.name}</div>
+          <div className="tree-name" style={{ paddingLeft: level * 24 }}>{org.name}</div>
           <div className="tree-type">
             <span className={`type-badge ${isUltimateParent ? 'ultimate' : 'child'}`}>
               {TYPE_ABBREV[org.type] || org.type}
@@ -224,11 +224,11 @@ function App() {
                     onClick={(e) => toggleSelect(practice.id, e)}
                   />
                 </div>
-                <div className="tree-expand" style={{ marginLeft: (level + 1) * 20 }}>
+                <div className="tree-expand">
                   <span className="expand-placeholder" />
                 </div>
                 <div className="tree-icon">🏥</div>
-                <div className="tree-name practice-name">{practice.name}</div>
+                <div className="tree-name practice-name" style={{ paddingLeft: (level + 1) * 24 }}>{practice.name}</div>
                 <div className="tree-type">
                   <span className="type-badge practice">Practice</span>
                 </div>
