@@ -16,7 +16,7 @@ function App() {
   const [organizations, setOrganizations] = useState(mockOrganizations)
   const [expandedOrgs, setExpandedOrgs] = useState<Set<string>>(new Set(['org-1']))
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
-  const [practices] = useState<Practice[]>([
+  const [practices, setPractices] = useState<Practice[]>([
     { id: 'p1', name: 'Northwell Health Practice', npi: '174562', numActiveProviders: 0, cloudId: 'pL_nexM-oM58Eamot1thGiH8g', parentOrgId: 'org-1' },
     { id: 'p2', name: 'Great Neck Primary Care', npi: '182934', numActiveProviders: 12, cloudId: 'pL_abc123', parentOrgId: 'org-1' },
     { id: 'p3', name: 'Huntington Internal Medicine', npi: '192837', numActiveProviders: 8, cloudId: 'pL_xyz789', parentOrgId: 'org-1-7' },
@@ -127,6 +127,25 @@ function App() {
     setSelectedOrg({ ...selectedOrg, children: [...(selectedOrg.children || []), newChild] })
     setExpandedOrgs(prev => new Set([...prev, selectedOrg.id]))
     setShowAddChildModal(false)
+  }
+
+  const handleAddPractice = (practice: { name: string; npi?: string }) => {
+    if (!selectedOrg) return
+
+    const targetOrgId = selectedItems.size === 1
+      ? Array.from(selectedItems)[0]
+      : selectedOrg.id
+
+    const newPractice: Practice = {
+      id: `p_${Math.random().toString(36).substr(2, 12)}`,
+      name: practice.name,
+      npi: practice.npi,
+      parentOrgId: targetOrgId,
+    }
+
+    setPractices([...practices, newPractice])
+    setExpandedOrgs(prev => new Set([...prev, targetOrgId]))
+    setShowAddPracticeModal(false)
   }
 
   const findParentOrg = (orgId: string): Organization | null => {
@@ -431,7 +450,7 @@ function App() {
       {showAddPracticeModal && selectedOrg && (
         <Modal title={`Add Practice`} onClose={() => setShowAddPracticeModal(false)}>
           <PracticeForm
-            onSubmit={() => setShowAddPracticeModal(false)}
+            onSubmit={handleAddPractice}
             onCancel={() => setShowAddPracticeModal(false)}
           />
         </Modal>
@@ -528,12 +547,12 @@ function OrgForm({
 }
 
 // Practice Form Component
-function PracticeForm({ onSubmit, onCancel }: { onSubmit: () => void; onCancel: () => void }) {
+function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string; npi?: string }) => void; onCancel: () => void }) {
   const [name, setName] = useState('')
   const [npi, setNpi] = useState('')
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit() }}>
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit({ name, npi: npi || undefined }) }}>
       <div className="form-group">
         <label>Practice Name *</label>
         <input
