@@ -196,9 +196,6 @@ function App() {
               <span className="expand-placeholder" />
             )}
           </div>
-          <div className="tree-icon">
-            {isUltimateParent ? '🏛️' : '🏢'}
-          </div>
           <div className="tree-name" style={{ paddingLeft: level * 24 }}>{org.name}</div>
           <div className="tree-type">
             <span className={`type-badge ${isUltimateParent ? 'ultimate' : 'child'}`}>
@@ -227,7 +224,6 @@ function App() {
                 <div className="tree-expand">
                   <span className="expand-placeholder" />
                 </div>
-                <div className="tree-icon">🏥</div>
                 <div className="tree-name practice-name" style={{ paddingLeft: (level + 1) * 24 }}>{practice.name}</div>
                 <div className="tree-type">
                   <span className="type-badge practice">Practice</span>
@@ -365,7 +361,6 @@ function App() {
               <div className="tree-header">
                 <div className="tree-col tree-col-select"></div>
                 <div className="tree-col tree-col-expand"></div>
-                <div className="tree-col tree-col-icon"></div>
                 <div className="tree-col tree-col-name">name</div>
                 <div className="tree-col tree-col-type">type</div>
                 <div className="tree-col tree-col-id">id</div>
