@@ -2,15 +2,22 @@ import { useState } from 'react'
 import { Organization, Practice } from './types'
 import { mockOrganizations } from './data/mockData'
 
+// Type abbreviations
+const TYPE_ABBREV: Record<string, string> = {
+  'HealthSystem': 'HS',
+  'LargeProviderGroup': 'LPG',
+  'MidMarket': 'MM',
+  'Local': 'Local',
+}
+
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [resultType, setResultType] = useState<'organizations' | 'practices'>('organizations')
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null)
-  const [selectedPractice, setSelectedPractice] = useState<Practice | null>(null)
   const [organizations, setOrganizations] = useState(mockOrganizations)
   const [expandedOrgs, setExpandedOrgs] = useState<Set<string>>(new Set(['org-1']))
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [practices] = useState<Practice[]>([
-    { id: 'p1', name: 'Northwell Health', npi: '174562', numActiveProviders: 0, cloudId: 'pL_nexM-oM58Eamot1thGiH8g', parentOrgId: 'org-1' },
+    { id: 'p1', name: 'Northwell Health Practice', npi: '174562', numActiveProviders: 0, cloudId: 'pL_nexM-oM58Eamot1thGiH8g', parentOrgId: 'org-1' },
     { id: 'p2', name: 'Great Neck Primary Care', npi: '182934', numActiveProviders: 12, cloudId: 'pL_abc123', parentOrgId: 'org-1' },
     { id: 'p3', name: 'Huntington Internal Medicine', npi: '192837', numActiveProviders: 8, cloudId: 'pL_xyz789', parentOrgId: 'org-1-7' },
   ])
@@ -49,20 +56,9 @@ function App() {
     return practices.filter(p => p.parentOrgId === orgId)
   }
 
-  // Get all practices for selected org and its children
-  const getAllPracticesForOrg = (org: Organization): Practice[] => {
-    let result = getPracticesForOrg(org.id)
-    org.children?.forEach(child => {
-      result = [...result, ...getAllPracticesForOrg(child)]
-    })
-    return result
-  }
-
   const handleSelectOrg = (org: Organization) => {
     setSelectedOrg(org)
-    setSelectedPractice(null)
     setSearchQuery('')
-    // Expand the org when selected
     setExpandedOrgs(prev => new Set([...prev, org.id]))
   }
 
@@ -79,9 +75,22 @@ function App() {
     })
   }
 
+  const toggleSelect = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelectedItems(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
   const handleCreateOrg = (newOrg: Partial<Organization>) => {
     const org: Organization = {
-      id: `org_${Math.random().toString(36).substr(2, 20)}`,
+      id: `org_${Math.random().toString(36).substr(2, 12)}`,
       name: newOrg.name || 'New Organization',
       type: newOrg.type || 'HealthSystem',
       city: newOrg.city,
@@ -97,7 +106,7 @@ function App() {
     if (!selectedOrg) return
 
     const newChild: Organization = {
-      id: `org_${Math.random().toString(36).substr(2, 20)}`,
+      id: `org_${Math.random().toString(36).substr(2, 12)}`,
       name: childOrg.name || 'New Child Org',
       type: childOrg.type || 'LargeProviderGroup',
       parentId: selectedOrg.id,
@@ -136,7 +145,7 @@ function App() {
 
   const parentOrg = selectedOrg ? findParentOrg(selectedOrg.id) : null
 
-  // Count all items (orgs + practices) for display
+  // Count all items
   const countAllItems = (org: Organization): number => {
     let count = 1 + getPracticesForOrg(org.id).length
     org.children?.forEach(child => {
@@ -145,20 +154,40 @@ function App() {
     return count
   }
 
+  // Get selected item type for action bar context
+  const getSelectedType = (): 'org' | 'practice' | 'mixed' | 'none' => {
+    if (selectedItems.size === 0) return 'none'
+    const hasOrg = Array.from(selectedItems).some(id => id.startsWith('org'))
+    const hasPractice = Array.from(selectedItems).some(id => id.startsWith('p'))
+    if (hasOrg && hasPractice) return 'mixed'
+    if (hasOrg) return 'org'
+    return 'practice'
+  }
+
+  const selectedType = getSelectedType()
+
   // Render tree node
   const renderOrgNode = (org: Organization, level: number = 0, isUltimateParent: boolean = false) => {
     const hasChildren = (org.children && org.children.length > 0) || getPracticesForOrg(org.id).length > 0
     const isExpanded = expandedOrgs.has(org.id)
-    const isSelected = selectedOrg?.id === org.id
+    const isSelected = selectedItems.has(org.id)
     const orgPractices = getPracticesForOrg(org.id)
 
     return (
       <div key={org.id} className="tree-node">
         <div
-          className={`tree-row ${isSelected ? 'selected' : ''} ${isUltimateParent ? 'ultimate-parent' : ''}`}
+          className={`tree-row ${isSelected ? 'checked' : ''} ${isUltimateParent ? 'ultimate-parent' : ''}`}
           onClick={() => handleSelectOrg(org)}
         >
-          <div className="tree-expand" style={{ marginLeft: level * 24 }}>
+          <div className="tree-select">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => {}}
+              onClick={(e) => toggleSelect(org.id, e)}
+            />
+          </div>
+          <div className="tree-expand" style={{ marginLeft: level * 20 }}>
             {hasChildren ? (
               <button className="expand-btn" onClick={(e) => toggleExpand(org.id, e)}>
                 {isExpanded ? '▼' : '▶'}
@@ -173,7 +202,7 @@ function App() {
           <div className="tree-name">{org.name}</div>
           <div className="tree-type">
             <span className={`type-badge ${isUltimateParent ? 'ultimate' : 'child'}`}>
-              {org.type}
+              {TYPE_ABBREV[org.type] || org.type}
             </span>
           </div>
           <div className="tree-id">{org.id}</div>
@@ -181,17 +210,21 @@ function App() {
 
         {isExpanded && (
           <div className="tree-children">
-            {/* Child orgs */}
             {org.children?.map(child => renderOrgNode(child, level + 1, false))}
-
-            {/* Practices under this org */}
             {orgPractices.map(practice => (
               <div
                 key={practice.id}
-                className={`tree-row practice-row ${selectedPractice?.id === practice.id ? 'selected' : ''}`}
-                onClick={() => setSelectedPractice(practice)}
+                className={`tree-row practice-row ${selectedItems.has(practice.id) ? 'checked' : ''}`}
               >
-                <div className="tree-expand" style={{ marginLeft: (level + 1) * 24 }}>
+                <div className="tree-select">
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.has(practice.id)}
+                    onChange={() => {}}
+                    onClick={(e) => toggleSelect(practice.id, e)}
+                  />
+                </div>
+                <div className="tree-expand" style={{ marginLeft: (level + 1) * 20 }}>
                   <span className="expand-placeholder" />
                 </div>
                 <div className="tree-icon">🏥</div>
@@ -207,8 +240,6 @@ function App() {
       </div>
     )
   }
-
-  const selectedOrgPractices = selectedOrg ? getAllPracticesForOrg(selectedOrg) : []
 
   return (
     <div className="app">
@@ -262,23 +293,12 @@ function App() {
                       onClick={() => handleSelectOrg(org)}
                     >
                       <span className="result-name">{org.name}</span>
-                      <span className="result-type">{org.type}</span>
+                      <span className="result-type">{TYPE_ABBREV[org.type]}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="results-section">
-            <label>Results</label>
-            <select
-              value={resultType}
-              onChange={(e) => setResultType(e.target.value as 'organizations' | 'practices')}
-            >
-              <option value="organizations">Organizations</option>
-              <option value="practices">Practices</option>
-            </select>
           </div>
         </div>
 
@@ -286,95 +306,75 @@ function App() {
         {selectedOrg ? (
           <div className="hierarchy-section">
             <div className="hierarchy-header">
-              <h2>Edit Organization Hierarchy</h2>
-              <div className="org-ids">
-                <span>Organization ID: {selectedOrg.id}</span>
-                <span>Parent Organization ID: {parentOrg?.id || selectedOrg.id}</span>
+              <div className="hierarchy-info">
+                <h2>Edit Organization Hierarchy</h2>
+                <div className="org-ids">
+                  <span>Organization ID: {selectedOrg.id}</span>
+                  <span>Parent Organization ID: {parentOrg?.id || selectedOrg.id}</span>
+                </div>
               </div>
             </div>
 
-            <div className="panels">
-              {/* Left Panel - Tree View */}
-              <div className="panel panel-tree">
-                <div className="tree-header">
-                  <div className="tree-col">name</div>
-                  <div className="tree-col">type</div>
-                  <div className="tree-col">id</div>
-                </div>
-                <div className="tree-body">
-                  {renderOrgNode(selectedOrg, 0, !parentOrg)}
-                </div>
-                <div className="table-footer">
-                  <span>Showing {countAllItems(selectedOrg)} items</span>
-                </div>
-
-                <div className="action-buttons">
-                  <button className="btn btn-action" onClick={() => setShowAddPracticeModal(true)}>
-                    Add Practices to Organization
-                  </button>
-                  <button className="btn btn-action" onClick={() => setShowChangeParentModal(true)}>
-                    Change Parent for Organization
-                  </button>
-                  <button className="btn btn-action" onClick={() => setShowAddChildModal(true)}>
-                    Add Child Organization
-                  </button>
-                  <button className="btn btn-action" onClick={() => setShowEditOrgModal(true)}>
-                    Update Organization Name/Type
-                  </button>
-                </div>
+            {/* Action Bar */}
+            <div className="action-bar">
+              <div className="action-bar-left">
+                {selectedItems.size > 0 && (
+                  <span className="selection-count">{selectedItems.size} selected</span>
+                )}
               </div>
+              <div className="action-bar-right">
+                <button
+                  className="btn btn-action-bar"
+                  onClick={() => setShowAddPracticeModal(true)}
+                  disabled={selectedType !== 'org' && selectedType !== 'none'}
+                >
+                  Add Practice
+                </button>
+                <button
+                  className="btn btn-action-bar"
+                  onClick={() => setShowAddChildModal(true)}
+                  disabled={selectedType !== 'org' && selectedType !== 'none'}
+                >
+                  Add Child Org
+                </button>
+                <button
+                  className="btn btn-action-bar"
+                  onClick={() => setShowChangeParentModal(true)}
+                  disabled={selectedItems.size === 0}
+                >
+                  Change Parent
+                </button>
+                <button
+                  className="btn btn-action-bar"
+                  onClick={() => setShowEditOrgModal(true)}
+                  disabled={selectedItems.size !== 1}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-action-bar btn-danger"
+                  disabled={selectedItems.size === 0}
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
 
-              {/* Right Panel - Practices */}
-              <div className="panel panel-practices">
-                <h3>Current Practices</h3>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Num Active Providers</th>
-                      <th>Monolit...</th>
-                      <th>CloudId</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedOrgPractices.length > 0 ? (
-                      selectedOrgPractices.map(practice => (
-                        <tr
-                          key={practice.id}
-                          className={selectedPractice?.id === practice.id ? 'selected-row' : ''}
-                          onClick={() => setSelectedPractice(practice)}
-                        >
-                          <td className="link">{practice.name}</td>
-                          <td>{practice.numActiveProviders}</td>
-                          <td>{practice.npi}</td>
-                          <td>{practice.cloudId}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} className="empty">No practices</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <div className="table-footer">
-                  <span>Showing {selectedOrgPractices.length > 0 ? `1-${selectedOrgPractices.length}` : '0'} of {selectedOrgPractices.length}</span>
-                </div>
-
-                <div className="action-buttons">
-                  <button
-                    className="btn btn-action-secondary"
-                    disabled={!selectedPractice}
-                  >
-                    Move Practice to New Organization
-                  </button>
-                  <button
-                    className="btn btn-action-secondary"
-                    disabled={!selectedPractice}
-                  >
-                    Remove Practice from Organization
-                  </button>
-                </div>
+            {/* Tree View */}
+            <div className="tree-container">
+              <div className="tree-header">
+                <div className="tree-col tree-col-select"></div>
+                <div className="tree-col tree-col-expand"></div>
+                <div className="tree-col tree-col-icon"></div>
+                <div className="tree-col tree-col-name">name</div>
+                <div className="tree-col tree-col-type">type</div>
+                <div className="tree-col tree-col-id">id</div>
+              </div>
+              <div className="tree-body">
+                {renderOrgNode(selectedOrg, 0, !parentOrg)}
+              </div>
+              <div className="tree-footer">
+                <span>Showing {countAllItems(selectedOrg)} items</span>
               </div>
             </div>
           </div>
@@ -401,7 +401,7 @@ function App() {
 
       {/* Add Child Org Modal */}
       {showAddChildModal && selectedOrg && (
-        <Modal title={`Add Child Organization to ${selectedOrg.name}`} onClose={() => setShowAddChildModal(false)}>
+        <Modal title={`Add Child Organization`} onClose={() => setShowAddChildModal(false)}>
           <OrgForm
             onSubmit={handleAddChildOrg}
             onCancel={() => setShowAddChildModal(false)}
@@ -434,7 +434,7 @@ function App() {
 
       {/* Add Practice Modal */}
       {showAddPracticeModal && selectedOrg && (
-        <Modal title={`Add Practice to ${selectedOrg.name}`} onClose={() => setShowAddPracticeModal(false)}>
+        <Modal title={`Add Practice`} onClose={() => setShowAddPracticeModal(false)}>
           <PracticeForm
             onSubmit={() => setShowAddPracticeModal(false)}
             onCancel={() => setShowAddPracticeModal(false)}
@@ -446,14 +446,14 @@ function App() {
       {showChangeParentModal && selectedOrg && (
         <Modal title="Change Parent Organization" onClose={() => setShowChangeParentModal(false)}>
           <div className="form-group">
-            <label>Current Organization</label>
-            <input type="text" value={selectedOrg.name} disabled />
+            <label>Selected Items</label>
+            <input type="text" value={`${selectedItems.size} item(s) selected`} disabled />
           </div>
           <div className="form-group">
             <label>New Parent Organization</label>
             <select>
               <option value="">Select parent...</option>
-              {allOrgs.filter(o => o.id !== selectedOrg.id).map(org => (
+              {allOrgs.filter(o => !selectedItems.has(o.id)).map(org => (
                 <option key={org.id} value={org.id}>{org.name}</option>
               ))}
             </select>
@@ -518,9 +518,9 @@ function OrgForm({
       <div className="form-group">
         <label>Organization Type *</label>
         <select value={type} onChange={e => setType(e.target.value as Organization['type'])}>
-          <option value="HealthSystem">Health System</option>
-          <option value="LargeProviderGroup">Large Provider Group</option>
-          <option value="MidMarket">Mid-Market</option>
+          <option value="HealthSystem">Health System (HS)</option>
+          <option value="LargeProviderGroup">Large Provider Group (LPG)</option>
+          <option value="MidMarket">Mid-Market (MM)</option>
           <option value="Local">Local</option>
         </select>
       </div>
