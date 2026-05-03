@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Organization, Practice } from './types'
+import { Organization, Practice, ProductType } from './types'
 import { mockOrganizations } from './data/mockData'
 
 // Type abbreviations
@@ -9,6 +9,19 @@ const TYPE_ABBREV: Record<string, string> = {
   'MidMarket': 'MM',
   'Local': 'Local',
 }
+
+// Available products for practices
+const AVAILABLE_PRODUCTS: { value: ProductType; label: string }[] = [
+  { value: 'Marketplace', label: 'Marketplace' },
+  { value: 'BookFromGoogle', label: 'Book from Google' },
+  { value: 'Wellhive', label: 'Wellhive' },
+  { value: 'Yelp', label: 'Yelp' },
+  { value: 'Healthgrades', label: 'Healthgrades' },
+  { value: 'ZVS', label: 'ZVS' },
+  { value: 'Intake', label: 'Intake' },
+  { value: 'Zo', label: 'Zo' },
+  { value: 'BookableDirectory', label: 'Bookable Directory' },
+]
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -129,7 +142,7 @@ function App() {
     setShowAddChildModal(false)
   }
 
-  const handleAddPractice = (practice: { name: string; npi?: string }) => {
+  const handleAddPractice = (practice: { name: string; npi?: string; products?: ProductType[] }) => {
     if (!selectedOrg) return
 
     const targetOrgId = selectedItems.size === 1
@@ -141,6 +154,7 @@ function App() {
       name: practice.name,
       npi: practice.npi,
       parentOrgId: targetOrgId,
+      products: practice.products,
     }
 
     setPractices([...practices, newPractice])
@@ -404,10 +418,13 @@ function App() {
       {/* Create Org Modal */}
       {showCreateOrgModal && (
         <Modal title="Create New Ultimate Parent Organization" onClose={() => setShowCreateOrgModal(false)}>
+          <div className="modal-hint">
+            This creates a top-level organization with no parent. To add a child organization, first search for and select an existing parent org, then use "Add Child Org".
+          </div>
           <OrgForm
             onSubmit={handleCreateOrg}
             onCancel={() => setShowCreateOrgModal(false)}
-            submitLabel="Create Organization"
+            submitLabel="Create Ultimate Parent"
             isUltimateParent={true}
           />
         </Modal>
@@ -547,12 +564,32 @@ function OrgForm({
 }
 
 // Practice Form Component
-function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string; npi?: string }) => void; onCancel: () => void }) {
+function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string; npi?: string; products?: ProductType[] }) => void; onCancel: () => void }) {
   const [name, setName] = useState('')
   const [npi, setNpi] = useState('')
+  const [selectedProducts, setSelectedProducts] = useState<Set<ProductType>>(new Set())
+
+  const toggleProduct = (product: ProductType) => {
+    setSelectedProducts(prev => {
+      const next = new Set(prev)
+      if (next.has(product)) {
+        next.delete(product)
+      } else {
+        next.add(product)
+      }
+      return next
+    })
+  }
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit({ name, npi: npi || undefined }) }}>
+    <form onSubmit={(e) => {
+      e.preventDefault()
+      onSubmit({
+        name,
+        npi: npi || undefined,
+        products: selectedProducts.size > 0 ? Array.from(selectedProducts) : undefined
+      })
+    }}>
       <div className="form-group">
         <label>Practice Name *</label>
         <input
@@ -572,6 +609,21 @@ function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string;
           onChange={e => setNpi(e.target.value)}
           placeholder="Enter NPI"
         />
+      </div>
+      <div className="form-group">
+        <label>Products</label>
+        <div className="product-checkboxes">
+          {AVAILABLE_PRODUCTS.map(product => (
+            <label key={product.value} className="product-checkbox">
+              <input
+                type="checkbox"
+                checked={selectedProducts.has(product.value)}
+                onChange={() => toggleProduct(product.value)}
+              />
+              <span>{product.label}</span>
+            </label>
+          ))}
+        </div>
       </div>
       <div className="modal-actions">
         <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>

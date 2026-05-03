@@ -13,6 +13,17 @@ export interface Organization {
   children?: Organization[];
 }
 
+export type ProductType =
+  | 'Marketplace'
+  | 'BookFromGoogle'
+  | 'Wellhive'
+  | 'Yelp'
+  | 'Healthgrades'
+  | 'ZVS'
+  | 'Intake'
+  | 'Zo'
+  | 'BookableDirectory';
+
 export interface Practice {
   id: string;
   name: string;
@@ -23,6 +34,7 @@ export interface Practice {
   city?: string;
   state?: string;
   parentOrgId: string;
+  products?: ProductType[];
 }
 
 export interface AuditEntry {
