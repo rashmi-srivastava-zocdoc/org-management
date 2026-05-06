@@ -668,6 +668,7 @@ function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string;
 // Current Workflow Component
 function CurrentWorkflow() {
   const [expandedImages, setExpandedImages] = useState<Set<number>>(new Set())
+  const [lightboxImage, setLightboxImage] = useState<{ src: string; caption: string } | null>(null)
 
   const toggleImage = (stepNumber: number) => {
     setExpandedImages(prev => {
@@ -798,7 +799,11 @@ function CurrentWorkflow() {
                   {step.images && step.images.length > 0 && (
                     <div className="step-images-grid">
                       {step.images.map((img, i) => (
-                        <div key={i} className="step-image-wrapper">
+                        <div
+                          key={i}
+                          className="step-image-wrapper clickable"
+                          onClick={() => setLightboxImage(img)}
+                        >
                           <img
                             src={img.src}
                             alt={img.caption}
@@ -808,6 +813,7 @@ function CurrentWorkflow() {
                             }}
                           />
                           <div className="step-image-caption">{img.caption}</div>
+                          <div className="image-zoom-hint">Click to enlarge</div>
                         </div>
                       ))}
                     </div>
@@ -829,6 +835,17 @@ function CurrentWorkflow() {
           <li><strong>Disconnected:</strong> Changes in Salesforce don't auto-sync to org hierarchy</li>
         </ul>
       </div>
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setLightboxImage(null)}>×</button>
+            <img src={lightboxImage.src} alt={lightboxImage.caption} className="lightbox-image" />
+            <div className="lightbox-caption">{lightboxImage.caption}</div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
