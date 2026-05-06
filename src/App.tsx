@@ -492,24 +492,53 @@ function App() {
       )}
 
       {/* Add Child Org Wizard */}
-      {showAddChildModal && selectedOrg && (
-        <AddChildOrgWizard
-          parentOrg={selectedOrg}
-          orgPath={getOrgPath(selectedOrg.id)}
-          onClose={() => setShowAddChildModal(false)}
-          onCreateOrg={handleAddChildOrg}
-          onCreatePractice={(orgId, practice) => {
-            const newPractice: Practice = {
-              id: `p_${Math.random().toString(36).substr(2, 12)}`,
-              name: practice.name,
-              parentOrgId: orgId,
-              products: practice.products,
-            }
-            setPractices([...practices, newPractice])
-            setExpandedOrgs(prev => new Set([...prev, orgId]))
-          }}
-        />
-      )}
+      {showAddChildModal && selectedOrg && (() => {
+        const targetOrg = getTargetOrgForPractice() || selectedOrg
+        const orgPath = getOrgPath(targetOrg.id)
+        return (
+          <AddChildOrgWizard
+            parentOrg={targetOrg}
+            orgPath={orgPath}
+            onClose={() => setShowAddChildModal(false)}
+            onCreateOrg={(childOrg) => {
+              const newChild: Organization = {
+                id: childOrg.id || `org_${Math.random().toString(36).substr(2, 12)}`,
+                name: childOrg.name || 'New Child Org',
+                type: childOrg.type || 'LargeProviderGroup',
+                parentId: targetOrg.id,
+                children: [],
+              }
+
+              const addChild = (org: Organization): Organization => {
+                if (org.id === targetOrg.id) {
+                  return { ...org, children: [...(org.children || []), newChild] }
+                }
+                if (org.children) {
+                  return { ...org, children: org.children.map(addChild) }
+                }
+                return org
+              }
+
+              setOrganizations(organizations.map(addChild))
+              if (selectedOrg.id === targetOrg.id) {
+                setSelectedOrg({ ...selectedOrg, children: [...(selectedOrg.children || []), newChild] })
+              }
+              setExpandedOrgs(prev => new Set([...prev, targetOrg.id]))
+              setShowAddChildModal(false)
+            }}
+            onCreatePractice={(orgId, practice) => {
+              const newPractice: Practice = {
+                id: `p_${Math.random().toString(36).substr(2, 12)}`,
+                name: practice.name,
+                parentOrgId: orgId,
+                products: practice.products,
+              }
+              setPractices([...practices, newPractice])
+              setExpandedOrgs(prev => new Set([...prev, orgId]))
+            }}
+          />
+        )
+      })()}
 
       {/* Edit Org Modal */}
       {showEditOrgModal && selectedOrg && (
