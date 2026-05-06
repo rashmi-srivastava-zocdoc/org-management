@@ -690,15 +690,13 @@ function CurrentWorkflow() {
       details: [
         'Click "New" button on Accounts list',
         'Select account type: Practice, Business Development, or Health System',
-        'Fill in Account Name (required), Account Segment',
-        'Set Parent Account (or leave blank for ultimate parent org)'
+        'Fill in Account Name (required), Account Segment, Parent Account'
       ],
       icon: '☁️',
       images: [
         { src: '/images/workflow/step1a-accounts-list.png', caption: '1a: Click "New" on Accounts list' },
         { src: '/images/workflow/step1b-select-type.png', caption: '1b: Select account type (Health System)' },
-        { src: '/images/workflow/step1c-account-form.png', caption: '1c: Fill account form (Name, Segment)' },
-        { src: '/images/workflow/step1d-parent-account.png', caption: '1d: Set Parent Account for hierarchy' }
+        { src: '/images/workflow/step1c-account-form.png', caption: '1c: Fill account form (Name, Segment, Parent)' }
       ]
     },
     {
@@ -838,7 +836,7 @@ function CurrentWorkflow() {
 // Proposed Workflow Component
 function ProposedWorkflow() {
   const currentSteps = [
-    { system: 'Salesforce', action: 'Create Account (4 sub-steps)', time: '3-4 min' },
+    { system: 'Salesforce', action: 'Create Account (3 sub-steps)', time: '3-4 min' },
     { system: 'Salesforce', action: 'Create Contact (5 sub-steps)', time: '2-3 min' },
     { system: 'CSR', action: 'Copy URL & Sign Up', time: '2-3 min' },
   ]
