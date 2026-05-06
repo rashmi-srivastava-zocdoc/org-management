@@ -704,20 +704,6 @@ function CurrentWorkflow() {
     {
       number: 2,
       system: 'Salesforce',
-      title: 'View Account',
-      description: 'View the newly created account details',
-      details: [
-        'Verify account information',
-        'Check Parent Account relationship'
-      ],
-      icon: '👁️',
-      images: [
-        { src: '/images/workflow/step2-view-account.png', caption: '2: View account details' }
-      ]
-    },
-    {
-      number: 3,
-      system: 'Salesforce',
       title: 'Create Strategic Contact',
       description: 'Add business contact (C-level executive or non-doctor)',
       details: [
@@ -729,15 +715,15 @@ function CurrentWorkflow() {
       ],
       icon: '👤',
       images: [
-        { src: '/images/workflow/step3a-related-tab.png', caption: '3a: Go to Related tab' },
-        { src: '/images/workflow/step3b-contacts.png', caption: '3b: Click Contacts' },
-        { src: '/images/workflow/step3c-new-contact.png', caption: '3c: Click New' },
-        { src: '/images/workflow/step3d-record-type.png', caption: '3d: Select Strategic record type' },
-        { src: '/images/workflow/step3e-contact-form.png', caption: '3e: Fill contact details' }
+        { src: '/images/workflow/step2a-related-tab.png', caption: '2a: Go to Related tab' },
+        { src: '/images/workflow/step2b-contacts.png', caption: '2b: Click Contacts' },
+        { src: '/images/workflow/step2c-new-contact.png', caption: '2c: Click New' },
+        { src: '/images/workflow/step2d-record-type.png', caption: '2d: Select Strategic record type' },
+        { src: '/images/workflow/step2e-contact-form.png', caption: '2e: Fill contact details' }
       ]
     },
     {
-      number: 4,
+      number: 3,
       system: 'CSR (Retool)',
       title: 'Create Account in CSR',
       description: 'Use Doctor Sign Up tool to create practice in CSR',
@@ -749,8 +735,8 @@ function CurrentWorkflow() {
       ],
       icon: '🔧',
       images: [
-        { src: '/images/workflow/step4a-copy-url.png', caption: '4a: Copy Classic URL from Salesforce' },
-        { src: '/images/workflow/step4b-csr-signup.png', caption: '4b: Paste URL and Sign Up' }
+        { src: '/images/workflow/step3a-copy-url.png', caption: '3a: Copy Classic URL from Salesforce' },
+        { src: '/images/workflow/step3b-csr-signup.png', caption: '3b: Paste URL and Sign Up' }
       ],
       painPoint: 'Manual copy/paste between systems, error on first attempt'
     }
@@ -847,7 +833,6 @@ function CurrentWorkflow() {
 function ProposedWorkflow() {
   const currentSteps = [
     { system: 'Salesforce', action: 'Create Account (4 sub-steps)', time: '3-4 min' },
-    { system: 'Salesforce', action: 'View Account', time: '30 sec' },
     { system: 'Salesforce', action: 'Create Contact (5 sub-steps)', time: '2-3 min' },
     { system: 'CSR', action: 'Copy URL & Sign Up', time: '2-3 min' },
   ]
