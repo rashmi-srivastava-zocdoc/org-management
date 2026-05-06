@@ -690,66 +690,54 @@ function CurrentWorkflow() {
       details: [
         'Click "New" button on Accounts list',
         'Select account type: Practice, Business Development, or Health System',
-        'Fill in Account Name (required), Account Segment, Parent Account',
-        'Leave Parent Account blank for ultimate parent org'
+        'Fill in Account Name (required), Account Segment',
+        'Set Parent Account (or leave blank for ultimate parent org)'
       ],
       icon: '☁️',
       images: [
         { src: '/images/workflow/step1a-accounts-list.png', caption: '1a: Click "New" on Accounts list' },
         { src: '/images/workflow/step1b-select-type.png', caption: '1b: Select account type (Health System)' },
-        { src: '/images/workflow/step1c-account-form.png', caption: '1c: Fill account form (Name, Segment, Parent)' }
+        { src: '/images/workflow/step1c-account-form.png', caption: '1c: Fill account form (Name, Segment)' },
+        { src: '/images/workflow/step1d-parent-account.png', caption: '1d: Set Parent Account for hierarchy' }
       ]
     },
     {
       number: 2,
       system: 'Salesforce',
-      title: 'Set Parent Hierarchy',
-      description: 'Link to parent organization if this is a child org',
+      title: 'View Account',
+      description: 'View the newly created account details',
       details: [
-        'Search for existing parent account',
-        'Select to establish hierarchy relationship',
-        'Skip this step for ultimate parent orgs'
+        'Verify account information',
+        'Check Parent Account relationship'
       ],
-      icon: '🔗',
+      icon: '👁️',
       images: [
-        { src: '/images/workflow/step2-parent-hierarchy.png', caption: 'Select parent account' }
+        { src: '/images/workflow/step2-view-account.png', caption: '2: View account details' }
       ]
     },
     {
       number: 3,
       system: 'Salesforce',
-      title: 'Go to Related Tab',
-      description: 'Navigate to the Related tab on the new account',
+      title: 'Create Strategic Contact',
+      description: 'Add business contact (C-level executive or non-doctor)',
       details: [
-        'View related objects: Contacts, Contracts, CSR Practice Locations',
-        'Access Account Team, Account Issues, Projects'
+        'Go to Related tab on the account',
+        'Click Contacts section',
+        'Click "New" to create contact',
+        'Select "Strategic" record type for business contacts',
+        'Enter First Name, Last Name, Title, Position'
       ],
-      icon: '📋',
+      icon: '👤',
       images: [
-        { src: '/images/workflow/step3-related-tab.png', caption: 'Related tab view' }
+        { src: '/images/workflow/step3a-related-tab.png', caption: '3a: Go to Related tab' },
+        { src: '/images/workflow/step3b-contacts.png', caption: '3b: Click Contacts' },
+        { src: '/images/workflow/step3c-new-contact.png', caption: '3c: Click New' },
+        { src: '/images/workflow/step3d-record-type.png', caption: '3d: Select Strategic record type' },
+        { src: '/images/workflow/step3e-contact-form.png', caption: '3e: Fill contact details' }
       ]
     },
     {
       number: 4,
-      system: 'Salesforce',
-      title: 'Create Strategic Contact',
-      description: 'Add business contact (C-level executive or non-doctor)',
-      details: [
-        'Click "New" in Contacts section',
-        'Select "Strategic" record type for business contacts',
-        'Enter First Name, Last Name, Title, Position',
-        'Account Name auto-populated'
-      ],
-      icon: '👤',
-      images: [
-        { src: '/images/workflow/step4a-contacts.png', caption: 'Click Contacts' },
-        { src: '/images/workflow/step4b-new-contact.png', caption: 'Click New' },
-        { src: '/images/workflow/step4c-record-type.png', caption: 'Select Strategic' },
-        { src: '/images/workflow/step4d-contact-form.png', caption: 'Fill contact details' }
-      ]
-    },
-    {
-      number: 5,
       system: 'CSR (Retool)',
       title: 'Create Account in CSR',
       description: 'Use Doctor Sign Up tool to create practice in CSR',
@@ -761,8 +749,8 @@ function CurrentWorkflow() {
       ],
       icon: '🔧',
       images: [
-        { src: '/images/workflow/step5a-copy-url.png', caption: 'Copy Classic URL from Salesforce' },
-        { src: '/images/workflow/step5b-csr-signup.png', caption: 'Paste URL and Sign Up' }
+        { src: '/images/workflow/step4a-copy-url.png', caption: '4a: Copy Classic URL from Salesforce' },
+        { src: '/images/workflow/step4b-csr-signup.png', caption: '4b: Paste URL and Sign Up' }
       ],
       painPoint: 'Manual copy/paste between systems, error on first attempt'
     }
@@ -858,11 +846,10 @@ function CurrentWorkflow() {
 // Proposed Workflow Component
 function ProposedWorkflow() {
   const currentSteps = [
-    { system: 'Salesforce', action: 'Create Account', time: '2-3 min' },
-    { system: 'Salesforce', action: 'Set Parent Hierarchy', time: '1 min' },
-    { system: 'Salesforce', action: 'Create Contact', time: '2 min' },
+    { system: 'Salesforce', action: 'Create Account (4 sub-steps)', time: '3-4 min' },
+    { system: 'Salesforce', action: 'View Account', time: '30 sec' },
+    { system: 'Salesforce', action: 'Create Contact (5 sub-steps)', time: '2-3 min' },
     { system: 'CSR', action: 'Copy URL & Sign Up', time: '2-3 min' },
-    { system: 'POGS', action: 'Verify Sync', time: '? min' },
   ]
 
   const proposedSteps = [
