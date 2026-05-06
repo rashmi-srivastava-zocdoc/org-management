@@ -866,13 +866,6 @@ const MOCK_ACCOUNTS = [
   { id: 8, name: 'Orlando Health Physician Associates', segment: 'Health System', practiceId: '75919', phone: '', website: '', state: 'FL', lastActivity: '6/26/2023', isActive: true },
 ]
 
-// Mock existing orgs for parent selection
-const MOCK_EXISTING_ORGS = [
-  { id: 'org_northwell', name: 'Northwell Health', segment: 'Health System', hasChildOrg: true },
-  { id: 'org_lifestance', name: 'LifeStance Health', segment: 'Large Provider Group', hasChildOrg: false },
-  { id: 'org_privia', name: 'Privia Health', segment: 'Large Provider Group', hasChildOrg: true },
-]
-
 function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<DemoStep>('list')
   const [selectedType, setSelectedType] = useState<AccountType>('HealthSystem')
