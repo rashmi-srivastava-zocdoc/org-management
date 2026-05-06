@@ -850,8 +850,498 @@ function CurrentWorkflow() {
   )
 }
 
+// Commercial Team Demo Component
+type DemoStep = 'list' | 'type-modal' | 'form' | 'detail' | 'success'
+type AccountType = 'Practice' | 'BusinessDevelopment' | 'HealthSystem'
+
+const MOCK_ACCOUNTS = [
+  { id: 1, name: 'Lifestance - Texas', segment: 'Large Provider Group', practiceId: '118864', phone: '', website: '', state: 'TX', lastActivity: '6/19/2025', isActive: false },
+  { id: 2, name: 'LifeStance [PARENT ACCOUNT]', segment: 'Large Provider Group', practiceId: '', phone: '(480) 52...', website: 'https://lif...', state: 'TX', lastActivity: '5/6/2026', isActive: false },
+  { id: 3, name: 'Northwell Health Physician Partners Neurology', segment: 'Health System', practiceId: '107271', phone: '516-578...', website: '', state: 'NY', lastActivity: '4/29/2024', isActive: true },
+  { id: 4, name: 'Privia Health', segment: 'Large Provider Group', practiceId: '', phone: '509-525...', website: 'https://w...', state: 'WA', lastActivity: '8/5/2022', isActive: false },
+  { id: 5, name: 'Northwell Health', segment: 'Health System', practiceId: '01260000', phone: '(888) 32...', website: 'https://w...', state: 'NY', lastActivity: '12/9/2026', isActive: false },
+  { id: 6, name: 'Cardiothoracic Surgery', segment: 'Health System', practiceId: '114849', phone: '718-226...', website: '', state: 'NY', lastActivity: '', isActive: false },
+  { id: 7, name: 'Tava Health', segment: 'Local', practiceId: '137235', phone: '435-868...', website: '', state: 'UT', lastActivity: '', isActive: true },
+  { id: 8, name: 'Orlando Health Physician Associates', segment: 'Health System', practiceId: '75919', phone: '', website: '', state: 'FL', lastActivity: '6/26/2023', isActive: true },
+]
+
+function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<DemoStep>('list')
+  const [selectedType, setSelectedType] = useState<AccountType>('HealthSystem')
+  const [formData, setFormData] = useState({
+    accountName: '',
+    accountSegment: 'Health System',
+    parentAccount: '',
+    website: '',
+    phone: '',
+    territory: '',
+  })
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredAccounts = searchQuery
+    ? MOCK_ACCOUNTS.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : MOCK_ACCOUNTS
+
+  const getStepNumber = () => {
+    switch (step) {
+      case 'list': case 'type-modal': return 1
+      case 'form': return 2
+      case 'detail': case 'success': return 3
+    }
+  }
+
+  const getStepLabel = () => {
+    switch (step) {
+      case 'list': case 'type-modal': return 'Start with Prospect'
+      case 'form': return 'Create Account'
+      case 'detail': case 'success': return 'Convert to Product Account'
+    }
+  }
+
+  const resetDemo = () => {
+    setStep('list')
+    setSelectedType('HealthSystem')
+    setFormData({
+      accountName: '',
+      accountSegment: 'Health System',
+      parentAccount: '',
+      website: '',
+      phone: '',
+      territory: '',
+    })
+    setSearchQuery('')
+  }
+
+  return (
+    <div className="demo-overlay" onClick={onClose}>
+      <div className="demo-container" onClick={e => e.stopPropagation()}>
+        {/* Demo Header */}
+        <div className="demo-header">
+          <div className="demo-header-left">
+            <h2>Commercial Team Flow: New Client</h2>
+            <div className="demo-progress">
+              <div className={`progress-step ${getStepNumber() >= 1 ? 'active' : ''} ${getStepNumber() > 1 ? 'completed' : ''}`}>
+                <span className="progress-num">1</span>
+                <span className="progress-label">Start with Prospect</span>
+              </div>
+              <div className="progress-connector" />
+              <div className={`progress-step ${getStepNumber() >= 2 ? 'active' : ''} ${getStepNumber() > 2 ? 'completed' : ''}`}>
+                <span className="progress-num">2</span>
+                <span className="progress-label">Create Account</span>
+              </div>
+              <div className="progress-connector" />
+              <div className={`progress-step ${getStepNumber() >= 3 ? 'active' : ''}`}>
+                <span className="progress-num">3</span>
+                <span className="progress-label">Convert to Product Account</span>
+              </div>
+            </div>
+          </div>
+          <button className="demo-close" onClick={onClose}>×</button>
+        </div>
+
+        {/* Step 1: Accounts List */}
+        {step === 'list' && (
+          <div className="demo-content">
+            <div className="sf-header">
+              <div className="sf-header-left">
+                <span className="sf-cloud-icon">☁️</span>
+                <span className="sf-title">Sales Console</span>
+                <span className="sf-subtitle">Accounts</span>
+              </div>
+              <div className="sf-search">
+                <input type="text" placeholder="Search..." />
+              </div>
+            </div>
+
+            <div className="sf-page">
+              <div className="sf-page-header">
+                <div className="sf-page-title">
+                  <span className="sf-icon">📋</span>
+                  <span>Recently Viewed</span>
+                  <span className="sf-count">{MOCK_ACCOUNTS.length}+ items</span>
+                </div>
+                <div className="sf-page-actions">
+                  <button className="btn btn-sf-primary" onClick={() => setStep('type-modal')}>New</button>
+                  <button className="btn btn-sf">Import</button>
+                  <button className="btn btn-sf">Discover Companies</button>
+                </div>
+              </div>
+
+              <div className="sf-filter-bar">
+                <input
+                  type="text"
+                  placeholder="Search this list..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="sf-filter-input"
+                />
+              </div>
+
+              <div className="sf-table">
+                <div className="sf-table-header">
+                  <div className="sf-col sf-col-check"><input type="checkbox" /></div>
+                  <div className="sf-col sf-col-name">Account Name</div>
+                  <div className="sf-col sf-col-segment">Account Segment</div>
+                  <div className="sf-col sf-col-id">Practice ID</div>
+                  <div className="sf-col sf-col-phone">Phone</div>
+                  <div className="sf-col sf-col-website">Website</div>
+                  <div className="sf-col sf-col-state">Billing State</div>
+                  <div className="sf-col sf-col-date">Last Activity</div>
+                  <div className="sf-col sf-col-active">Is active practice?</div>
+                </div>
+                <div className="sf-table-body">
+                  {filteredAccounts.map((account, idx) => (
+                    <div key={account.id} className="sf-table-row">
+                      <div className="sf-col sf-col-check"><input type="checkbox" /></div>
+                      <div className="sf-col sf-col-name">
+                        <a href="#" onClick={e => e.preventDefault()}>{account.name}</a>
+                      </div>
+                      <div className="sf-col sf-col-segment">{account.segment}</div>
+                      <div className="sf-col sf-col-id">{account.practiceId}</div>
+                      <div className="sf-col sf-col-phone">{account.phone}</div>
+                      <div className="sf-col sf-col-website">{account.website}</div>
+                      <div className="sf-col sf-col-state">{account.state}</div>
+                      <div className="sf-col sf-col-date">{account.lastActivity}</div>
+                      <div className="sf-col sf-col-active">{account.isActive ? '✓' : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 1b: Type Selection Modal */}
+        {step === 'type-modal' && (
+          <div className="demo-content">
+            <div className="sf-modal-backdrop">
+              <div className="sf-modal">
+                <div className="sf-modal-header">
+                  <h3>New Account</h3>
+                </div>
+                <div className="sf-modal-body">
+                  <div className="sf-radio-group">
+                    <label className={`sf-radio ${selectedType === 'Practice' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        checked={selectedType === 'Practice'}
+                        onChange={() => setSelectedType('Practice')}
+                      />
+                      <span className="sf-radio-circle" />
+                      <span className="sf-radio-label">Practice</span>
+                    </label>
+                    <label className={`sf-radio ${selectedType === 'BusinessDevelopment' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        checked={selectedType === 'BusinessDevelopment'}
+                        onChange={() => setSelectedType('BusinessDevelopment')}
+                      />
+                      <span className="sf-radio-circle" />
+                      <div>
+                        <span className="sf-radio-label">Business Development</span>
+                        <span className="sf-radio-sublabel">Business Development</span>
+                      </div>
+                    </label>
+                    <label className={`sf-radio ${selectedType === 'HealthSystem' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        checked={selectedType === 'HealthSystem'}
+                        onChange={() => setSelectedType('HealthSystem')}
+                      />
+                      <span className="sf-radio-circle" />
+                      <span className="sf-radio-label">Health System</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="sf-modal-footer">
+                  <button className="btn btn-sf" onClick={() => setStep('list')}>Cancel</button>
+                  <button className="btn btn-sf-primary" onClick={() => setStep('form')}>Next</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Account Form */}
+        {step === 'form' && (
+          <div className="demo-content">
+            <div className="sf-form-page">
+              <div className="sf-form-header">
+                <h3>New Account: {selectedType === 'HealthSystem' ? 'Health System' : selectedType === 'BusinessDevelopment' ? 'Business Development' : 'Practice'}</h3>
+                <span className="sf-required-note">* = Required Information</span>
+              </div>
+
+              <div className="sf-form-section">
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Account Owner</label>
+                    <div className="sf-form-value">
+                      <span className="sf-avatar">Z</span>
+                      <span>Rashmi Srivastava</span>
+                    </div>
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Enterprise Onboarding Partner</label>
+                    <input type="text" placeholder="Search People..." className="sf-input" />
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Customer Success Team Member</label>
+                    <input type="text" placeholder="Search People..." className="sf-input" />
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Enterprise Support Associate</label>
+                    <input type="text" placeholder="Search People..." className="sf-input" />
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Technical Account Manager</label>
+                    <div className="sf-form-value empty">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sf-form-section">
+                <h4 className="sf-section-title">Highlights</h4>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>* Account Name</label>
+                    <input
+                      type="text"
+                      className="sf-input"
+                      value={formData.accountName}
+                      onChange={e => setFormData({ ...formData, accountName: e.target.value })}
+                    />
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Primary Account</label>
+                    <div className="sf-checkbox-value">
+                      <input type="checkbox" defaultChecked />
+                      <span className="sf-hint">This field is calculated upon save</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Account Segment</label>
+                    <select className="sf-select" value={formData.accountSegment} onChange={e => setFormData({ ...formData, accountSegment: e.target.value })}>
+                      <option>Health System</option>
+                      <option>Large Provider Group</option>
+                      <option>Mid-Market</option>
+                      <option>Local</option>
+                    </select>
+                    <a href="#" className="sf-link" onClick={e => e.preventDefault()}>View all dependencies</a>
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Parent Account</label>
+                    <input type="text" placeholder="Search Accounts..." className="sf-input" />
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Sub-Segment</label>
+                    <div className="sf-form-value">Health System</div>
+                    <span className="sf-hint">This field is calculated upon save</span>
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Is active practice?</label>
+                    <div className="sf-form-value">—</div>
+                    <span className="sf-hint">This field is calculated upon save</span>
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Mid-Market</label>
+                    <input type="checkbox" />
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Practice Churn Date</label>
+                    <input type="date" className="sf-input" />
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Website</label>
+                    <input type="text" className="sf-input" value={formData.website} onChange={e => setFormData({ ...formData, website: e.target.value })} />
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Practice (Salesforce)</label>
+                    <div className="sf-form-value empty">—</div>
+                  </div>
+                </div>
+                <div className="sf-form-row">
+                  <div className="sf-form-field">
+                    <label>Phone</label>
+                    <input type="text" className="sf-input" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                  </div>
+                  <div className="sf-form-field">
+                    <label>Practice DSP</label>
+                    <div className="sf-form-value">No DSP</div>
+                    <span className="sf-hint">This field is calculated upon save</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sf-form-actions">
+                <button className="btn btn-sf" onClick={() => setStep('type-modal')}>Cancel</button>
+                <button className="btn btn-sf">Save & New</button>
+                <button className="btn btn-sf-primary" onClick={() => setStep('detail')}>Save</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Account Detail */}
+        {step === 'detail' && (
+          <div className="demo-content">
+            <div className="sf-detail-page">
+              <div className="sf-detail-header">
+                <div className="sf-detail-title">
+                  <span className="sf-detail-icon">📋</span>
+                  <div>
+                    <span className="sf-detail-label">Account</span>
+                    <h3>{formData.accountName || 'New Health System Account'}</h3>
+                  </div>
+                </div>
+                <div className="sf-detail-actions">
+                  <button className="btn btn-sf">Edit</button>
+                  <button className="btn btn-sf">Escalate</button>
+                  <button className="btn btn-sf">Submit to SalesOps</button>
+                  <button className="btn btn-sf-csr" onClick={() => setStep('success')}>Create CSR Account</button>
+                </div>
+              </div>
+
+              <div className="sf-detail-body">
+                <div className="sf-detail-main">
+                  <div className="sf-detail-section">
+                    <h4>In-Flight Products</h4>
+                    <p className="sf-empty">No in-flight products found</p>
+                  </div>
+                  <div className="sf-detail-section">
+                    <h4>Eligible Products</h4>
+                    <p className="sf-empty">No eligible products available</p>
+                  </div>
+
+                  <div className="sf-detail-section">
+                    <div className="sf-detail-section-header">
+                      <h4>Account Team (0)</h4>
+                      <div className="sf-detail-section-actions">
+                        <button className="btn btn-sf-sm">Add Default Team</button>
+                        <button className="btn btn-sf-sm">Add Team Members</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="sf-tabs">
+                    <button className="sf-tab active">Details</button>
+                    <button className="sf-tab">Related</button>
+                    <button className="sf-tab">Engagement Insights</button>
+                  </div>
+
+                  <div className="sf-detail-section">
+                    <h4>Highlights</h4>
+                    <div className="sf-detail-grid">
+                      <div className="sf-detail-field">
+                        <label>Account Name</label>
+                        <span>{formData.accountName || 'New Health System Account'}</span>
+                      </div>
+                      <div className="sf-detail-field">
+                        <label>Primary Account</label>
+                        <span>✓</span>
+                      </div>
+                      <div className="sf-detail-field">
+                        <label>Account Segment</label>
+                        <span>{formData.accountSegment}</span>
+                      </div>
+                      <div className="sf-detail-field">
+                        <label>Parent Account</label>
+                        <span>—</span>
+                      </div>
+                      <div className="sf-detail-field">
+                        <label>Is active practice?</label>
+                        <span>✓</span>
+                      </div>
+                      <div className="sf-detail-field">
+                        <label>Website</label>
+                        <span>{formData.website || '—'}</span>
+                      </div>
+                      <div className="sf-detail-field">
+                        <label>Phone</label>
+                        <span>{formData.phone || '—'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="sf-detail-sidebar">
+                  <div className="sf-sidebar-card">
+                    <div className="sf-sidebar-alert">
+                      <span className="sf-alert-icon">⚠️</span>
+                      <span>We found no potential duplicates of this Account.</span>
+                    </div>
+                  </div>
+                  <div className="sf-sidebar-card">
+                    <h4>Lock Account Hierarchy</h4>
+                    <p>Click "Next" to start the process to lock this hierarchy.</p>
+                    <button className="btn btn-sf-primary btn-sm">Next</button>
+                  </div>
+                  <div className="sf-sidebar-section">
+                    <h4>Opportunities (0)</h4>
+                  </div>
+                  <div className="sf-sidebar-section">
+                    <h4>Contacts</h4>
+                  </div>
+                  <div className="sf-sidebar-section">
+                    <h4>Cases</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success State */}
+        {step === 'success' && (
+          <div className="demo-content">
+            <div className="demo-success">
+              <div className="success-icon">✓</div>
+              <h3>CSR Account Created Successfully!</h3>
+              <p>The account has been created in CSR and synced to POGS.</p>
+              <div className="success-details">
+                <div className="success-detail">
+                  <label>Account Name</label>
+                  <span>{formData.accountName || 'New Health System Account'}</span>
+                </div>
+                <div className="success-detail">
+                  <label>Practice ID</label>
+                  <span>PRC-{Math.floor(100000 + Math.random() * 900000)}</span>
+                </div>
+                <div className="success-detail">
+                  <label>POGS ID</label>
+                  <span>org_{Math.random().toString(36).substr(2, 12)}</span>
+                </div>
+              </div>
+              <div className="success-actions">
+                <button className="btn btn-sf" onClick={resetDemo}>Start Over</button>
+                <button className="btn btn-sf-primary" onClick={onClose}>Done</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // Proposed Workflow Component
 function ProposedWorkflow() {
+  const [showDemo, setShowDemo] = useState(false)
+
   return (
     <div className="workflow-container">
       <div className="workflow-header">
@@ -870,7 +1360,10 @@ function ProposedWorkflow() {
           </div>
 
           <div className="flow-scenario">
-            <div className="scenario-title">New Client</div>
+            <div className="scenario-header">
+              <div className="scenario-title">New Client</div>
+              <button className="btn btn-demo" onClick={() => setShowDemo(true)}>Try Demo</button>
+            </div>
             <div className="scenario-steps">
               <div className="flow-step">
                 <span className="flow-step-num">1</span>
@@ -909,6 +1402,9 @@ function ProposedWorkflow() {
             </div>
           </div>
         </div>
+
+      {/* Demo Modal */}
+      {showDemo && <CommercialTeamDemo onClose={() => setShowDemo(false)} />}
 
         {/* Customer Flow */}
         <div className="flow-section">

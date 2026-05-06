@@ -1499,6 +1499,782 @@ body {
   color: var(--zd-text-secondary);
 }
 
+/* Commercial Team Demo */
+.demo-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.demo-container {
+  background: #f4f6f9;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.demo-header {
+  background: #16325c;
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.demo-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.demo-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.5;
+}
+
+.progress-step.active {
+  opacity: 1;
+}
+
+.progress-step.completed .progress-num {
+  background: #04844b;
+}
+
+.progress-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.progress-step.active .progress-num {
+  background: #0070d2;
+}
+
+.progress-label {
+  font-size: 12px;
+}
+
+.progress-connector {
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.demo-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.demo-close:hover {
+  opacity: 1;
+}
+
+.demo-content {
+  flex: 1;
+  overflow: auto;
+  background: #f4f6f9;
+}
+
+/* Salesforce Header */
+.sf-header {
+  background: #0070d2;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.sf-cloud-icon {
+  font-size: 20px;
+}
+
+.sf-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.sf-subtitle {
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.sf-search input {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  width: 200px;
+  font-size: 13px;
+}
+
+/* Salesforce Page */
+.sf-page {
+  padding: 16px;
+}
+
+.sf-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sf-page-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #16325c;
+}
+
+.sf-icon {
+  font-size: 20px;
+}
+
+.sf-count {
+  font-size: 12px;
+  color: #706e6b;
+  font-weight: normal;
+}
+
+.sf-page-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sf {
+  background: white;
+  border: 1px solid #dddbda;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #0070d2;
+}
+
+.btn-sf:hover {
+  background: #f4f6f9;
+}
+
+.btn-sf-primary {
+  background: #0070d2;
+  border: 1px solid #0070d2;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-sf-primary:hover {
+  background: #005fb2;
+}
+
+.btn-sf-csr {
+  background: #04844b;
+  border: 1px solid #04844b;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-sf-csr:hover {
+  background: #036b3d;
+}
+
+.btn-sf-sm {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.sf-filter-bar {
+  margin-bottom: 12px;
+}
+
+.sf-filter-input {
+  padding: 8px 12px;
+  border: 1px solid #dddbda;
+  border-radius: 4px;
+  width: 250px;
+  font-size: 13px;
+}
+
+/* Salesforce Table */
+.sf-table {
+  background: white;
+  border: 1px solid #dddbda;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sf-table-header {
+  display: grid;
+  grid-template-columns: 40px 2fr 1.2fr 0.8fr 0.8fr 0.8fr 0.6fr 0.8fr 0.8fr;
+  background: #fafaf9;
+  border-bottom: 1px solid #dddbda;
+  font-size: 12px;
+  font-weight: 600;
+  color: #514f4d;
+}
+
+.sf-table-body {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.sf-table-row {
+  display: grid;
+  grid-template-columns: 40px 2fr 1.2fr 0.8fr 0.8fr 0.8fr 0.6fr 0.8fr 0.8fr;
+  border-bottom: 1px solid #f3f2f2;
+  font-size: 13px;
+}
+
+.sf-table-row:hover {
+  background: #f3f2f2;
+}
+
+.sf-col {
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+}
+
+.sf-col-name a {
+  color: #0070d2;
+  text-decoration: none;
+}
+
+.sf-col-name a:hover {
+  text-decoration: underline;
+}
+
+.sf-col-active {
+  color: #04844b;
+  font-weight: 600;
+}
+
+/* Salesforce Modal */
+.sf-modal-backdrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: #f4f6f9;
+}
+
+.sf-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 500px;
+  overflow: hidden;
+}
+
+.sf-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #dddbda;
+}
+
+.sf-modal-header h3 {
+  font-size: 18px;
+  color: #16325c;
+}
+
+.sf-modal-body {
+  padding: 24px 20px;
+  min-height: 200px;
+}
+
+.sf-modal-footer {
+  padding: 12px 20px;
+  background: #fafaf9;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sf-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sf-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.sf-radio input {
+  display: none;
+}
+
+.sf-radio-circle {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #706e6b;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+}
+
+.sf-radio.selected .sf-radio-circle {
+  border-color: #0070d2;
+}
+
+.sf-radio.selected .sf-radio-circle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  background: #0070d2;
+  border-radius: 50%;
+}
+
+.sf-radio-label {
+  font-size: 14px;
+  color: #16325c;
+}
+
+.sf-radio-sublabel {
+  display: block;
+  font-size: 12px;
+  color: #706e6b;
+  margin-top: 2px;
+}
+
+/* Salesforce Form */
+.sf-form-page {
+  background: white;
+  margin: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sf-form-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #dddbda;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sf-form-header h3 {
+  font-size: 18px;
+  color: #16325c;
+}
+
+.sf-required-note {
+  font-size: 12px;
+  color: #706e6b;
+}
+
+.sf-form-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f2f2;
+}
+
+.sf-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0070d2;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #0070d2;
+  display: inline-block;
+}
+
+.sf-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.sf-form-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #514f4d;
+  margin-bottom: 4px;
+}
+
+.sf-input,
+.sf-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #dddbda;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.sf-input:focus,
+.sf-select:focus {
+  outline: none;
+  border-color: #0070d2;
+  box-shadow: 0 0 0 1px #0070d2;
+}
+
+.sf-form-value {
+  font-size: 14px;
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-form-value.empty {
+  color: #706e6b;
+}
+
+.sf-avatar {
+  width: 24px;
+  height: 24px;
+  background: #0070d2;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sf-hint {
+  font-size: 11px;
+  color: #706e6b;
+  display: block;
+  margin-top: 2px;
+}
+
+.sf-link {
+  font-size: 12px;
+  color: #0070d2;
+  text-decoration: none;
+  display: block;
+  margin-top: 4px;
+}
+
+.sf-checkbox-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.sf-form-actions {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  background: #fafaf9;
+}
+
+/* Salesforce Detail Page */
+.sf-detail-page {
+  background: white;
+  margin: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sf-detail-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #dddbda;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sf-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sf-detail-icon {
+  font-size: 24px;
+}
+
+.sf-detail-label {
+  font-size: 11px;
+  color: #706e6b;
+  text-transform: uppercase;
+  display: block;
+}
+
+.sf-detail-title h3 {
+  font-size: 18px;
+  color: #16325c;
+}
+
+.sf-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sf-detail-body {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+}
+
+.sf-detail-main {
+  padding: 16px 24px;
+  border-right: 1px solid #dddbda;
+}
+
+.sf-detail-section {
+  margin-bottom: 24px;
+}
+
+.sf-detail-section h4 {
+  font-size: 14px;
+  color: #16325c;
+  margin-bottom: 8px;
+}
+
+.sf-detail-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sf-detail-section-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sf-empty {
+  color: #706e6b;
+  font-size: 13px;
+}
+
+.sf-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #dddbda;
+  margin-bottom: 16px;
+}
+
+.sf-tab {
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #706e6b;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+
+.sf-tab.active {
+  color: #0070d2;
+  border-bottom-color: #0070d2;
+}
+
+.sf-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sf-detail-field label {
+  font-size: 12px;
+  color: #706e6b;
+  display: block;
+}
+
+.sf-detail-field span {
+  font-size: 14px;
+  color: #16325c;
+}
+
+.sf-detail-sidebar {
+  padding: 16px;
+  background: #fafaf9;
+}
+
+.sf-sidebar-card {
+  background: white;
+  border: 1px solid #dddbda;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.sf-sidebar-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.sf-alert-icon {
+  flex-shrink: 0;
+}
+
+.sf-sidebar-card h4 {
+  font-size: 14px;
+  color: #16325c;
+  margin-bottom: 8px;
+}
+
+.sf-sidebar-card p {
+  font-size: 13px;
+  color: #706e6b;
+  margin-bottom: 12px;
+}
+
+.sf-sidebar-section {
+  padding: 12px 0;
+  border-bottom: 1px solid #dddbda;
+}
+
+.sf-sidebar-section h4 {
+  font-size: 13px;
+  color: #16325c;
+}
+
+/* Demo Success */
+.demo-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: #04844b;
+  border-radius: 50%;
+  color: white;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.demo-success h3 {
+  font-size: 24px;
+  color: #16325c;
+  margin-bottom: 8px;
+}
+
+.demo-success p {
+  font-size: 14px;
+  color: #706e6b;
+  margin-bottom: 32px;
+}
+
+.success-details {
+  background: #fafaf9;
+  border: 1px solid #dddbda;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+  min-width: 300px;
+}
+
+.success-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #dddbda;
+}
+
+.success-detail:last-child {
+  border-bottom: none;
+}
+
+.success-detail label {
+  font-size: 13px;
+  color: #706e6b;
+}
+
+.success-detail span {
+  font-size: 13px;
+  color: #16325c;
+  font-weight: 500;
+}
+
+.success-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Demo Button in Flow */
+.btn-demo {
+  background: #0070d2;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-demo:hover {
+  background: #005fb2;
+}
+
+.scenario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {
