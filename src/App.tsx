@@ -758,34 +758,46 @@ function CurrentWorkflow() {
 
       <div className="workflow-timeline">
         {steps.map((step, index) => (
-          <div key={step.number} className="workflow-step">
+          <div key={step.number} className={`workflow-step ${expandedImages.has(step.number) ? 'expanded' : ''}`}>
             <div className="step-connector">
               <div className="step-number">{step.number}</div>
               {index < steps.length - 1 && <div className="step-line" />}
             </div>
             <div className={`step-content ${step.painPoint ? 'has-pain-point' : ''}`}>
-              <div className="step-header">
-                <span className="step-icon">{step.icon}</span>
-                <span className={`step-system ${step.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
-                  {step.system}
+              <div
+                className="step-header-clickable"
+                onClick={() => toggleImage(step.number)}
+              >
+                <div className="step-header-left">
+                  <span className="step-expand-icon">
+                    {expandedImages.has(step.number) ? '▼' : '▶'}
+                  </span>
+                  <span className="step-icon">{step.icon}</span>
+                  <span className={`step-system ${step.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
+                    {step.system}
+                  </span>
+                  <h3 className="step-title">{step.title}</h3>
+                </div>
+                <span className="step-screenshot-count">
+                  {step.images?.length || 0} screenshots
                 </span>
               </div>
-              <h3 className="step-title">{step.title}</h3>
-              <p className="step-description">{step.description}</p>
-              <ul className="step-details">
-                {step.details.map((detail, i) => (
-                  <li key={i}>{detail}</li>
-                ))}
-              </ul>
-              {step.images && step.images.length > 0 && (
-                <div className="step-image-container">
-                  <button
-                    className="step-image-toggle"
-                    onClick={() => toggleImage(step.number)}
-                  >
-                    {expandedImages.has(step.number) ? '▼ Hide Screenshots' : `▶ View Screenshots (${step.images.length})`}
-                  </button>
-                  {expandedImages.has(step.number) && (
+
+              {expandedImages.has(step.number) && (
+                <div className="step-expanded-content">
+                  <p className="step-description">{step.description}</p>
+                  <ul className="step-details">
+                    {step.details.map((detail, i) => (
+                      <li key={i}>{detail}</li>
+                    ))}
+                  </ul>
+                  {step.painPoint && (
+                    <div className="pain-point">
+                      <span className="pain-icon">⚠️</span>
+                      <span>{step.painPoint}</span>
+                    </div>
+                  )}
+                  {step.images && step.images.length > 0 && (
                     <div className="step-images-grid">
                       {step.images.map((img, i) => (
                         <div key={i} className="step-image-wrapper">
@@ -802,12 +814,6 @@ function CurrentWorkflow() {
                       ))}
                     </div>
                   )}
-                </div>
-              )}
-              {step.painPoint && (
-                <div className="pain-point">
-                  <span className="pain-icon">⚠️</span>
-                  <span>{step.painPoint}</span>
                 </div>
               )}
             </div>
