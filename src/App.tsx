@@ -23,7 +23,10 @@ const AVAILABLE_PRODUCTS: { value: ProductType; label: string }[] = [
   { value: 'BookableDirectory', label: 'Bookable Directory' },
 ]
 
+type ViewMode = 'org-management' | 'current-workflow' | 'proposed-workflow'
+
 function App() {
+  const [viewMode, setViewMode] = useState<ViewMode>('org-management')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null)
   const [organizations, setOrganizations] = useState(mockOrganizations)
@@ -293,15 +296,42 @@ function App() {
         <div className="page-header-content">
           <h1 className="page-title">Organization Management</h1>
           <div className="page-actions">
-            <button className="btn btn-outline" onClick={() => setShowCreateOrgModal(true)}>
-              + New Ultimate Parent Org
-            </button>
+            {viewMode === 'org-management' && (
+              <button className="btn btn-outline" onClick={() => setShowCreateOrgModal(true)}>
+                + New Ultimate Parent Org
+              </button>
+            )}
           </div>
+        </div>
+        {/* View Tabs */}
+        <div className="view-tabs">
+          <button
+            className={`view-tab ${viewMode === 'org-management' ? 'active' : ''}`}
+            onClick={() => setViewMode('org-management')}
+          >
+            Org Hierarchy
+          </button>
+          <button
+            className={`view-tab ${viewMode === 'current-workflow' ? 'active' : ''}`}
+            onClick={() => setViewMode('current-workflow')}
+          >
+            Current Workflow
+          </button>
+          <button
+            className={`view-tab ${viewMode === 'proposed-workflow' ? 'active' : ''}`}
+            onClick={() => setViewMode('proposed-workflow')}
+          >
+            Proposed Workflow
+          </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="main-content">
+        {viewMode === 'current-workflow' && <CurrentWorkflow />}
+        {viewMode === 'proposed-workflow' && <ProposedWorkflow />}
+        {viewMode === 'org-management' && (
+        <>
         {/* Search Bar */}
         <div className="top-bar">
           <div className="search-section">
@@ -412,6 +442,8 @@ function App() {
             <h2>Search for an organization</h2>
             <p>Or create a new ultimate parent organization to get started</p>
           </div>
+        )}
+        </>
         )}
       </div>
 
@@ -630,6 +662,261 @@ function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string;
         <button type="submit" className="btn btn-primary" disabled={!name.trim()}>Add Practice</button>
       </div>
     </form>
+  )
+}
+
+// Current Workflow Component
+function CurrentWorkflow() {
+  const steps = [
+    {
+      number: 1,
+      system: 'Salesforce',
+      title: 'Create Account',
+      description: 'Click "New" on Accounts list to create a new account',
+      details: [
+        'Set Account Name (required)',
+        'Select Account Segment: Health System, Large Provider Group, MidMarket, or Local',
+        'Leave Parent Account blank for ultimate parent, or select existing org for hierarchy'
+      ],
+      icon: '☁️'
+    },
+    {
+      number: 2,
+      system: 'Salesforce',
+      title: 'Set Parent Hierarchy',
+      description: 'Link to parent organization if this is a child org',
+      details: [
+        'Search for existing parent account',
+        'Select to establish hierarchy relationship',
+        'Skip this step for ultimate parent orgs'
+      ],
+      icon: '🔗'
+    },
+    {
+      number: 3,
+      system: 'Salesforce',
+      title: 'Go to Related Tab',
+      description: 'Navigate to the Related tab on the new account',
+      details: [
+        'View related objects: Contacts, Contracts, CSR Practice Locations',
+        'Access Account Team, Account Issues, Projects'
+      ],
+      icon: '📋'
+    },
+    {
+      number: 4,
+      system: 'Salesforce',
+      title: 'Create Strategic Contact',
+      description: 'Add business contact (C-level executive or non-doctor)',
+      details: [
+        'Click "New" in Contacts section',
+        'Select "Strategic" record type for business contacts',
+        'Enter First Name, Last Name, Title, Position',
+        'Account Name auto-populated'
+      ],
+      icon: '👤'
+    },
+    {
+      number: 5,
+      system: 'CSR (Retool)',
+      title: 'Create Account in CSR',
+      description: 'Use Doctor Sign Up tool to create practice in CSR',
+      details: [
+        'Copy Classic URL from Salesforce account page',
+        'Go to Doctor Sign Up tool in Retool',
+        'Paste Salesforce Account URL',
+        'Click "Sign Up" (first attempt shows "forbidden access" error - click again)'
+      ],
+      icon: '🔧',
+      painPoint: 'Manual copy/paste between systems, error on first attempt'
+    }
+  ]
+
+  return (
+    <div className="workflow-container">
+      <div className="workflow-header">
+        <h2>Current Workflow: Salesforce → CSR</h2>
+        <p className="workflow-subtitle">Creating an organization and linking it to the Zocdoc system</p>
+        <div className="workflow-systems">
+          <span className="system-badge salesforce">Salesforce</span>
+          <span className="system-arrow">→</span>
+          <span className="system-badge csr">CSR (Retool)</span>
+          <span className="system-arrow">→</span>
+          <span className="system-badge pogs">POGS</span>
+        </div>
+      </div>
+
+      <div className="workflow-timeline">
+        {steps.map((step, index) => (
+          <div key={step.number} className="workflow-step">
+            <div className="step-connector">
+              <div className="step-number">{step.number}</div>
+              {index < steps.length - 1 && <div className="step-line" />}
+            </div>
+            <div className={`step-content ${step.painPoint ? 'has-pain-point' : ''}`}>
+              <div className="step-header">
+                <span className="step-icon">{step.icon}</span>
+                <span className={`step-system ${step.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
+                  {step.system}
+                </span>
+              </div>
+              <h3 className="step-title">{step.title}</h3>
+              <p className="step-description">{step.description}</p>
+              <ul className="step-details">
+                {step.details.map((detail, i) => (
+                  <li key={i}>{detail}</li>
+                ))}
+              </ul>
+              {step.painPoint && (
+                <div className="pain-point">
+                  <span className="pain-icon">⚠️</span>
+                  <span>{step.painPoint}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="workflow-summary">
+        <h3>Pain Points</h3>
+        <ul className="pain-points-list">
+          <li><strong>Multiple systems:</strong> Salesforce → CSR (Retool) → POGS</li>
+          <li><strong>Manual data transfer:</strong> Copy/paste URLs between systems</li>
+          <li><strong>Error-prone:</strong> "Forbidden access" error on first signup attempt</li>
+          <li><strong>No visibility:</strong> Org hierarchy not visible until synced to POGS</li>
+          <li><strong>Disconnected:</strong> Changes in Salesforce don't auto-sync to org hierarchy</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// Proposed Workflow Component
+function ProposedWorkflow() {
+  const currentSteps = [
+    { system: 'Salesforce', action: 'Create Account', time: '2-3 min' },
+    { system: 'Salesforce', action: 'Set Parent Hierarchy', time: '1 min' },
+    { system: 'Salesforce', action: 'Create Contact', time: '2 min' },
+    { system: 'CSR', action: 'Copy URL & Sign Up', time: '2-3 min' },
+    { system: 'POGS', action: 'Verify Sync', time: '? min' },
+  ]
+
+  const proposedSteps = [
+    { system: 'Org Management', action: 'Create/Search Org', time: '1 min' },
+    { system: 'Org Management', action: 'Set Hierarchy', time: '30 sec' },
+    { system: 'Auto', action: 'Sync to POGS + Salesforce', time: 'Instant' },
+  ]
+
+  return (
+    <div className="workflow-container">
+      <div className="workflow-header">
+        <h2>Proposed Workflow: Unified Org Management</h2>
+        <p className="workflow-subtitle">Single entry point with automated sync to all systems</p>
+      </div>
+
+      <div className="comparison-container">
+        {/* Current State */}
+        <div className="comparison-column current">
+          <h3>Current State</h3>
+          <div className="comparison-systems">
+            <span className="system-badge salesforce">Salesforce</span>
+            <span className="system-badge csr">CSR</span>
+            <span className="system-badge pogs">POGS</span>
+          </div>
+          <div className="comparison-steps">
+            {currentSteps.map((step, i) => (
+              <div key={i} className="comparison-step">
+                <span className={`mini-badge ${step.system.toLowerCase()}`}>{step.system}</span>
+                <span className="step-action">{step.action}</span>
+                <span className="step-time">{step.time}</span>
+              </div>
+            ))}
+          </div>
+          <div className="comparison-total">
+            <strong>Total time:</strong> 8-10+ minutes
+          </div>
+          <div className="comparison-issues">
+            <div className="issue">❌ Manual copy/paste</div>
+            <div className="issue">❌ Multiple logins</div>
+            <div className="issue">❌ Error-prone</div>
+            <div className="issue">❌ No hierarchy visibility</div>
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div className="comparison-arrow">
+          <span>→</span>
+        </div>
+
+        {/* Proposed State */}
+        <div className="comparison-column proposed">
+          <h3>Proposed State</h3>
+          <div className="comparison-systems">
+            <span className="system-badge org-mgmt">Org Management</span>
+          </div>
+          <div className="comparison-steps">
+            {proposedSteps.map((step, i) => (
+              <div key={i} className="comparison-step">
+                <span className={`mini-badge ${step.system.toLowerCase().replace(' ', '-')}`}>{step.system}</span>
+                <span className="step-action">{step.action}</span>
+                <span className="step-time">{step.time}</span>
+              </div>
+            ))}
+          </div>
+          <div className="comparison-total">
+            <strong>Total time:</strong> ~2 minutes
+          </div>
+          <div className="comparison-benefits">
+            <div className="benefit">✓ Single entry point</div>
+            <div className="benefit">✓ Visual hierarchy editor</div>
+            <div className="benefit">✓ Real-time sync</div>
+            <div className="benefit">✓ Audit trail</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Integration Diagram */}
+      <div className="integration-diagram">
+        <h3>System Integration</h3>
+        <div className="diagram-flow">
+          <div className="diagram-box primary">
+            <div className="box-icon">🏢</div>
+            <div className="box-title">Org Management</div>
+            <div className="box-subtitle">Single Source of Truth</div>
+          </div>
+          <div className="diagram-arrows">
+            <div className="arrow-branch">
+              <span className="arrow-label">Reads/Writes</span>
+              <span className="arrow-line">↔</span>
+              <div className="diagram-box secondary">
+                <div className="box-icon">🗄️</div>
+                <div className="box-title">POGS</div>
+                <div className="box-subtitle">DynamoDB</div>
+              </div>
+            </div>
+            <div className="arrow-branch">
+              <span className="arrow-label">Syncs</span>
+              <span className="arrow-line">↔</span>
+              <div className="diagram-box secondary">
+                <div className="box-icon">☁️</div>
+                <div className="box-title">Salesforce</div>
+                <div className="box-subtitle">CRM</div>
+              </div>
+            </div>
+            <div className="arrow-branch">
+              <span className="arrow-label">Streams</span>
+              <span className="arrow-line">→</span>
+              <div className="diagram-box secondary">
+                <div className="box-icon">❄️</div>
+                <div className="box-title">Cistern</div>
+                <div className="box-subtitle">Snowflake</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
