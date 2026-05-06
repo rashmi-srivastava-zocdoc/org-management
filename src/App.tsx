@@ -549,14 +549,12 @@ function App() {
         const targetOrg = getTargetOrgForPractice()
         const orgPath = targetOrg ? getOrgPath(targetOrg.id) : []
         return (
-          <Modal title={`Add Practice`} onClose={() => setShowAddPracticeModal(false)}>
-            <PracticeForm
-              onSubmit={handleAddPractice}
-              onCancel={() => setShowAddPracticeModal(false)}
-              parentOrg={targetOrg}
-              orgPath={orgPath}
-            />
-          </Modal>
+          <AddPracticeModal
+            parentOrg={targetOrg}
+            orgPath={orgPath}
+            onClose={() => setShowAddPracticeModal(false)}
+            onCreatePractice={handleAddPractice}
+          />
         )
       })()}
 
@@ -650,102 +648,162 @@ function OrgForm({
   )
 }
 
-// Practice Form Component
-function PracticeForm({
-  onSubmit,
-  onCancel,
+// Add Practice Modal Component
+function AddPracticeModal({
   parentOrg,
   orgPath = [],
+  onClose,
+  onCreatePractice,
 }: {
-  onSubmit: (data: { name: string; products?: ProductType[] }) => void
-  onCancel: () => void
   parentOrg?: Organization | null
   orgPath?: Organization[]
+  onClose: () => void
+  onCreatePractice: (data: { name: string; products?: ProductType[] }) => void
 }) {
+  const [showSuccess, setShowSuccess] = useState(false)
   const [name, setName] = useState('')
-  const [selectedProducts, setSelectedProducts] = useState<Set<ProductType>>(new Set())
+  const [selectedProducts, setSelectedProducts] = useState<ProductType[]>([])
 
   const toggleProduct = (product: ProductType) => {
-    setSelectedProducts(prev => {
-      const next = new Set(prev)
-      if (next.has(product)) {
-        next.delete(product)
-      } else {
-        next.add(product)
-      }
-      return next
-    })
+    setSelectedProducts(prev =>
+      prev.includes(product)
+        ? prev.filter(p => p !== product)
+        : [...prev, product]
+    )
   }
 
-  return (
-    <form onSubmit={(e) => {
-      e.preventDefault()
-      onSubmit({
-        name,
-        products: selectedProducts.size > 0 ? Array.from(selectedProducts) : undefined
-      })
-    }}>
-      {/* Org Hierarchy Preview */}
-      {parentOrg && (
-        <div className="org-hierarchy-preview">
-          <div className="hierarchy-preview-title">Creating Practice Under</div>
-          <div className="hierarchy-preview-tree">
-            {orgPath.map((org, index) => (
-              <div key={org.id} style={{ marginLeft: index * 20 }}>
-                {index > 0 && <span className="hierarchy-connector">└─</span>}
-                <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
-                  <span className="node-icon">🏢</span>
-                  <span className="node-name">{org.name}</span>
-                  <span className={`type-badge ${org.id === orgPath[0]?.id ? 'ultimate' : 'child'}`}>
-                    {TYPE_ABBREV[org.type] || org.type}
-                  </span>
+  const handleCreate = () => {
+    onCreatePractice({
+      name,
+      products: selectedProducts.length > 0 ? selectedProducts : undefined
+    })
+    setShowSuccess(true)
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal new-client-wizard">
+          <div className="modal-header">
+            <h2>Add Practice</h2>
+            <button className="modal-close" onClick={onClose}>×</button>
+          </div>
+          <div className="modal-body">
+            <div className="wizard-content wizard-success">
+              <div className="success-icon">✓</div>
+              <h3>Practice Created!</h3>
+              <div className="success-summary">
+                <div className="success-detail">
+                  <label>Parent Organization</label>
+                  <span>{parentOrg?.name || 'N/A'}</span>
                 </div>
+                <div className="success-divider" />
+                <div className="success-detail">
+                  <label>Practice</label>
+                  <span>{name}</span>
+                </div>
+                {selectedProducts.length > 0 && (
+                  <div className="success-detail">
+                    <label>Products</label>
+                    <span>{selectedProducts.join(', ')}</span>
+                  </div>
+                )}
               </div>
-            ))}
-            <div style={{ marginLeft: orgPath.length * 20 }}>
-              <span className="hierarchy-connector">└─</span>
-              <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                <span className="node-icon">🏥</span>
-                <span className="node-name">{name || 'New Practice'}</span>
-                <span className="type-badge practice">Practice</span>
-                <span className="new-badge">← Creating here</span>
+              <div className="modal-actions">
+                <button className="btn btn-primary" onClick={onClose}>Done</button>
               </div>
             </div>
           </div>
         </div>
-      )}
-
-      <div className="form-group">
-        <label>Practice Name *</label>
-        <input
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Enter practice name"
-          required
-          autoFocus
-        />
       </div>
-      <div className="form-group">
-        <label>Products</label>
-        <div className="product-checkboxes">
-          {AVAILABLE_PRODUCTS.map(product => (
-            <label key={product.value} className="product-checkbox">
-              <input
-                type="checkbox"
-                checked={selectedProducts.has(product.value)}
-                onChange={() => toggleProduct(product.value)}
-              />
-              <span>{product.label}</span>
-            </label>
-          ))}
+    )
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal new-client-wizard wide-modal">
+        <div className="modal-header">
+          <h2>Add Practice</h2>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="modal-body split-view">
+          {/* Left: Hierarchy Preview */}
+          <div className="split-left">
+            <div className="org-hierarchy-preview">
+              <div className="hierarchy-preview-title">Organization Hierarchy</div>
+              <div className="hierarchy-preview-tree">
+                {orgPath.map((org, index) => (
+                  <div key={org.id} style={{ marginLeft: index * 20 }}>
+                    {index > 0 && <span className="hierarchy-connector">└─</span>}
+                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
+                      <span className="node-icon">🏢</span>
+                      <span className="node-name">{org.name}</span>
+                      <span className={`type-badge ${index === 0 ? 'ultimate' : 'child'}`}>
+                        {TYPE_ABBREV[org.type] || org.type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {/* New Practice */}
+                <div style={{ marginLeft: orgPath.length * 20 }}>
+                  <span className="hierarchy-connector">└─</span>
+                  <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                    <span className="node-icon">🏥</span>
+                    <span className="node-name">{name || 'New Practice'}</span>
+                    <span className="type-badge practice">Practice</span>
+                    <span className="new-badge">← Creating here</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Form */}
+          <div className="split-right">
+            <div className="form-section">
+              <h4>Practice Details</h4>
+              <div className="form-group">
+                <label>Practice Name *</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Enter practice name"
+                  autoFocus
+                />
+              </div>
+              <div className="form-group">
+                <label>Products</label>
+                <div className="product-checkboxes">
+                  {AVAILABLE_PRODUCTS.map(product => (
+                    <label key={product.value} className="product-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(product.value)}
+                        onChange={() => toggleProduct(product.value)}
+                      />
+                      <span>{product.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn-primary"
+            onClick={handleCreate}
+            disabled={!name.trim()}
+          >
+            Add Practice
+          </button>
         </div>
       </div>
-      <div className="modal-actions">
-        <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary" disabled={!name.trim()}>Add Practice</button>
-      </div>
-    </form>
+    </div>
   )
 }
 
@@ -1114,8 +1172,7 @@ function CurrentWorkflowDemo({ onClose }: { onClose: () => void }) {
 }
 
 // Add Child Org Wizard Component
-type ChildOrgStep = 'org-details' | 'add-practice' | 'success'
-
+// Add Child Org Component
 function AddChildOrgWizard({
   parentOrg,
   orgPath,
@@ -1129,42 +1186,13 @@ function AddChildOrgWizard({
   onCreateOrg: (org: Partial<Organization>) => void
   onCreatePractice: (orgId: string, practice: { name: string; products?: ProductType[] }) => void
 }) {
-  const [step, setStep] = useState<ChildOrgStep>('org-details')
-  const [orgData, setOrgData] = useState({
-    name: '',
-    type: 'LargeProviderGroup' as Organization['type'],
-  })
-  const [wantsPractice, setWantsPractice] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [orgName, setOrgName] = useState('')
+  const [addPractice, setAddPractice] = useState(true)
   const [practiceData, setPracticeData] = useState({
     name: '',
     products: [] as ProductType[],
   })
-  const [createdOrgId, setCreatedOrgId] = useState('')
-
-  const handleOrgSubmit = () => {
-    const newOrgId = `org_${Math.random().toString(36).substr(2, 12)}`
-    setCreatedOrgId(newOrgId)
-
-    if (wantsPractice) {
-      setStep('add-practice')
-      setPracticeData(prev => ({
-        ...prev,
-        name: prev.name || `${orgData.name} Practice`,
-      }))
-    } else {
-      onCreateOrg({ ...orgData, id: newOrgId } as Partial<Organization>)
-      setStep('success')
-    }
-  }
-
-  const handlePracticeSubmit = () => {
-    onCreateOrg({ ...orgData, id: createdOrgId } as Partial<Organization>)
-    onCreatePractice(createdOrgId, {
-      name: practiceData.name,
-      products: practiceData.products.length > 0 ? practiceData.products : undefined,
-    })
-    setStep('success')
-  }
 
   const toggleProduct = (product: ProductType) => {
     setPracticeData(prev => {
@@ -1175,201 +1203,48 @@ function AddChildOrgWizard({
     })
   }
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal new-client-wizard">
-        <div className="modal-header">
-          <h2>Add Child Organization</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
+  const handleCreate = () => {
+    const newOrgId = `org_${Math.random().toString(36).substr(2, 12)}`
 
-        {/* Progress indicator */}
-        <div className="wizard-progress">
-          <div className={`wizard-step ${step === 'org-details' ? 'active' : 'completed'}`}>
-            <span className="wizard-step-num">1</span>
-            <span className="wizard-step-label">Organization Details</span>
+    // Create the child org
+    onCreateOrg({ name: orgName, id: newOrgId, type: 'LargeProviderGroup' } as Partial<Organization>)
+
+    // Create practice if enabled
+    if (addPractice && practiceData.name.trim()) {
+      onCreatePractice(newOrgId, {
+        name: practiceData.name,
+        products: practiceData.products.length > 0 ? practiceData.products : undefined,
+      })
+    }
+
+    setShowSuccess(true)
+  }
+
+  const canCreate = orgName.trim() && (!addPractice || practiceData.name.trim())
+
+  if (showSuccess) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal new-client-wizard">
+          <div className="modal-header">
+            <h2>Add Child Organization</h2>
+            <button className="modal-close" onClick={onClose}>×</button>
           </div>
-          <div className="wizard-step-connector" />
-          <div className={`wizard-step ${step === 'add-practice' ? 'active' : step === 'success' && wantsPractice ? 'completed' : ''}`}>
-            <span className="wizard-step-num">2</span>
-            <span className="wizard-step-label">Add Practice (Optional)</span>
-          </div>
-        </div>
-
-        <div className="modal-body">
-          {/* Step 1: Organization Details */}
-          {step === 'org-details' && (
-            <div className="wizard-content">
-              {/* Parent Org Hierarchy Preview */}
-              <div className="org-hierarchy-preview">
-                <div className="hierarchy-preview-title">Creating Child Org Under</div>
-                <div className="hierarchy-preview-tree">
-                  {orgPath.map((org, index) => (
-                    <div key={org.id} style={{ marginLeft: index * 20 }}>
-                      {index > 0 && <span className="hierarchy-connector">└─</span>}
-                      <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
-                        <span className="node-icon">🏢</span>
-                        <span className="node-name">{org.name}</span>
-                        <span className={`type-badge ${index === 0 ? 'ultimate' : 'child'}`}>
-                          {TYPE_ABBREV[org.type] || org.type}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  <div style={{ marginLeft: orgPath.length * 20 }}>
-                    <span className="hierarchy-connector">└─</span>
-                    <div className="hierarchy-node org-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                      <span className="node-icon">🏢</span>
-                      <span className="node-name">{orgData.name || 'New Child Org'}</span>
-                      <span className="new-badge">← Creating here</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Organization Name *</label>
-                <input
-                  type="text"
-                  value={orgData.name}
-                  onChange={e => setOrgData({ ...orgData, name: e.target.value })}
-                  placeholder="Enter organization name"
-                  autoFocus
-                />
-              </div>
-
-              <div className="form-group practice-toggle">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={wantsPractice}
-                    onChange={e => setWantsPractice(e.target.checked)}
-                  />
-                  <span>Add a practice under this organization</span>
-                </label>
-              </div>
-
-              <div className="modal-actions">
-                <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleOrgSubmit}
-                  disabled={!orgData.name.trim()}
-                >
-                  {wantsPractice ? 'Next: Add Practice →' : 'Create Child Organization'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Add Practice */}
-          {step === 'add-practice' && (
-            <div className="wizard-content">
-              {/* Full Hierarchy Preview with Practice */}
-              <div className="org-hierarchy-preview">
-                <div className="hierarchy-preview-title">Organization Hierarchy</div>
-                <div className="hierarchy-preview-tree">
-                  {orgPath.map((org, index) => (
-                    <div key={org.id} style={{ marginLeft: index * 20 }}>
-                      {index > 0 && <span className="hierarchy-connector">└─</span>}
-                      <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
-                        <span className="node-icon">🏢</span>
-                        <span className="node-name">{org.name}</span>
-                        <span className={`type-badge ${index === 0 ? 'ultimate' : 'child'}`}>
-                          {TYPE_ABBREV[org.type] || org.type}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  <div style={{ marginLeft: orgPath.length * 20 }}>
-                    <span className="hierarchy-connector">└─</span>
-                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                      <span className="node-icon">🏢</span>
-                      <span className="node-name">{orgData.name}</span>
-                      <span className="node-id">({createdOrgId})</span>
-                    </div>
-                  </div>
-                  <div style={{ marginLeft: (orgPath.length + 1) * 20 }}>
-                    <span className="hierarchy-connector">└─</span>
-                    <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                      <span className="node-icon">🏥</span>
-                      <span className="node-name">{practiceData.name || 'New Practice'}</span>
-                      <span className="type-badge practice">Practice</span>
-                      <span className="new-badge">← Creating here</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Practice Name *</label>
-                <input
-                  type="text"
-                  value={practiceData.name}
-                  onChange={e => setPracticeData({ ...practiceData, name: e.target.value })}
-                  placeholder="Enter practice name"
-                  autoFocus
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Products</label>
-                <div className="product-checkboxes">
-                  {AVAILABLE_PRODUCTS.map(product => (
-                    <label key={product.value} className="product-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={practiceData.products.includes(product.value)}
-                        onChange={() => toggleProduct(product.value)}
-                      />
-                      <span>{product.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="modal-actions">
-                <button className="btn btn-secondary" onClick={() => setStep('org-details')}>
-                  ← Back
-                </button>
-                <button className="btn btn-secondary" onClick={() => {
-                  onCreateOrg({ ...orgData, id: createdOrgId } as Partial<Organization>)
-                  setStep('success')
-                }}>
-                  Skip Practice
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handlePracticeSubmit}
-                  disabled={!practiceData.name.trim()}
-                >
-                  Create Child Org & Practice
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Success State */}
-          {step === 'success' && (
+          <div className="modal-body">
             <div className="wizard-content wizard-success">
               <div className="success-icon">✓</div>
-              <h3>Child Organization Created Successfully!</h3>
-
+              <h3>Child Organization Created!</h3>
               <div className="success-summary">
                 <div className="success-detail">
-                  <label>Parent Organization</label>
+                  <label>Parent</label>
                   <span>{parentOrg.name}</span>
                 </div>
                 <div className="success-divider" />
                 <div className="success-detail">
                   <label>Child Organization</label>
-                  <span>{orgData.name}</span>
+                  <span>{orgName}</span>
                 </div>
-                <div className="success-detail">
-                  <label>Org ID</label>
-                  <span>{createdOrgId}</span>
-                </div>
-                {wantsPractice && practiceData.name && (
+                {addPractice && practiceData.name && (
                   <>
                     <div className="success-divider" />
                     <div className="success-detail">
@@ -1385,12 +1260,139 @@ function AddChildOrgWizard({
                   </>
                 )}
               </div>
-
               <div className="modal-actions">
                 <button className="btn btn-primary" onClick={onClose}>Done</button>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal new-client-wizard wide-modal">
+        <div className="modal-header">
+          <h2>Add Child Organization</h2>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="modal-body split-view">
+          {/* Left: Hierarchy Preview */}
+          <div className="split-left">
+            <div className="org-hierarchy-preview">
+              <div className="hierarchy-preview-title">Organization Hierarchy</div>
+              <div className="hierarchy-preview-tree">
+                {orgPath.map((org, index) => (
+                  <div key={org.id} style={{ marginLeft: index * 20 }}>
+                    {index > 0 && <span className="hierarchy-connector">└─</span>}
+                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
+                      <span className="node-icon">🏢</span>
+                      <span className="node-name">{org.name}</span>
+                      <span className={`type-badge ${index === 0 ? 'ultimate' : 'child'}`}>
+                        {TYPE_ABBREV[org.type] || org.type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {/* New Child Org */}
+                <div style={{ marginLeft: orgPath.length * 20 }}>
+                  <span className="hierarchy-connector">└─</span>
+                  <div className="hierarchy-node org-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                    <span className="node-icon">🏢</span>
+                    <span className="node-name">{orgName || 'New Child Org'}</span>
+                    <span className="type-badge child">LPG</span>
+                    {!addPractice && <span className="new-badge">← Creating here</span>}
+                  </div>
+                </div>
+                {/* Practice under new child */}
+                {addPractice && (
+                  <div style={{ marginLeft: (orgPath.length + 1) * 20 }}>
+                    <span className="hierarchy-connector">└─</span>
+                    <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                      <span className="node-icon">🏥</span>
+                      <span className="node-name">{practiceData.name || 'New Practice'}</span>
+                      <span className="type-badge practice">Practice</span>
+                      <span className="new-badge">← Creating here</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Form */}
+          <div className="split-right">
+            {/* Child Org Fields */}
+            <div className="form-section">
+              <h4>Child Organization</h4>
+              <div className="form-group">
+                <label>Organization Name *</label>
+                <input
+                  type="text"
+                  value={orgName}
+                  onChange={e => setOrgName(e.target.value)}
+                  placeholder="Enter organization name"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Practice Toggle & Fields */}
+            <div className="form-section">
+              <div className="form-group practice-toggle">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={addPractice}
+                    onChange={e => setAddPractice(e.target.checked)}
+                  />
+                  <span>Add a practice under this organization</span>
+                </label>
+              </div>
+
+              {addPractice && (
+                <>
+                  <div className="form-group">
+                    <label>Practice Name *</label>
+                    <input
+                      type="text"
+                      value={practiceData.name}
+                      onChange={e => setPracticeData({ ...practiceData, name: e.target.value })}
+                      placeholder="Enter practice name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Products</label>
+                    <div className="product-checkboxes">
+                      {AVAILABLE_PRODUCTS.map(product => (
+                        <label key={product.value} className="product-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={practiceData.products.includes(product.value)}
+                            onChange={() => toggleProduct(product.value)}
+                          />
+                          <span>{product.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn-primary"
+            onClick={handleCreate}
+            disabled={!canCreate}
+          >
+            Add Child Org
+          </button>
         </div>
       </div>
     </div>
