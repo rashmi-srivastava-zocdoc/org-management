@@ -816,7 +816,7 @@ function CurrentWorkflow() {
   ]
 
   // Flatten all images for demo walkthrough
-  const allDemoSteps = steps.flatMap((step, stepIdx) =>
+  const allDemoSteps = steps.flatMap((step) =>
     step.images.map((img, imgIdx) => ({
       ...img,
       stepNumber: step.number,
