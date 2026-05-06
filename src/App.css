@@ -3863,3 +3863,17 @@ body {
   background: #fafaf9;
   border-radius: 0 0 12px 12px;
 }
+
+/* Hierarchy row alignment */
+.hierarchy-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.hierarchy-row .hierarchy-connector {
+  color: #b0c4de;
+  font-family: monospace;
+  margin-right: 4px;
+  flex-shrink: 0;
+}

@@ -1188,7 +1188,7 @@ function AddChildOrgWizard({
 }) {
   const [showSuccess, setShowSuccess] = useState(false)
   const [orgName, setOrgName] = useState('')
-  const [addPractice, setAddPractice] = useState(true)
+  const [addPractice, setAddPractice] = useState(false)
   const [practiceData, setPracticeData] = useState({
     name: '',
     products: [] as ProductType[],
@@ -1220,7 +1220,7 @@ function AddChildOrgWizard({
     setShowSuccess(true)
   }
 
-  const canCreate = orgName.trim() && (!addPractice || practiceData.name.trim())
+  const canCreate = orgName.trim()
 
   if (showSuccess) {
     return (
@@ -1285,9 +1285,9 @@ function AddChildOrgWizard({
               <div className="hierarchy-preview-title">Organization Hierarchy</div>
               <div className="hierarchy-preview-tree">
                 {orgPath.map((org, index) => (
-                  <div key={org.id} style={{ marginLeft: index * 20 }}>
+                  <div key={org.id} className="hierarchy-row" style={{ paddingLeft: index * 20 }}>
                     {index > 0 && <span className="hierarchy-connector">└─</span>}
-                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
+                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex' }}>
                       <span className="node-icon">🏢</span>
                       <span className="node-name">{org.name}</span>
                       <span className={`type-badge ${index === 0 ? 'ultimate' : 'child'}`}>
@@ -1297,9 +1297,9 @@ function AddChildOrgWizard({
                   </div>
                 ))}
                 {/* New Child Org */}
-                <div style={{ marginLeft: orgPath.length * 20 }}>
+                <div className="hierarchy-row" style={{ paddingLeft: orgPath.length * 20 }}>
                   <span className="hierarchy-connector">└─</span>
-                  <div className="hierarchy-node org-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                  <div className="hierarchy-node org-node new-practice" style={{ display: 'inline-flex' }}>
                     <span className="node-icon">🏢</span>
                     <span className="node-name">{orgName || 'New Child Org'}</span>
                     <span className="type-badge child">LPG</span>
@@ -1308,9 +1308,9 @@ function AddChildOrgWizard({
                 </div>
                 {/* Practice under new child */}
                 {addPractice && (
-                  <div style={{ marginLeft: (orgPath.length + 1) * 20 }}>
+                  <div className="hierarchy-row" style={{ paddingLeft: (orgPath.length + 1) * 20 }}>
                     <span className="hierarchy-connector">└─</span>
-                    <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                    <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex' }}>
                       <span className="node-icon">🏥</span>
                       <span className="node-name">{practiceData.name || 'New Practice'}</span>
                       <span className="type-badge practice">Practice</span>
@@ -1414,7 +1414,7 @@ function CreateNewClientWizard({
     name: '',
     type: 'HealthSystem' as Organization['type'],
   })
-  const [addPractice, setAddPractice] = useState(true)
+  const [addPractice, setAddPractice] = useState(false)
   const [practiceData, setPracticeData] = useState({
     name: '',
     products: [] as ProductType[],
