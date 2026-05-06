@@ -800,20 +800,6 @@ function WorkflowComparison() {
                   </div>
                 </div>
               </div>
-              <div className="pain-points">
-                <div className="pain-point">
-                  <span className="pain-icon">✗</span>
-                  <span>Manual copy/paste between systems</span>
-                </div>
-                <div className="pain-point">
-                  <span className="pain-icon">✗</span>
-                  <span>"Forbidden access" error on first attempt</span>
-                </div>
-                <div className="pain-point">
-                  <span className="pain-icon">✗</span>
-                  <span>No visibility until synced to POGS</span>
-                </div>
-              </div>
               <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
                 View Current Demo
               </button>
@@ -841,20 +827,6 @@ function WorkflowComparison() {
                     <strong>Convert to Client/Product Account</strong>
                     <span className="step-system">Automated sync to CSR & POGS</span>
                   </div>
-                </div>
-              </div>
-              <div className="benefits">
-                <div className="benefit">
-                  <span className="benefit-icon">✓</span>
-                  <span>Single entry point in Salesforce</span>
-                </div>
-                <div className="benefit">
-                  <span className="benefit-icon">✓</span>
-                  <span>Automated sync to downstream systems</span>
-                </div>
-                <div className="benefit">
-                  <span className="benefit-icon">✓</span>
-                  <span>Real-time visibility of org hierarchy</span>
                 </div>
               </div>
               <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
@@ -904,16 +876,6 @@ function WorkflowComparison() {
                   </div>
                 </div>
               </div>
-              <div className="pain-points">
-                <div className="pain-point">
-                  <span className="pain-icon">✗</span>
-                  <span>Must know parent org ID in CSR</span>
-                </div>
-                <div className="pain-point">
-                  <span className="pain-icon">✗</span>
-                  <span>Hierarchy not visible until POGS sync</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -938,16 +900,6 @@ function WorkflowComparison() {
                     <strong>Convert to Child Client</strong>
                     <span className="step-system">Automated hierarchy sync</span>
                   </div>
-                </div>
-              </div>
-              <div className="benefits">
-                <div className="benefit">
-                  <span className="benefit-icon">✓</span>
-                  <span>Parent relationship auto-detected</span>
-                </div>
-                <div className="benefit">
-                  <span className="benefit-icon">✓</span>
-                  <span>Hierarchy visible immediately</span>
                 </div>
               </div>
             </div>
@@ -1486,6 +1438,7 @@ function CreateNewClientWizard({
     name: '',
     products: [] as ProductType[],
   })
+
   const toggleProduct = (product: ProductType) => {
     setPracticeData(prev => {
       const products = prev.products.includes(product)
