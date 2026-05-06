@@ -106,7 +106,7 @@ function App() {
 
   const handleCreateOrg = (newOrg: Partial<Organization>) => {
     const org: Organization = {
-      id: `org_${Math.random().toString(36).substr(2, 12)}`,
+      id: newOrg.id || `org_${Math.random().toString(36).substr(2, 12)}`,
       name: newOrg.name || 'New Organization',
       type: newOrg.type || 'HealthSystem',
       city: newOrg.city,
