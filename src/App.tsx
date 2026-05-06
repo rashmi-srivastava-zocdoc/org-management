@@ -741,6 +741,8 @@ function PracticeForm({
 function CurrentWorkflow() {
   const [expandedImages, setExpandedImages] = useState<Set<number>>(new Set())
   const [lightboxImage, setLightboxImage] = useState<{ src: string; caption: string } | null>(null)
+  const [demoMode, setDemoMode] = useState(false)
+  const [currentDemoStep, setCurrentDemoStep] = useState(0)
 
   const toggleImage = (stepNumber: number) => {
     setExpandedImages(prev => {
@@ -813,11 +815,101 @@ function CurrentWorkflow() {
     }
   ]
 
+  // Flatten all images for demo walkthrough
+  const allDemoSteps = steps.flatMap((step, stepIdx) =>
+    step.images.map((img, imgIdx) => ({
+      ...img,
+      stepNumber: step.number,
+      stepTitle: step.title,
+      system: step.system,
+      icon: step.icon,
+      description: imgIdx === 0 ? step.description : undefined,
+      details: imgIdx === 0 ? step.details : undefined,
+      isFirstInStep: imgIdx === 0,
+      isLastInStep: imgIdx === step.images.length - 1,
+      totalInStep: step.images.length,
+      imageIndexInStep: imgIdx + 1,
+    }))
+  )
+
+  const totalScreenshots = allDemoSteps.length
+  const currentDemo = allDemoSteps[currentDemoStep]
+
+  const startDemo = () => {
+    setDemoMode(true)
+    setCurrentDemoStep(0)
+  }
+
+  const nextDemoStep = () => {
+    if (currentDemoStep < totalScreenshots - 1) {
+      setCurrentDemoStep(prev => prev + 1)
+    }
+  }
+
+  const prevDemoStep = () => {
+    if (currentDemoStep > 0) {
+      setCurrentDemoStep(prev => prev - 1)
+    }
+  }
+
+  const exitDemo = () => {
+    setDemoMode(false)
+    setCurrentDemoStep(0)
+  }
+
   return (
     <div className="workflow-container">
+      {/* Summary Section */}
+      <div className="workflow-summary-header">
+        <div className="summary-intro">
+          <h2>Current Workflow: New Client Onboarding</h2>
+          <p className="summary-description">
+            Creating a new organization requires navigating <strong>3 separate systems</strong> with
+            manual data transfer between each step. This workflow shows the current process from
+            initial account creation in Salesforce through linking to CSR and POGS.
+          </p>
+        </div>
+
+        <div className="summary-stats">
+          <div className="stat-card">
+            <div className="stat-icon salesforce">☁️</div>
+            <div className="stat-content">
+              <div className="stat-label">Create Account</div>
+              <div className="stat-value">{steps[0].images.length} steps</div>
+              <div className="stat-system">Salesforce</div>
+            </div>
+          </div>
+          <div className="stat-arrow">→</div>
+          <div className="stat-card">
+            <div className="stat-icon salesforce">👤</div>
+            <div className="stat-content">
+              <div className="stat-label">Create Contact</div>
+              <div className="stat-value">{steps[1].images.length} steps</div>
+              <div className="stat-system">Salesforce</div>
+            </div>
+          </div>
+          <div className="stat-arrow">→</div>
+          <div className="stat-card">
+            <div className="stat-icon csr">🔧</div>
+            <div className="stat-content">
+              <div className="stat-label">Create CSR Account</div>
+              <div className="stat-value">{steps[2].images.length} steps</div>
+              <div className="stat-system">CSR (Retool)</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="summary-total">
+          <span className="total-label">Total:</span>
+          <span className="total-value">{totalScreenshots} steps across 3 systems</span>
+          <button className="demo-button" onClick={startDemo}>
+            <span className="demo-icon">▶</span>
+            Start Demo Walkthrough
+          </button>
+        </div>
+      </div>
+
       <div className="workflow-header">
-        <h2>Current Workflow: Salesforce → CSR</h2>
-        <p className="workflow-subtitle">Creating an organization and linking it to the Zocdoc system</p>
         <div className="workflow-systems">
           <span className="system-badge salesforce">Salesforce</span>
           <span className="system-arrow">→</span>
@@ -915,6 +1007,100 @@ function CurrentWorkflow() {
             <button className="lightbox-close" onClick={() => setLightboxImage(null)}>×</button>
             <img src={lightboxImage.src} alt={lightboxImage.caption} className="lightbox-image" />
             <div className="lightbox-caption">{lightboxImage.caption}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Demo Walkthrough Modal */}
+      {demoMode && currentDemo && (
+        <div className="demo-overlay">
+          <div className="demo-modal">
+            <div className="demo-header">
+              <div className="demo-progress">
+                <div className="demo-progress-bar">
+                  <div
+                    className="demo-progress-fill"
+                    style={{ width: `${((currentDemoStep + 1) / totalScreenshots) * 100}%` }}
+                  />
+                </div>
+                <span className="demo-progress-text">
+                  Step {currentDemoStep + 1} of {totalScreenshots}
+                </span>
+              </div>
+              <button className="demo-close" onClick={exitDemo}>×</button>
+            </div>
+
+            <div className="demo-content">
+              <div className="demo-sidebar">
+                <div className={`demo-step-badge ${currentDemo.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
+                  <span className="demo-step-icon">{currentDemo.icon}</span>
+                  <span className="demo-step-system">{currentDemo.system}</span>
+                </div>
+                <h3 className="demo-step-title">
+                  {currentDemo.stepNumber}. {currentDemo.stepTitle}
+                </h3>
+                {currentDemo.description && (
+                  <p className="demo-step-description">{currentDemo.description}</p>
+                )}
+                {currentDemo.details && (
+                  <ul className="demo-step-details">
+                    {currentDemo.details.map((detail, i) => (
+                      <li key={i} className={i === currentDemo.imageIndexInStep - 1 ? 'current' : ''}>
+                        {detail}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="demo-step-position">
+                  Screenshot {currentDemo.imageIndexInStep} of {currentDemo.totalInStep} in this step
+                </div>
+              </div>
+
+              <div className="demo-main">
+                <div className="demo-image-container">
+                  <img
+                    src={currentDemo.src}
+                    alt={currentDemo.caption}
+                    className="demo-image"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `${import.meta.env.BASE_URL}images/placeholder.png`
+                    }}
+                  />
+                </div>
+                <div className="demo-caption">{currentDemo.caption}</div>
+              </div>
+            </div>
+
+            <div className="demo-footer">
+              <button
+                className="demo-nav-btn prev"
+                onClick={prevDemoStep}
+                disabled={currentDemoStep === 0}
+              >
+                ← Previous
+              </button>
+              <div className="demo-step-dots">
+                {allDemoSteps.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`demo-dot ${idx === currentDemoStep ? 'active' : ''} ${
+                      allDemoSteps[idx].isFirstInStep ? 'first-in-step' : ''
+                    }`}
+                    onClick={() => setCurrentDemoStep(idx)}
+                    title={allDemoSteps[idx].caption}
+                  />
+                ))}
+              </div>
+              {currentDemoStep < totalScreenshots - 1 ? (
+                <button className="demo-nav-btn next" onClick={nextDemoStep}>
+                  Next →
+                </button>
+              ) : (
+                <button className="demo-nav-btn finish" onClick={exitDemo}>
+                  Finish Demo
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
