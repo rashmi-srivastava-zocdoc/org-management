@@ -1487,6 +1487,7 @@ function CreateNewClientWizard({
     products: [] as ProductType[],
   })
   const [createdChildId, setCreatedChildId] = useState('')
+  const [createdOrgId, setCreatedOrgId] = useState('')
 
   const toggleProduct = (product: ProductType) => {
     setPracticeData(prev => {
