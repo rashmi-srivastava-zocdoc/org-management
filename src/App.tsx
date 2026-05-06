@@ -924,7 +924,7 @@ function CreateNewClientWizard({
 
         {/* Progress indicator */}
         <div className="wizard-progress">
-          <div className={`wizard-step ${step === 'org-details' ? 'active' : step !== 'org-details' ? 'completed' : ''}`}>
+          <div className={`wizard-step ${step === 'org-details' ? 'active' : 'completed'}`}>
             <span className="wizard-step-num">1</span>
             <span className="wizard-step-label">Organization Details</span>
           </div>
