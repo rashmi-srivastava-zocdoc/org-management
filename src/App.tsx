@@ -753,6 +753,19 @@ function PracticeForm({
 function WorkflowComparison() {
   const [showCurrentDemo, setShowCurrentDemo] = useState(false)
   const [showProposedDemo, setShowProposedDemo] = useState(false)
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['new-org', 'child-org', 'locking']))
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev)
+      if (next.has(section)) {
+        next.delete(section)
+      } else {
+        next.add(section)
+      }
+      return next
+    })
+  }
 
   return (
     <div className="workflow-comparison-container">
@@ -762,37 +775,36 @@ function WorkflowComparison() {
       </div>
 
       {/* Section 1: New Org Creation */}
-      <div className="comparison-section">
-        <div className="section-header">
-          <h3>Creating a New Organization</h3>
-          <p>When onboarding a brand new customer with no existing relationship</p>
-        </div>
-
-        <div className="comparison-columns">
-          <div className="comparison-column current">
-            <div className="column-header">
-              <span className="column-badge current">Current</span>
-              <h4>Today's Process</h4>
-            </div>
-            <div className="column-content">
-              <div className="process-steps">
-                <div className="process-step">
+      <div className="scenario-accordion">
+        <button className="accordion-header" onClick={() => toggleSection('new-org')}>
+          <div className="accordion-title">
+            <h3>Creating a New Organization</h3>
+            <p>When onboarding a brand new customer with no existing relationship</p>
+          </div>
+          <span className="accordion-icon">{expandedSections.has('new-org') ? '−' : '+'}</span>
+        </button>
+        {expandedSections.has('new-org') && (
+          <div className="accordion-content">
+            <div className="workflow-row current">
+              <span className="workflow-badge current">Current</span>
+              <div className="workflow-steps-inline">
+                <div className="inline-step">
                   <span className="step-num">1</span>
                   <div className="step-info">
                     <strong>Create Account in Salesforce</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
-                <div className="step-arrow">↓</div>
-                <div className="process-step">
+                <span className="step-arrow-inline">→</span>
+                <div className="inline-step">
                   <span className="step-num">2</span>
                   <div className="step-info">
                     <strong>Create Strategic Contact</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
-                <div className="step-arrow">↓</div>
-                <div className="process-step">
+                <span className="step-arrow-inline">→</span>
+                <div className="inline-step">
                   <span className="step-num">3</span>
                   <div className="step-info">
                     <strong>Create Account in CSR</strong>
@@ -801,27 +813,21 @@ function WorkflowComparison() {
                 </div>
               </div>
               <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
-                View Current Demo
+                View Demo
               </button>
             </div>
-          </div>
-
-          <div className="comparison-column proposed">
-            <div className="column-header">
-              <span className="column-badge proposed">Proposed</span>
-              <h4>Unified Process</h4>
-            </div>
-            <div className="column-content">
-              <div className="process-steps">
-                <div className="process-step">
+            <div className="workflow-row proposed">
+              <span className="workflow-badge proposed">Proposed</span>
+              <div className="workflow-steps-inline">
+                <div className="inline-step">
                   <span className="step-num">1</span>
                   <div className="step-info">
                     <strong>Create Prospect</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
-                <div className="step-arrow">↓</div>
-                <div className="process-step">
+                <span className="step-arrow-inline">→</span>
+                <div className="inline-step">
                   <span className="step-num">2</span>
                   <div className="step-info">
                     <strong>Convert to Client/Product Account</strong>
@@ -830,45 +836,44 @@ function WorkflowComparison() {
                 </div>
               </div>
               <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
-                View Proposed Demo
+                View Demo
               </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Section 2: Child Org Creation */}
-      <div className="comparison-section">
-        <div className="section-header">
-          <h3>Creating a Child Organization</h3>
-          <p>When expanding an existing customer relationship with a new sub-organization</p>
-        </div>
-
-        <div className="comparison-columns">
-          <div className="comparison-column current">
-            <div className="column-header">
-              <span className="column-badge current">Current</span>
-              <h4>Today's Process</h4>
-            </div>
-            <div className="column-content">
-              <div className="process-steps">
-                <div className="process-step">
+      <div className="scenario-accordion">
+        <button className="accordion-header" onClick={() => toggleSection('child-org')}>
+          <div className="accordion-title">
+            <h3>Creating a Child Organization</h3>
+            <p>When expanding an existing customer relationship with a new sub-organization</p>
+          </div>
+          <span className="accordion-icon">{expandedSections.has('child-org') ? '−' : '+'}</span>
+        </button>
+        {expandedSections.has('child-org') && (
+          <div className="accordion-content">
+            <div className="workflow-row current">
+              <span className="workflow-badge current">Current</span>
+              <div className="workflow-steps-inline">
+                <div className="inline-step">
                   <span className="step-num">1</span>
                   <div className="step-info">
                     <strong>Find Parent Account</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
-                <div className="step-arrow">↓</div>
-                <div className="process-step">
+                <span className="step-arrow-inline">→</span>
+                <div className="inline-step">
                   <span className="step-num">2</span>
                   <div className="step-info">
                     <strong>Create Child Account</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
-                <div className="step-arrow">↓</div>
-                <div className="process-step">
+                <span className="step-arrow-inline">→</span>
+                <div className="inline-step">
                   <span className="step-num">3</span>
                   <div className="step-info">
                     <strong>Link in CSR with Parent Org ID</strong>
@@ -876,25 +881,22 @@ function WorkflowComparison() {
                   </div>
                 </div>
               </div>
+              <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
+                View Demo
+              </button>
             </div>
-          </div>
-
-          <div className="comparison-column proposed">
-            <div className="column-header">
-              <span className="column-badge proposed">Proposed</span>
-              <h4>Unified Process</h4>
-            </div>
-            <div className="column-content">
-              <div className="process-steps">
-                <div className="process-step">
+            <div className="workflow-row proposed">
+              <span className="workflow-badge proposed">Proposed</span>
+              <div className="workflow-steps-inline">
+                <div className="inline-step">
                   <span className="step-num">1</span>
                   <div className="step-info">
                     <strong>Create Child Prospect</strong>
                     <span className="step-system">Salesforce (parent auto-linked)</span>
                   </div>
                 </div>
-                <div className="step-arrow">↓</div>
-                <div className="process-step">
+                <span className="step-arrow-inline">→</span>
+                <div className="inline-step">
                   <span className="step-num">2</span>
                   <div className="step-info">
                     <strong>Convert to Child Client</strong>
@@ -902,81 +904,61 @@ function WorkflowComparison() {
                   </div>
                 </div>
               </div>
+              <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
+                View Demo
+              </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Section 3: Locked Hierarchy */}
-      <div className="comparison-section">
-        <div className="section-header">
-          <h3>Hierarchy Locking Rules</h3>
-          <p>What happens when a prospect becomes a customer</p>
-        </div>
-
-        <div className="comparison-columns">
-          <div className="comparison-column current">
-            <div className="column-header">
-              <span className="column-badge current">Current</span>
-              <h4>Today's Behavior</h4>
-            </div>
-            <div className="column-content">
-              <div className="hierarchy-rules">
-                <div className="rule">
-                  <div className="rule-header">
-                    <span className="rule-icon">🔒</span>
-                    <strong>Full Lock on Conversion</strong>
-                  </div>
-                  <p>Once an account is created in CSR, the entire hierarchy becomes immutable in Salesforce.</p>
+      <div className="scenario-accordion">
+        <button className="accordion-header" onClick={() => toggleSection('locking')}>
+          <div className="accordion-title">
+            <h3>Hierarchy Locking Rules</h3>
+            <p>What happens when a prospect becomes a customer</p>
+          </div>
+          <span className="accordion-icon">{expandedSections.has('locking') ? '−' : '+'}</span>
+        </button>
+        {expandedSections.has('locking') && (
+          <div className="accordion-content">
+            <div className="workflow-row current">
+              <span className="workflow-badge current">Current</span>
+              <div className="locking-rules-inline">
+                <div className="rule-summary">
+                  <span className="rule-icon">🔒</span>
+                  <strong>Full Lock on Conversion</strong>
+                  <span className="rule-desc">— Entire hierarchy becomes immutable in Salesforce once in CSR</span>
                 </div>
-                <div className="rule-issue">
-                  <span className="issue-icon">⚠️</span>
-                  <span>No way to restructure or correct mistakes</span>
-                </div>
-                <div className="rule-issue">
-                  <span className="issue-icon">⚠️</span>
-                  <span>Must involve engineering for any changes</span>
+                <div className="rule-issues">
+                  <span className="issue-item"><span className="issue-icon">⚠️</span> No restructuring</span>
+                  <span className="issue-item"><span className="issue-icon">⚠️</span> Requires engineering</span>
                 </div>
               </div>
+              <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
+                View Demo
+              </button>
             </div>
-          </div>
-
-          <div className="comparison-column proposed">
-            <div className="column-header">
-              <span className="column-badge proposed">Proposed</span>
-              <h4>Smart Locking</h4>
-            </div>
-            <div className="column-content">
-              <div className="hierarchy-rules">
-                <div className="rule">
-                  <div className="rule-header">
-                    <span className="rule-icon">🔐</span>
-                    <strong>Customer Hierarchy Protection</strong>
-                  </div>
-                  <p>Once a prospect converts to a customer/client, that customer's position in the hierarchy is locked.</p>
+            <div className="workflow-row proposed">
+              <span className="workflow-badge proposed">Proposed</span>
+              <div className="locking-rules-inline">
+                <div className="rule-summary">
+                  <span className="rule-icon">🔐</span>
+                  <strong>Smart Locking</strong>
+                  <span className="rule-desc">— Only customer's position is locked, not entire hierarchy</span>
                 </div>
-                <div className="rule-allowed">
-                  <span className="allowed-icon">✓</span>
-                  <strong>Allowed:</strong>
-                  <ul>
-                    <li>Create new prospects underneath existing customers</li>
-                    <li>Convert prospects to customers (adds to hierarchy)</li>
-                    <li>Add practices to existing organizations</li>
-                  </ul>
-                </div>
-                <div className="rule-blocked">
-                  <span className="blocked-icon">✗</span>
-                  <strong>Blocked:</strong>
-                  <ul>
-                    <li>Moving a customer to a different parent</li>
-                    <li>Deleting a customer from the hierarchy</li>
-                    <li>Changing parent-child relationships for customers</li>
-                  </ul>
+                <div className="rule-details">
+                  <span className="allowed-item"><span className="allowed-icon">✓</span> Add prospects/practices</span>
+                  <span className="blocked-item"><span className="blocked-icon">✗</span> Move/delete customers</span>
                 </div>
               </div>
+              <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
+                View Demo
+              </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Demo Modals */}
