@@ -851,8 +851,9 @@ function CurrentWorkflow() {
 }
 
 // Commercial Team Demo Component
-type DemoStep = 'list' | 'type-modal' | 'form' | 'detail' | 'success'
+type DemoStep = 'list' | 'type-modal' | 'form' | 'detail' | 'csr-org' | 'csr-practice' | 'success'
 type AccountType = 'Practice' | 'BusinessDevelopment' | 'HealthSystem'
+type CSRScenario = 'new-customer' | 'existing-no-parent-org' | 'existing-with-parent-org'
 
 const MOCK_ACCOUNTS = [
   { id: 1, name: 'Lifestance - Texas', segment: 'Large Provider Group', practiceId: '118864', phone: '', website: '', state: 'TX', lastActivity: '6/19/2025', isActive: false },
@@ -865,6 +866,13 @@ const MOCK_ACCOUNTS = [
   { id: 8, name: 'Orlando Health Physician Associates', segment: 'Health System', practiceId: '75919', phone: '', website: '', state: 'FL', lastActivity: '6/26/2023', isActive: true },
 ]
 
+// Mock existing orgs for parent selection
+const MOCK_EXISTING_ORGS = [
+  { id: 'org_northwell', name: 'Northwell Health', segment: 'Health System', hasChildOrg: true },
+  { id: 'org_lifestance', name: 'LifeStance Health', segment: 'Large Provider Group', hasChildOrg: false },
+  { id: 'org_privia', name: 'Privia Health', segment: 'Large Provider Group', hasChildOrg: true },
+]
+
 function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<DemoStep>('list')
   const [selectedType, setSelectedType] = useState<AccountType>('HealthSystem')
@@ -872,11 +880,26 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
     accountName: '',
     accountSegment: 'Health System',
     parentAccount: '',
+    ultimateParentOrgId: '',
+    parentOrgId: '',
     website: '',
     phone: '',
     territory: '',
   })
   const [searchQuery, setSearchQuery] = useState('')
+
+  // CSR Wizard state
+  const [csrScenario, setCsrScenario] = useState<CSRScenario>('new-customer')
+  const [csrOrgData, setCsrOrgData] = useState({
+    name: '',
+    type: 'Health System',
+  })
+  const [csrPracticeData, setCsrPracticeData] = useState({
+    name: '',
+    npi: '',
+    products: [] as string[],
+  })
+  const [createdOrgId, setCreatedOrgId] = useState('')
 
   const filteredAccounts = searchQuery
     ? MOCK_ACCOUNTS.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -886,17 +909,63 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
     switch (step) {
       case 'list': case 'type-modal': return 1
       case 'form': return 2
-      case 'detail': case 'success': return 3
+      case 'detail': case 'csr-org': case 'csr-practice': case 'success': return 3
     }
+  }
+
+  // Determine CSR scenario based on form data
+  const determineCSRScenario = (): CSRScenario => {
+    if (!formData.ultimateParentOrgId) {
+      return 'new-customer'
+    } else if (!formData.parentOrgId) {
+      return 'existing-no-parent-org'
+    } else {
+      return 'existing-with-parent-org'
+    }
+  }
+
+  const handleCreateCSRAccount = () => {
+    const scenario = determineCSRScenario()
+    setCsrScenario(scenario)
+    // Pre-fill org data from account
+    setCsrOrgData({
+      name: formData.accountName || 'New Organization',
+      type: formData.accountSegment,
+    })
+    setCsrPracticeData({
+      name: formData.accountName ? `${formData.accountName} Practice` : 'New Practice',
+      npi: '',
+      products: [],
+    })
+
+    if (scenario === 'existing-with-parent-org') {
+      // Skip org creation, go straight to practice
+      setStep('csr-practice')
+    } else {
+      // Need to create org first
+      setStep('csr-org')
+    }
+  }
+
+  const handleOrgCreated = () => {
+    // Generate a mock org ID
+    setCreatedOrgId(`org_${Math.random().toString(36).substr(2, 8)}`)
+    setStep('csr-practice')
   }
 
   const resetDemo = () => {
     setStep('list')
     setSelectedType('HealthSystem')
+    setCsrScenario('new-customer')
+    setCsrOrgData({ name: '', type: 'Health System' })
+    setCsrPracticeData({ name: '', npi: '', products: [] })
+    setCreatedOrgId('')
     setFormData({
       accountName: '',
       accountSegment: 'Health System',
       parentAccount: '',
+      ultimateParentOrgId: '',
+      parentOrgId: '',
       website: '',
       phone: '',
       territory: '',
@@ -1131,7 +1200,32 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
                   </div>
                   <div className="sf-form-field">
                     <label>Parent Account</label>
-                    <input type="text" placeholder="Search Accounts..." className="sf-input" />
+                    <select
+                      className="sf-select"
+                      value={formData.parentAccount}
+                      onChange={e => {
+                        const val = e.target.value
+                        if (val === '') {
+                          setFormData({ ...formData, parentAccount: '', ultimateParentOrgId: '', parentOrgId: '' })
+                        } else if (val === 'northwell-child') {
+                          setFormData({ ...formData, parentAccount: 'Northwell Health (Child Org)', ultimateParentOrgId: 'org_northwell', parentOrgId: 'org_northwell_child' })
+                        } else if (val === 'northwell') {
+                          setFormData({ ...formData, parentAccount: 'Northwell Health', ultimateParentOrgId: 'org_northwell', parentOrgId: '' })
+                        } else if (val === 'lifestance') {
+                          setFormData({ ...formData, parentAccount: 'LifeStance Health', ultimateParentOrgId: 'org_lifestance', parentOrgId: '' })
+                        }
+                      }}
+                    >
+                      <option value="">-- No Parent (New Customer) --</option>
+                      <option value="northwell">Northwell Health (Ultimate Parent Only)</option>
+                      <option value="northwell-child">Northwell Health → Northwell Cardiology (Has Parent Org)</option>
+                      <option value="lifestance">LifeStance Health (Ultimate Parent Only)</option>
+                    </select>
+                    <span className="sf-hint csr-hint">
+                      {!formData.ultimateParentOrgId && '→ Will create: Org + Practice'}
+                      {formData.ultimateParentOrgId && !formData.parentOrgId && '→ Will create: Child Org + Practice'}
+                      {formData.parentOrgId && '→ Will create: Practice only'}
+                    </span>
                   </div>
                 </div>
                 <div className="sf-form-row">
@@ -1204,7 +1298,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
                   <button className="btn btn-sf">Edit</button>
                   <button className="btn btn-sf">Escalate</button>
                   <button className="btn btn-sf">Submit to SalesOps</button>
-                  <button className="btn btn-sf-csr" onClick={() => setStep('success')}>Create CSR Account</button>
+                  <button className="btn btn-sf-csr" onClick={handleCreateCSRAccount}>Create CSR Account</button>
                 </div>
               </div>
 
@@ -1297,26 +1391,234 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
+        {/* CSR Wizard: Create Org */}
+        {step === 'csr-org' && (
+          <div className="demo-content">
+            <div className="csr-wizard">
+              <div className="csr-wizard-header">
+                <div className="csr-wizard-icon">🏢</div>
+                <div className="csr-wizard-title">
+                  <h3>Create Organization</h3>
+                  <p className="csr-scenario-badge">
+                    {csrScenario === 'new-customer' && 'New Customer → Creating Ultimate Parent Org'}
+                    {csrScenario === 'existing-no-parent-org' && `Existing Customer → Creating Child Org under ${formData.parentAccount}`}
+                  </p>
+                </div>
+                <div className="csr-wizard-steps">
+                  <span className="csr-step active">1. Create Org</span>
+                  <span className="csr-step-arrow">→</span>
+                  <span className="csr-step">2. Add Practice</span>
+                </div>
+              </div>
+
+              <div className="csr-wizard-body">
+                <div className="csr-form">
+                  <div className="modal-hint">
+                    {csrScenario === 'new-customer'
+                      ? 'This creates a top-level organization with no parent. A practice will be added in the next step.'
+                      : `This creates a child organization under "${formData.parentAccount}". A practice will be added in the next step.`
+                    }
+                  </div>
+
+                  <div className="form-group">
+                    <label>Organization Name *</label>
+                    <input
+                      type="text"
+                      className="sf-input"
+                      value={csrOrgData.name}
+                      onChange={e => setCsrOrgData({ ...csrOrgData, name: e.target.value })}
+                      placeholder="Enter organization name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Organization Type *</label>
+                    <select
+                      className="sf-select"
+                      value={csrOrgData.type}
+                      onChange={e => setCsrOrgData({ ...csrOrgData, type: e.target.value })}
+                    >
+                      <option value="Health System">Health System (HS)</option>
+                      <option value="Large Provider Group">Large Provider Group (LPG)</option>
+                      <option value="Mid-Market">Mid-Market (MM)</option>
+                      <option value="Local">Local</option>
+                    </select>
+                  </div>
+
+                  {csrScenario === 'existing-no-parent-org' && (
+                    <div className="form-group">
+                      <label>Parent Organization</label>
+                      <div className="sf-form-value">
+                        <span className="parent-org-badge">{formData.parentAccount}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="csr-wizard-footer">
+                <button className="btn btn-sf" onClick={() => setStep('detail')}>Cancel</button>
+                <button
+                  className="btn btn-sf-primary"
+                  onClick={handleOrgCreated}
+                  disabled={!csrOrgData.name.trim()}
+                >
+                  {csrScenario === 'new-customer' ? 'Create Ultimate Parent' : 'Create Child Org'} →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CSR Wizard: Create Practice */}
+        {step === 'csr-practice' && (
+          <div className="demo-content">
+            <div className="csr-wizard">
+              <div className="csr-wizard-header">
+                <div className="csr-wizard-icon">🏥</div>
+                <div className="csr-wizard-title">
+                  <h3>Add Practice</h3>
+                  <p className="csr-scenario-badge">
+                    {csrScenario === 'existing-with-parent-org'
+                      ? `Adding practice under existing org: ${formData.parentAccount}`
+                      : `Adding practice under new org: ${csrOrgData.name}`
+                    }
+                  </p>
+                </div>
+                <div className="csr-wizard-steps">
+                  {csrScenario !== 'existing-with-parent-org' && (
+                    <>
+                      <span className="csr-step completed">1. Create Org ✓</span>
+                      <span className="csr-step-arrow">→</span>
+                    </>
+                  )}
+                  <span className="csr-step active">
+                    {csrScenario === 'existing-with-parent-org' ? '1. Add Practice' : '2. Add Practice'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="csr-wizard-body">
+                <div className="csr-form">
+                  {csrScenario !== 'existing-with-parent-org' && createdOrgId && (
+                    <div className="csr-created-org-notice">
+                      <span className="notice-icon">✓</span>
+                      <span>Organization "{csrOrgData.name}" created (ID: {createdOrgId})</span>
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>Practice Name *</label>
+                    <input
+                      type="text"
+                      className="sf-input"
+                      value={csrPracticeData.name}
+                      onChange={e => setCsrPracticeData({ ...csrPracticeData, name: e.target.value })}
+                      placeholder="Enter practice name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>NPI Number</label>
+                    <input
+                      type="text"
+                      className="sf-input"
+                      value={csrPracticeData.npi}
+                      onChange={e => setCsrPracticeData({ ...csrPracticeData, npi: e.target.value })}
+                      placeholder="Enter NPI"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Products</label>
+                    <div className="product-checkboxes">
+                      {['Marketplace', 'Book from Google', 'Wellhive', 'Yelp', 'Healthgrades', 'ZVS', 'Intake', 'Zo', 'Bookable Directory'].map(product => (
+                        <label key={product} className="product-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={csrPracticeData.products.includes(product)}
+                            onChange={e => {
+                              if (e.target.checked) {
+                                setCsrPracticeData({ ...csrPracticeData, products: [...csrPracticeData.products, product] })
+                              } else {
+                                setCsrPracticeData({ ...csrPracticeData, products: csrPracticeData.products.filter(p => p !== product) })
+                              }
+                            }}
+                          />
+                          <span>{product}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="csr-wizard-footer">
+                <button className="btn btn-sf" onClick={() => csrScenario === 'existing-with-parent-org' ? setStep('detail') : setStep('csr-org')}>
+                  ← Back
+                </button>
+                <button
+                  className="btn btn-sf-csr"
+                  onClick={() => setStep('success')}
+                  disabled={!csrPracticeData.name.trim()}
+                >
+                  Create CSR Account
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Success State */}
         {step === 'success' && (
           <div className="demo-content">
             <div className="demo-success">
               <div className="success-icon">✓</div>
               <h3>CSR Account Created Successfully!</h3>
-              <p>The account has been created in CSR and synced to POGS.</p>
+              <p>
+                {csrScenario === 'new-customer' && 'New organization and practice created in CSR and synced to POGS.'}
+                {csrScenario === 'existing-no-parent-org' && 'Child organization and practice created under existing customer.'}
+                {csrScenario === 'existing-with-parent-org' && 'Practice created under existing organization.'}
+              </p>
               <div className="success-details">
+                {csrScenario !== 'existing-with-parent-org' && (
+                  <div className="success-detail">
+                    <label>{csrScenario === 'new-customer' ? 'Organization' : 'Child Organization'}</label>
+                    <span>{csrOrgData.name}</span>
+                  </div>
+                )}
+                {csrScenario !== 'existing-with-parent-org' && (
+                  <div className="success-detail">
+                    <label>Org ID</label>
+                    <span>{createdOrgId || `org_${Math.random().toString(36).substr(2, 8)}`}</span>
+                  </div>
+                )}
+                {csrScenario !== 'new-customer' && (
+                  <div className="success-detail">
+                    <label>Parent Organization</label>
+                    <span>{formData.parentAccount}</span>
+                  </div>
+                )}
                 <div className="success-detail">
-                  <label>Account Name</label>
-                  <span>{formData.accountName || 'New Health System Account'}</span>
+                  <label>Practice Name</label>
+                  <span>{csrPracticeData.name}</span>
                 </div>
                 <div className="success-detail">
                   <label>Practice ID</label>
                   <span>PRC-{Math.floor(100000 + Math.random() * 900000)}</span>
                 </div>
-                <div className="success-detail">
-                  <label>POGS ID</label>
-                  <span>org_{Math.random().toString(36).substr(2, 12)}</span>
-                </div>
+                {csrPracticeData.npi && (
+                  <div className="success-detail">
+                    <label>NPI</label>
+                    <span>{csrPracticeData.npi}</span>
+                  </div>
+                )}
+                {csrPracticeData.products.length > 0 && (
+                  <div className="success-detail">
+                    <label>Products</label>
+                    <span>{csrPracticeData.products.join(', ')}</span>
+                  </div>
+                )}
               </div>
               <div className="success-actions">
                 <button className="btn btn-sf" onClick={resetDemo}>Start Over</button>

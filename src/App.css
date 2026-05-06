@@ -2275,6 +2275,146 @@ body {
   align-items: center;
 }
 
+/* CSR Wizard Styles */
+.csr-wizard {
+  background: white;
+  margin: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.csr-wizard-header {
+  background: linear-gradient(135deg, #16325c 0%, #0070d2 100%);
+  color: white;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.csr-wizard-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.csr-wizard-title {
+  flex: 1;
+}
+
+.csr-wizard-title h3 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.csr-scenario-badge {
+  font-size: 13px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.csr-wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.csr-step {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.csr-step.active {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.csr-step.completed {
+  opacity: 1;
+  color: #90ee90;
+}
+
+.csr-step-arrow {
+  opacity: 0.5;
+}
+
+.csr-wizard-body {
+  padding: 32px;
+}
+
+.csr-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.csr-form .modal-hint {
+  margin-bottom: 24px;
+}
+
+.csr-form .form-group {
+  margin-bottom: 20px;
+}
+
+.csr-form .form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #514f4d;
+  margin-bottom: 6px;
+}
+
+.csr-created-org-notice {
+  background: #e6f7f0;
+  border: 1px solid #00a86b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #006644;
+  font-size: 14px;
+}
+
+.csr-created-org-notice .notice-icon {
+  background: #00a86b;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.parent-org-badge {
+  background: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #16325c;
+  display: inline-block;
+}
+
+.csr-wizard-footer {
+  background: #fafaf9;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #dddbda;
+}
+
+.sf-hint.csr-hint {
+  color: #0070d2;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {
