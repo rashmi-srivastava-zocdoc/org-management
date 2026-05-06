@@ -1823,10 +1823,11 @@ body {
 .workflow-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 12px 16px;
   border-radius: 10px;
   margin-bottom: 12px;
+  flex-wrap: nowrap;
 }
 
 .workflow-row:last-child {
@@ -1844,13 +1845,13 @@ body {
 }
 
 .workflow-badge {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   flex-shrink: 0;
-  min-width: 70px;
+  min-width: 65px;
   text-align: center;
 }
 
@@ -1867,43 +1868,46 @@ body {
 .workflow-steps-inline {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .inline-step {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 6px 10px;
   background: white;
   border-radius: 6px;
   border: 1px solid var(--zd-border);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .inline-step .step-num {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--zd-green);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   flex-shrink: 0;
 }
 
 .inline-step .step-info {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: center;
+  gap: 6px;
 }
 
 .inline-step .step-info strong {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--zd-text-primary);
 }
