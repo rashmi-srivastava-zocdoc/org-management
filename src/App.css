@@ -3653,3 +3653,87 @@ body {
     display: none;
   }
 }
+
+/* Split View Modal */
+.wide-modal {
+  width: 900px;
+  max-width: 95vw;
+}
+
+.split-view {
+  display: flex;
+  gap: 24px;
+  min-height: 400px;
+}
+
+.split-left {
+  flex: 0 0 320px;
+  background: #f4f6f9;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.split-right {
+  flex: 1;
+  padding: 0 8px;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+  color: #444;
+}
+
+.mode-option:hover {
+  border-color: #0070d2;
+  background: #f4f6f9;
+}
+
+.mode-option.active {
+  border-color: #0070d2;
+  background: #e6f2ff;
+  color: #0070d2;
+  font-weight: 500;
+}
+
+.mode-option input[type="radio"] {
+  accent-color: #0070d2;
+}
+
+.form-section {
+  margin-bottom: 20px;
+}
+
+.form-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #16325c;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e5e5;
+  background: #fafaf9;
+  border-radius: 0 0 12px 12px;
+}
