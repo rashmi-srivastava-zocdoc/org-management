@@ -179,6 +179,33 @@ function App() {
     return search(organizations, null)
   }
 
+  const getOrgPath = (orgId: string): Organization[] => {
+    const path: Organization[] = []
+    const search = (orgs: Organization[], currentPath: Organization[]): boolean => {
+      for (const org of orgs) {
+        const newPath = [...currentPath, org]
+        if (org.id === orgId) {
+          path.push(...newPath)
+          return true
+        }
+        if (org.children && search(org.children, newPath)) {
+          return true
+        }
+      }
+      return false
+    }
+    search(organizations, [])
+    return path
+  }
+
+  const getTargetOrgForPractice = (): Organization | null => {
+    if (selectedItems.size === 1) {
+      const targetId = Array.from(selectedItems)[0]
+      return allOrgs.find(o => o.id === targetId) || null
+    }
+    return selectedOrg
+  }
+
   const parentOrg = selectedOrg ? findParentOrg(selectedOrg.id) : null
 
   // Count all items
@@ -500,14 +527,20 @@ function App() {
       )}
 
       {/* Add Practice Modal */}
-      {showAddPracticeModal && selectedOrg && (
-        <Modal title={`Add Practice`} onClose={() => setShowAddPracticeModal(false)}>
-          <PracticeForm
-            onSubmit={handleAddPractice}
-            onCancel={() => setShowAddPracticeModal(false)}
-          />
-        </Modal>
-      )}
+      {showAddPracticeModal && selectedOrg && (() => {
+        const targetOrg = getTargetOrgForPractice()
+        const orgPath = targetOrg ? getOrgPath(targetOrg.id) : []
+        return (
+          <Modal title={`Add Practice`} onClose={() => setShowAddPracticeModal(false)}>
+            <PracticeForm
+              onSubmit={handleAddPractice}
+              onCancel={() => setShowAddPracticeModal(false)}
+              parentOrg={targetOrg}
+              orgPath={orgPath}
+            />
+          </Modal>
+        )
+      })()}
 
       {/* Change Parent Modal */}
       {showChangeParentModal && selectedOrg && (
@@ -600,7 +633,17 @@ function OrgForm({
 }
 
 // Practice Form Component
-function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string; npi?: string; products?: ProductType[] }) => void; onCancel: () => void }) {
+function PracticeForm({
+  onSubmit,
+  onCancel,
+  parentOrg,
+  orgPath = [],
+}: {
+  onSubmit: (data: { name: string; npi?: string; products?: ProductType[] }) => void
+  onCancel: () => void
+  parentOrg?: Organization | null
+  orgPath?: Organization[]
+}) {
   const [name, setName] = useState('')
   const [npi, setNpi] = useState('')
   const [selectedProducts, setSelectedProducts] = useState<Set<ProductType>>(new Set())
@@ -626,6 +669,36 @@ function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string;
         products: selectedProducts.size > 0 ? Array.from(selectedProducts) : undefined
       })
     }}>
+      {/* Org Hierarchy Preview */}
+      {parentOrg && (
+        <div className="org-hierarchy-preview">
+          <div className="hierarchy-preview-title">Creating Practice Under</div>
+          <div className="hierarchy-preview-tree">
+            {orgPath.map((org, index) => (
+              <div key={org.id} style={{ marginLeft: index * 20 }}>
+                {index > 0 && <span className="hierarchy-connector">└─</span>}
+                <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: index > 0 ? 4 : 0 }}>
+                  <span className="node-icon">🏢</span>
+                  <span className="node-name">{org.name}</span>
+                  <span className={`type-badge ${org.id === orgPath[0]?.id ? 'ultimate' : 'child'}`}>
+                    {TYPE_ABBREV[org.type] || org.type}
+                  </span>
+                </div>
+              </div>
+            ))}
+            <div style={{ marginLeft: orgPath.length * 20 }}>
+              <span className="hierarchy-connector">└─</span>
+              <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                <span className="node-icon">🏥</span>
+                <span className="node-name">{name || 'New Practice'}</span>
+                <span className="type-badge practice">Practice</span>
+                <span className="new-badge">← Creating here</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="form-group">
         <label>Practice Name *</label>
         <input
