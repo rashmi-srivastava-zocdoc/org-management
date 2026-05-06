@@ -247,6 +247,7 @@ function App() {
               <div
                 key={practice.id}
                 className={`tree-row practice-row ${selectedItems.has(practice.id) ? 'checked' : ''}`}
+                onClick={() => setSelectedItems(new Set([practice.id]))}
               >
                 <div className="tree-select">
                   <input
@@ -493,10 +494,25 @@ function App() {
                 return org
               }
 
-              setOrganizations(organizations.map(addChild))
-              if (selectedOrg.id === targetOrg.id) {
-                setSelectedOrg({ ...selectedOrg, children: [...(selectedOrg.children || []), newChild] })
+              const updatedOrgs = organizations.map(addChild)
+              setOrganizations(updatedOrgs)
+
+              // Update selectedOrg to reflect changes (including nested children)
+              const findOrg = (orgs: Organization[], id: string): Organization | null => {
+                for (const org of orgs) {
+                  if (org.id === id) return org
+                  if (org.children) {
+                    const found = findOrg(org.children, id)
+                    if (found) return found
+                  }
+                }
+                return null
               }
+              const updatedSelectedOrg = findOrg(updatedOrgs, selectedOrg.id)
+              if (updatedSelectedOrg) {
+                setSelectedOrg(updatedSelectedOrg)
+              }
+
               setExpandedOrgs(prev => new Set([...prev, targetOrg.id]))
               setShowAddChildModal(false)
             }}
@@ -1033,7 +1049,7 @@ function CurrentWorkflow() {
               <button className="demo-close" onClick={exitDemo}>×</button>
             </div>
 
-            <div className="demo-content">
+            <div className="proposed-demo-screen">
               <div className="demo-sidebar">
                 <div className="demo-nav-title">Workflow Steps</div>
                 {steps.map((step) => {
@@ -1773,32 +1789,83 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
     setSearchQuery('')
   }
 
+  const getStepDetails = () => {
+    switch (step) {
+      case 'list':
+        return { phase: 1, title: 'Accounts List', desc: 'Click "New" to create a new prospect' }
+      case 'type-modal':
+        return { phase: 1, title: 'Select Type', desc: 'Choose the type of account' }
+      case 'form':
+        return { phase: 1, title: 'Account Form', desc: 'Fill in prospect details' }
+      case 'detail':
+        return { phase: 2, title: 'Account Detail', desc: 'Click "Create CSR Account"' }
+      case 'csr-org':
+        return { phase: 2, title: 'Create Org', desc: 'Set up organization in CSR' }
+      case 'csr-practice':
+        return { phase: 2, title: 'Create Practice', desc: 'Add practice details' }
+      case 'success':
+        return { phase: 2, title: 'Success', desc: 'Account created!' }
+      default:
+        return { phase: 1, title: '', desc: '' }
+    }
+  }
+
+  const stepDetails = getStepDetails()
+
   return (
     <div className="demo-overlay" onClick={onClose}>
-      <div className="demo-container" onClick={e => e.stopPropagation()}>
-        {/* Demo Header */}
-        <div className="demo-header">
-          <div className="demo-header-left">
-            <h2>Commercial Team Flow: New Client</h2>
-            <div className="demo-progress">
-              <div className={`progress-step ${getStepNumber() >= 1 ? 'active' : ''} ${getStepNumber() > 1 ? 'completed' : ''}`}>
-                <span className="progress-num">1</span>
-                <span className="progress-label">Create Prospect</span>
-              </div>
-              <div className="progress-connector" />
-              <div className={`progress-step ${getStepNumber() >= 2 ? 'active' : ''}`}>
-                <span className="progress-num">2</span>
-                <span className="progress-label">Convert to Client/Product Account</span>
-              </div>
-            </div>
-          </div>
+      <div className="proposed-demo-modal" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="proposed-demo-header">
+          <h2>Commercial Team Flow: New Client</h2>
           <button className="demo-close" onClick={onClose}>×</button>
         </div>
 
-        {/* Step 1: Accounts List */}
-        {step === 'list' && (
-          <div className="demo-content">
-            <div className="sf-header">
+        <div className="proposed-demo-body">
+          {/* Left Sidebar */}
+          <div className="proposed-demo-sidebar">
+            <div className="demo-nav-title">Workflow Steps</div>
+
+            <div
+              className={`demo-nav-item ${stepDetails.phase === 1 ? 'active' : ''} ${getStepNumber() > 1 ? 'completed' : ''}`}
+              onClick={() => setStep('list')}
+            >
+              <div className="demo-nav-number">1</div>
+              <div className="demo-nav-info">
+                <div className="demo-nav-label">Create Prospect</div>
+                <div className="demo-nav-system">Salesforce</div>
+                {stepDetails.phase === 1 && (
+                  <div className="demo-nav-substep">{stepDetails.title}</div>
+                )}
+              </div>
+            </div>
+
+            <div
+              className={`demo-nav-item ${stepDetails.phase === 2 ? 'active' : ''}`}
+              onClick={() => formData.accountName ? setStep('detail') : null}
+              style={{ cursor: formData.accountName ? 'pointer' : 'not-allowed', opacity: formData.accountName ? 1 : 0.5 }}
+            >
+              <div className="demo-nav-number">2</div>
+              <div className="demo-nav-info">
+                <div className="demo-nav-label">Convert to Client</div>
+                <div className="demo-nav-system">CSR / Product Account</div>
+                {stepDetails.phase === 2 && (
+                  <div className="demo-nav-substep">{stepDetails.title}</div>
+                )}
+              </div>
+            </div>
+
+            <div className="demo-sidebar-footer">
+              <button className="btn btn-sm" onClick={resetDemo}>Reset Demo</button>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="proposed-demo-main">
+            {/* Step 1: Accounts List */}
+            {step === 'list' && (
+              <div className="proposed-demo-screen">
+                <div className="sf-header">
               <div className="sf-header-left">
                 <span className="sf-cloud-icon">☁️</span>
                 <span className="sf-title">Sales Console</span>
@@ -1869,7 +1936,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
 
         {/* Step 1b: Type Selection Modal */}
         {step === 'type-modal' && (
-          <div className="demo-content">
+          <div className="proposed-demo-screen">
             <div className="sf-modal-backdrop">
               <div className="sf-modal">
                 <div className="sf-modal-header">
@@ -1923,7 +1990,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
 
         {/* Step 2: Account Form */}
         {step === 'form' && (
-          <div className="demo-content">
+          <div className="proposed-demo-screen">
             <div className="sf-form-page">
               <div className="sf-form-header">
                 <h3>New Account: {selectedType === 'HealthSystem' ? 'Health System' : selectedType === 'BusinessDevelopment' ? 'Business Development' : 'Practice'}</h3>
@@ -2079,7 +2146,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
 
         {/* Step 3: Account Detail */}
         {step === 'detail' && (
-          <div className="demo-content">
+          <div className="proposed-demo-screen">
             <div className="sf-detail-page">
               <div className="sf-detail-header">
                 <div className="sf-detail-title">
@@ -2188,7 +2255,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
 
         {/* CSR Wizard: Create Org */}
         {step === 'csr-org' && (
-          <div className="demo-content">
+          <div className="proposed-demo-screen">
             <div className="csr-wizard">
               <div className="csr-wizard-header">
                 <div className="csr-wizard-icon">🏢</div>
@@ -2267,7 +2334,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
 
         {/* CSR Wizard: Create Practice */}
         {step === 'csr-practice' && (
-          <div className="demo-content">
+          <div className="proposed-demo-screen">
             <div className="csr-wizard">
               <div className="csr-wizard-header">
                 <div className="csr-wizard-icon">🏥</div>
@@ -2366,7 +2433,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
 
         {/* Success State */}
         {step === 'success' && (
-          <div className="demo-content">
+          <div className="proposed-demo-screen">
             <div className="demo-success">
               <div className="success-icon">✓</div>
               <h3>CSR Account Created Successfully!</h3>
@@ -2422,6 +2489,8 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   )

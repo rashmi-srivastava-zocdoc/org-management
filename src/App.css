@@ -1656,6 +1656,92 @@ body {
   background: var(--zd-text-muted);
 }
 
+/* Proposed Demo Modal (Commercial Team Flow) */
+.proposed-demo-modal {
+  background: white;
+  border-radius: 16px;
+  width: 1300px;
+  height: 850px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.proposed-demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--zd-bg);
+  border-bottom: 1px solid var(--zd-border);
+  flex-shrink: 0;
+}
+
+.proposed-demo-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--zd-text-primary);
+  margin: 0;
+}
+
+.proposed-demo-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.proposed-demo-sidebar {
+  width: 240px;
+  padding: 20px;
+  background: var(--zd-bg);
+  border-right: 1px solid var(--zd-border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--zd-border);
+}
+
+.demo-sidebar-footer .btn {
+  width: 100%;
+}
+
+.demo-nav-substep {
+  font-size: 11px;
+  color: var(--zd-green);
+  font-weight: 500;
+  margin-top: 4px;
+  padding: 3px 8px;
+  background: #e6f7f0;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.proposed-demo-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+}
+
+.proposed-demo-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
 /* Comparison Layout */
 .comparison-container {
   display: flex;
