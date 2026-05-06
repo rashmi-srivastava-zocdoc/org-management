@@ -1486,9 +1486,6 @@ function CreateNewClientWizard({
     name: '',
     products: [] as ProductType[],
   })
-  const [createdChildId, setCreatedChildId] = useState('')
-  const [createdOrgId, setCreatedOrgId] = useState('')
-
   const toggleProduct = (product: ProductType) => {
     setPracticeData(prev => {
       const products = prev.products.includes(product)
@@ -1500,21 +1497,20 @@ function CreateNewClientWizard({
 
   const handleCreate = () => {
     const newOrgId = `org_${Math.random().toString(36).substr(2, 12)}`
-    setCreatedOrgId(newOrgId)
 
     // Create the parent org
     onCreateOrg({ ...orgData, id: newOrgId } as Partial<Organization>)
 
+    // Determine where to attach the practice
+    let practiceParentId = newOrgId
+
     if (mode === 'create-child' && childOrgName.trim()) {
       const newChildId = `org_${Math.random().toString(36).substr(2, 12)}`
-      setCreatedChildId(newChildId)
+      practiceParentId = newChildId
       // Note: Child org creation handled by parent component
     }
 
     if (practiceData.name.trim()) {
-      const practiceParentId = mode === 'create-child' && childOrgName.trim()
-        ? createdChildId || `org_${Math.random().toString(36).substr(2, 12)}`
-        : newOrgId
       onCreatePractice(practiceParentId, {
         name: practiceData.name,
         products: practiceData.products.length > 0 ? practiceData.products : undefined,
