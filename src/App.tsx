@@ -1032,38 +1032,47 @@ function CurrentWorkflow() {
 
             <div className="demo-content">
               <div className="demo-sidebar">
-                <div className={`demo-step-badge ${currentDemo.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
-                  <span className="demo-step-icon">{currentDemo.icon}</span>
-                  <span className="demo-step-system">{currentDemo.system}</span>
-                </div>
-                <h3 className="demo-step-title">
-                  {currentDemo.stepNumber}. {currentDemo.stepTitle}
-                </h3>
-                {currentDemo.description && (
-                  <p className="demo-step-description">{currentDemo.description}</p>
-                )}
-                {currentDemo.details && (
-                  <ul className="demo-step-details">
-                    {currentDemo.details.map((detail, i) => (
-                      <li key={i} className={i === currentDemo.imageIndexInStep - 1 ? 'current' : ''}>
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <div className="demo-step-position">
-                  Screenshot {currentDemo.imageIndexInStep} of {currentDemo.totalInStep} in this step
-                </div>
+                <div className="demo-nav-title">Workflow Steps</div>
+                {steps.map((step) => {
+                  const stepStartIdx = allDemoSteps.findIndex(d => d.stepNumber === step.number)
+                  const isCurrentStep = currentDemo.stepNumber === step.number
+                  return (
+                    <div
+                      key={step.number}
+                      className={`demo-nav-item ${isCurrentStep ? 'active' : ''}`}
+                      onClick={() => setCurrentDemoStep(stepStartIdx)}
+                    >
+                      <div className="demo-nav-number">{step.number}</div>
+                      <div className="demo-nav-info">
+                        <div className="demo-nav-label">{step.title}</div>
+                        <div className="demo-nav-system">{step.system}</div>
+                        {isCurrentStep && (
+                          <div className="demo-nav-progress">
+                            {currentDemo.imageIndexInStep} of {step.images.length}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
 
               <div className="demo-main">
+                <div className="demo-step-header">
+                  <span className={`demo-system-badge ${currentDemo.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
+                    {currentDemo.icon} {currentDemo.system}
+                  </span>
+                  <span className="demo-step-name">{currentDemo.stepTitle}</span>
+                </div>
                 <div className="demo-image-container">
                   <img
                     src={currentDemo.src}
                     alt={currentDemo.caption}
                     className="demo-image"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = `${import.meta.env.BASE_URL}images/placeholder.png`
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      target.parentElement!.innerHTML = '<div class="demo-image-missing">Screenshot not available</div>'
                     }}
                   />
                 </div>
