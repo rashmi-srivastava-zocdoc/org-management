@@ -753,7 +753,6 @@ function PracticeForm({
 function WorkflowComparison() {
   const [showCurrentDemo, setShowCurrentDemo] = useState(false)
   const [showProposedDemo, setShowProposedDemo] = useState(false)
-  const [currentDemoType, setCurrentDemoType] = useState<'new-org' | 'child-org'>('new-org')
 
   return (
     <div className="workflow-comparison-container">
@@ -815,7 +814,7 @@ function WorkflowComparison() {
                   <span>No visibility until synced to POGS</span>
                 </div>
               </div>
-              <button className="btn btn-demo-current" onClick={() => { setCurrentDemoType('new-org'); setShowCurrentDemo(true); }}>
+              <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
                 View Current Demo
               </button>
             </div>
@@ -1075,7 +1074,7 @@ function CurrentWorkflowDemo({ onClose }: { onClose: () => void }) {
   ]
 
   const allImages = steps.flatMap((step, stepIdx) =>
-    step.images.map((img, imgIdx) => ({
+    step.images.map((img) => ({
       ...img,
       stepNumber: stepIdx + 1,
       stepTitle: step.title,
@@ -1181,7 +1180,7 @@ function CurrentWorkflowDemo({ onClose }: { onClose: () => void }) {
 }
 
 // Current Workflow Component (keeping for reference, not used in tabs)
-function CurrentWorkflow() {
+function _CurrentWorkflow() {
   const [expandedImages, setExpandedImages] = useState<Set<number>>(new Set())
   const [lightboxImage, setLightboxImage] = useState<{ src: string; caption: string } | null>(null)
   const [demoMode, setDemoMode] = useState(false)
@@ -2965,8 +2964,8 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
   )
 }
 
-// Proposed Workflow Component
-function ProposedWorkflow() {
+// Proposed Workflow Component (keeping for reference, not used in tabs)
+function _ProposedWorkflow() {
   const [showDemo, setShowDemo] = useState(false)
 
   return (
