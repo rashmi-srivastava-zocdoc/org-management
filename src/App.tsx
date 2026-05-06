@@ -694,9 +694,9 @@ function CurrentWorkflow() {
       ],
       icon: '☁️',
       images: [
-        { src: '/images/workflow/step1a-accounts-list.png', caption: '1a: Click "New" on Accounts list' },
-        { src: '/images/workflow/step1b-select-type.png', caption: '1b: Select account type (Health System)' },
-        { src: '/images/workflow/step1c-account-form.png', caption: '1c: Fill account form (Name, Segment, Parent)' }
+        { src: `${import.meta.env.BASE_URL}images/workflow/step1a-accounts-list.png`, caption: '1a: Click "New" on Accounts list' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step1b-select-type.png`, caption: '1b: Select account type (Health System)' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step1c-account-form.png`, caption: '1c: Fill account form (Name, Segment, Parent)' }
       ]
     },
     {
@@ -713,11 +713,11 @@ function CurrentWorkflow() {
       ],
       icon: '👤',
       images: [
-        { src: '/images/workflow/step2a-related-tab.png', caption: '2a: Go to Related tab' },
-        { src: '/images/workflow/step2b-contacts.png', caption: '2b: Click Contacts' },
-        { src: '/images/workflow/step2c-new-contact.png', caption: '2c: Click New' },
-        { src: '/images/workflow/step2d-record-type.png', caption: '2d: Select Strategic record type' },
-        { src: '/images/workflow/step2e-contact-form.png', caption: '2e: Fill contact details' }
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2a-related-tab.png`, caption: '2a: Go to Related tab' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2b-contacts.png`, caption: '2b: Click Contacts' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2c-new-contact.png`, caption: '2c: Click New' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2d-record-type.png`, caption: '2d: Select Strategic record type' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2e-contact-form.png`, caption: '2e: Fill contact details' }
       ]
     },
     {
@@ -733,8 +733,8 @@ function CurrentWorkflow() {
       ],
       icon: '🔧',
       images: [
-        { src: '/images/workflow/step3a-copy-url.png', caption: '3a: Copy Classic URL from Salesforce' },
-        { src: '/images/workflow/step3b-csr-signup.png', caption: '3b: Paste URL and Sign Up' }
+        { src: `${import.meta.env.BASE_URL}images/workflow/step3a-copy-url.png`, caption: '3a: Copy Classic URL from Salesforce' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step3b-csr-signup.png`, caption: '3b: Paste URL and Sign Up' }
       ],
       painPoint: 'Manual copy/paste between systems, error on first attempt'
     }
