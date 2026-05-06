@@ -118,33 +118,6 @@ function App() {
     setShowCreateOrgModal(false)
   }
 
-  const handleAddChildOrg = (childOrg: Partial<Organization>) => {
-    if (!selectedOrg) return
-
-    const newChild: Organization = {
-      id: childOrg.id || `org_${Math.random().toString(36).substr(2, 12)}`,
-      name: childOrg.name || 'New Child Org',
-      type: childOrg.type || 'LargeProviderGroup',
-      parentId: selectedOrg.id,
-      children: [],
-    }
-
-    const addChild = (org: Organization): Organization => {
-      if (org.id === selectedOrg.id) {
-        return { ...org, children: [...(org.children || []), newChild] }
-      }
-      if (org.children) {
-        return { ...org, children: org.children.map(addChild) }
-      }
-      return org
-    }
-
-    setOrganizations(organizations.map(addChild))
-    setSelectedOrg({ ...selectedOrg, children: [...(selectedOrg.children || []), newChild] })
-    setExpandedOrgs(prev => new Set([...prev, selectedOrg.id]))
-    setShowAddChildModal(false)
-  }
-
   const handleAddPractice = (practice: { name: string; products?: ProductType[] }) => {
     if (!selectedOrg) return
 
