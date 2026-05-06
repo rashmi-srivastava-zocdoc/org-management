@@ -1868,22 +1868,19 @@ body {
 .workflow-steps-inline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  min-width: 0;
 }
 
 .inline-step {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
   background: white;
   border-radius: 6px;
   border: 1px solid var(--zd-border);
-  flex-shrink: 0;
-  white-space: nowrap;
 }
 
 .inline-step .step-num {
@@ -1982,9 +1979,9 @@ body {
   font-weight: 600;
 }
 
-.workflow-row .btn {
+.workflow-row > .btn-demo-current,
+.workflow-row > .btn-demo-proposed {
   flex-shrink: 0;
-  margin-left: auto;
 }
 
 .process-steps {
@@ -2060,13 +2057,14 @@ body {
 }
 
 .btn-demo-current, .btn-demo-proposed {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-demo-current {
