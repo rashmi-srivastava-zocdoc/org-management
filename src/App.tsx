@@ -1216,7 +1216,6 @@ function AddChildOrgWizard({
                     <div className="hierarchy-node org-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
                       <span className="node-icon">🏢</span>
                       <span className="node-name">{orgData.name || 'New Child Org'}</span>
-                      <span className="type-badge child">{TYPE_ABBREV[orgData.type] || orgData.type}</span>
                       <span className="new-badge">← Creating here</span>
                     </div>
                   </div>
@@ -1232,19 +1231,6 @@ function AddChildOrgWizard({
                   placeholder="Enter organization name"
                   autoFocus
                 />
-              </div>
-
-              <div className="form-group">
-                <label>Organization Segment *</label>
-                <select
-                  value={orgData.type}
-                  onChange={e => setOrgData({ ...orgData, type: e.target.value as Organization['type'] })}
-                >
-                  <option value="HealthSystem">Health System (HS)</option>
-                  <option value="LargeProviderGroup">Large Provider Group (LPG)</option>
-                  <option value="MidMarket">Mid-Market (MM)</option>
-                  <option value="Local">Local</option>
-                </select>
               </div>
 
               <div className="form-group practice-toggle">
@@ -1295,7 +1281,6 @@ function AddChildOrgWizard({
                     <div className="hierarchy-node org-node" style={{ display: 'inline-flex', marginLeft: 4 }}>
                       <span className="node-icon">🏢</span>
                       <span className="node-name">{orgData.name}</span>
-                      <span className="type-badge child">{TYPE_ABBREV[orgData.type] || orgData.type}</span>
                       <span className="node-id">({createdOrgId})</span>
                     </div>
                   </div>
@@ -1374,10 +1359,6 @@ function AddChildOrgWizard({
                 <div className="success-detail">
                   <label>Child Organization</label>
                   <span>{orgData.name}</span>
-                </div>
-                <div className="success-detail">
-                  <label>Segment</label>
-                  <span>{TYPE_ABBREV[orgData.type] || orgData.type}</span>
                 </div>
                 <div className="success-detail">
                   <label>Org ID</label>
