@@ -211,7 +211,7 @@ function App() {
       <div key={org.id} className="tree-node">
         <div
           className={`tree-row ${isSelected ? 'checked' : ''} ${isUltimateParent ? 'ultimate-parent' : ''}`}
-          onClick={() => handleSelectOrg(org)}
+          onClick={() => setSelectedItems(new Set([org.id]))}
         >
           <div className="tree-select">
             <input
