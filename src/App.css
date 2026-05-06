@@ -913,6 +913,58 @@ body {
   font-size: 16px;
 }
 
+/* Step Images */
+.step-image-container {
+  margin-top: 16px;
+  border-top: 1px solid var(--zd-border);
+  padding-top: 12px;
+}
+
+.step-image-toggle {
+  background: none;
+  border: none;
+  color: var(--zd-link);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-image-toggle:hover {
+  text-decoration: underline;
+}
+
+.step-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.step-image-wrapper {
+  background: white;
+  border: 1px solid var(--zd-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.step-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.step-image-caption {
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--zd-text-secondary);
+  background: var(--zd-bg);
+  border-top: 1px solid var(--zd-border);
+  font-weight: 500;
+}
+
 /* Workflow Summary */
 .workflow-summary {
   margin-top: 32px;

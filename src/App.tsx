@@ -667,6 +667,20 @@ function PracticeForm({ onSubmit, onCancel }: { onSubmit: (data: { name: string;
 
 // Current Workflow Component
 function CurrentWorkflow() {
+  const [expandedImages, setExpandedImages] = useState<Set<number>>(new Set())
+
+  const toggleImage = (stepNumber: number) => {
+    setExpandedImages(prev => {
+      const next = new Set(prev)
+      if (next.has(stepNumber)) {
+        next.delete(stepNumber)
+      } else {
+        next.add(stepNumber)
+      }
+      return next
+    })
+  }
+
   const steps = [
     {
       number: 1,
@@ -674,11 +688,17 @@ function CurrentWorkflow() {
       title: 'Create Account',
       description: 'Click "New" on Accounts list to create a new account',
       details: [
-        'Set Account Name (required)',
-        'Select Account Segment: Health System, Large Provider Group, MidMarket, or Local',
-        'Leave Parent Account blank for ultimate parent, or select existing org for hierarchy'
+        'Click "New" button on Accounts list',
+        'Select account type: Practice, Business Development, or Health System',
+        'Fill in Account Name (required), Account Segment, Parent Account',
+        'Leave Parent Account blank for ultimate parent org'
       ],
-      icon: '☁️'
+      icon: '☁️',
+      images: [
+        { src: '/images/workflow/step1a-accounts-list.png', caption: '1a: Click "New" on Accounts list' },
+        { src: '/images/workflow/step1b-select-type.png', caption: '1b: Select account type (Health System)' },
+        { src: '/images/workflow/step1c-account-form.png', caption: '1c: Fill account form (Name, Segment, Parent)' }
+      ]
     },
     {
       number: 2,
@@ -690,7 +710,10 @@ function CurrentWorkflow() {
         'Select to establish hierarchy relationship',
         'Skip this step for ultimate parent orgs'
       ],
-      icon: '🔗'
+      icon: '🔗',
+      images: [
+        { src: '/images/workflow/step2-parent-hierarchy.png', caption: 'Select parent account' }
+      ]
     },
     {
       number: 3,
@@ -701,7 +724,10 @@ function CurrentWorkflow() {
         'View related objects: Contacts, Contracts, CSR Practice Locations',
         'Access Account Team, Account Issues, Projects'
       ],
-      icon: '📋'
+      icon: '📋',
+      images: [
+        { src: '/images/workflow/step3-related-tab.png', caption: 'Related tab view' }
+      ]
     },
     {
       number: 4,
@@ -714,7 +740,13 @@ function CurrentWorkflow() {
         'Enter First Name, Last Name, Title, Position',
         'Account Name auto-populated'
       ],
-      icon: '👤'
+      icon: '👤',
+      images: [
+        { src: '/images/workflow/step4a-contacts.png', caption: 'Click Contacts' },
+        { src: '/images/workflow/step4b-new-contact.png', caption: 'Click New' },
+        { src: '/images/workflow/step4c-record-type.png', caption: 'Select Strategic' },
+        { src: '/images/workflow/step4d-contact-form.png', caption: 'Fill contact details' }
+      ]
     },
     {
       number: 5,
@@ -728,6 +760,10 @@ function CurrentWorkflow() {
         'Click "Sign Up" (first attempt shows "forbidden access" error - click again)'
       ],
       icon: '🔧',
+      images: [
+        { src: '/images/workflow/step5a-copy-url.png', caption: 'Copy Classic URL from Salesforce' },
+        { src: '/images/workflow/step5b-csr-signup.png', caption: 'Paste URL and Sign Up' }
+      ],
       painPoint: 'Manual copy/paste between systems, error on first attempt'
     }
   ]
@@ -767,6 +803,33 @@ function CurrentWorkflow() {
                   <li key={i}>{detail}</li>
                 ))}
               </ul>
+              {step.images && step.images.length > 0 && (
+                <div className="step-image-container">
+                  <button
+                    className="step-image-toggle"
+                    onClick={() => toggleImage(step.number)}
+                  >
+                    {expandedImages.has(step.number) ? '▼ Hide Screenshots' : `▶ View Screenshots (${step.images.length})`}
+                  </button>
+                  {expandedImages.has(step.number) && (
+                    <div className="step-images-grid">
+                      {step.images.map((img, i) => (
+                        <div key={i} className="step-image-wrapper">
+                          <img
+                            src={img.src}
+                            alt={img.caption}
+                            className="step-image"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).parentElement!.style.display = 'none'
+                            }}
+                          />
+                          <div className="step-image-caption">{img.caption}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {step.painPoint && (
                 <div className="pain-point">
                   <span className="pain-icon">⚠️</span>
