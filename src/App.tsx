@@ -74,6 +74,7 @@ function App() {
 
   const handleSelectOrg = (org: Organization) => {
     setSelectedOrg(org)
+    setSelectedItems(new Set([org.id]))
     setSearchQuery('')
     setExpandedOrgs(prev => new Set([...prev, org.id]))
   }
