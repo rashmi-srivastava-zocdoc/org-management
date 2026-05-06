@@ -94,13 +94,11 @@ function App() {
   const toggleSelect = (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
     setSelectedItems(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
+      if (prev.has(id)) {
+        return new Set()
       } else {
-        next.add(id)
+        return new Set([id])
       }
-      return next
     })
   }
 
@@ -216,7 +214,8 @@ function App() {
         >
           <div className="tree-select">
             <input
-              type="checkbox"
+              type="radio"
+              name="tree-select"
               checked={isSelected}
               onChange={() => {}}
               onClick={(e) => toggleSelect(org.id, e)}
@@ -250,7 +249,8 @@ function App() {
               >
                 <div className="tree-select">
                   <input
-                    type="checkbox"
+                    type="radio"
+                    name="tree-select"
                     checked={selectedItems.has(practice.id)}
                     onChange={() => {}}
                     onClick={(e) => toggleSelect(practice.id, e)}
@@ -377,7 +377,7 @@ function App() {
             <div className="action-bar">
               <div className="action-bar-left">
                 {selectedItems.size > 0 && (
-                  <span className="selection-count">{selectedItems.size} selected</span>
+                  <span className="selection-count">1 item selected</span>
                 )}
               </div>
               <div className="action-bar-right">
