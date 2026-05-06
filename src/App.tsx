@@ -852,82 +852,115 @@ function CurrentWorkflow() {
 
 // Proposed Workflow Component
 function ProposedWorkflow() {
-  const currentSteps = [
-    { system: 'Salesforce', action: 'Create Account (3 sub-steps)', time: '3-4 min' },
-    { system: 'Salesforce', action: 'Create Contact (5 sub-steps)', time: '2-3 min' },
-    { system: 'CSR', action: 'Copy URL & Sign Up', time: '2-3 min' },
-  ]
-
-  const proposedSteps = [
-    { system: 'Org Management', action: 'Create/Search Org', time: '1 min' },
-    { system: 'Org Management', action: 'Set Hierarchy', time: '30 sec' },
-    { system: 'Auto', action: 'Sync to POGS + Salesforce', time: 'Instant' },
-  ]
-
   return (
     <div className="workflow-container">
       <div className="workflow-header">
         <h2>Proposed Workflow: Unified Org Management</h2>
-        <p className="workflow-subtitle">Single entry point with automated sync to all systems</p>
+        <p className="workflow-subtitle">Two user flows with single entry point and automated sync</p>
       </div>
 
-      <div className="comparison-container">
-        {/* Current State */}
-        <div className="comparison-column current">
-          <h3>Current State</h3>
-          <div className="comparison-systems">
-            <span className="system-badge salesforce">Salesforce</span>
-            <span className="system-badge csr">CSR</span>
-            <span className="system-badge pogs">POGS</span>
+      {/* Two Flow Sections */}
+      <div className="proposed-flows">
+        {/* Commercial Team Flow */}
+        <div className="flow-section">
+          <div className="flow-header commercial">
+            <span className="flow-icon">💼</span>
+            <h3>Commercial Team Flow</h3>
+            <span className="flow-badge">Internal</span>
           </div>
-          <div className="comparison-steps">
-            {currentSteps.map((step, i) => (
-              <div key={i} className="comparison-step">
-                <span className={`mini-badge ${step.system.toLowerCase()}`}>{step.system}</span>
-                <span className="step-action">{step.action}</span>
-                <span className="step-time">{step.time}</span>
+
+          <div className="flow-scenario">
+            <div className="scenario-title">New Client</div>
+            <div className="scenario-steps">
+              <div className="flow-step">
+                <span className="flow-step-num">1</span>
+                <span className="flow-step-text">Start with Prospect</span>
               </div>
-            ))}
+              <span className="flow-arrow">→</span>
+              <div className="flow-step">
+                <span className="flow-step-num">2</span>
+                <span className="flow-step-text">Create Account</span>
+              </div>
+              <span className="flow-arrow">→</span>
+              <div className="flow-step">
+                <span className="flow-step-num">3</span>
+                <span className="flow-step-text">Convert to Product Account</span>
+              </div>
+            </div>
           </div>
-          <div className="comparison-total">
-            <strong>Total time:</strong> 8-10+ minutes
-          </div>
-          <div className="comparison-issues">
-            <div className="issue">❌ Manual copy/paste</div>
-            <div className="issue">❌ Multiple logins</div>
-            <div className="issue">❌ Error-prone</div>
-            <div className="issue">❌ No hierarchy visibility</div>
+
+          <div className="flow-scenario">
+            <div className="scenario-title">Existing Client Expansion</div>
+            <div className="scenario-steps">
+              <div className="flow-step">
+                <span className="flow-step-num">1</span>
+                <span className="flow-step-text">Create Child Prospect</span>
+              </div>
+              <span className="flow-arrow">→</span>
+              <div className="flow-step">
+                <span className="flow-step-num">2</span>
+                <span className="flow-step-text">Create Child Account</span>
+              </div>
+              <span className="flow-arrow">→</span>
+              <div className="flow-step">
+                <span className="flow-step-num">3</span>
+                <span className="flow-step-text">Convert to Product Account</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Arrow */}
-        <div className="comparison-arrow">
-          <span>→</span>
-        </div>
+        {/* Customer Flow */}
+        <div className="flow-section">
+          <div className="flow-header customer">
+            <span className="flow-icon">👥</span>
+            <h3>Customer Flow</h3>
+            <span className="flow-badge">External</span>
+          </div>
 
-        {/* Proposed State */}
-        <div className="comparison-column proposed">
-          <h3>Proposed State</h3>
-          <div className="comparison-systems">
-            <span className="system-badge org-mgmt">Org Management</span>
-          </div>
-          <div className="comparison-steps">
-            {proposedSteps.map((step, i) => (
-              <div key={i} className="comparison-step">
-                <span className={`mini-badge ${step.system.toLowerCase().replace(' ', '-')}`}>{step.system}</span>
-                <span className="step-action">{step.action}</span>
-                <span className="step-time">{step.time}</span>
+          <div className="flow-scenario">
+            <div className="scenario-title">After Initial Org Setup</div>
+            <div className="scenario-steps">
+              <div className="flow-step">
+                <span className="flow-step-num">1</span>
+                <span className="flow-step-text">Create New Child Org</span>
               </div>
-            ))}
+              <span className="flow-arrow">→</span>
+              <div className="flow-step">
+                <span className="flow-step-num">2</span>
+                <span className="flow-step-text">Add Child Practices</span>
+              </div>
+            </div>
+            <div className="scenario-note">
+              Customer can manage their own org hierarchy within their scoped organization
+            </div>
           </div>
-          <div className="comparison-total">
-            <strong>Total time:</strong> ~2 minutes
+        </div>
+      </div>
+
+      {/* Benefits */}
+      <div className="flow-benefits">
+        <h3>Key Benefits</h3>
+        <div className="benefits-grid">
+          <div className="benefit-card">
+            <span className="benefit-icon">🎯</span>
+            <div className="benefit-title">Single Entry Point</div>
+            <div className="benefit-desc">One tool for both internal teams and customers</div>
           </div>
-          <div className="comparison-benefits">
-            <div className="benefit">✓ Single entry point</div>
-            <div className="benefit">✓ Visual hierarchy editor</div>
-            <div className="benefit">✓ Real-time sync</div>
-            <div className="benefit">✓ Audit trail</div>
+          <div className="benefit-card">
+            <span className="benefit-icon">🔄</span>
+            <div className="benefit-title">Auto Sync</div>
+            <div className="benefit-desc">Changes sync to POGS, Salesforce, and Cistern</div>
+          </div>
+          <div className="benefit-card">
+            <span className="benefit-icon">👁️</span>
+            <div className="benefit-title">Visual Hierarchy</div>
+            <div className="benefit-desc">See and edit org structure in real-time</div>
+          </div>
+          <div className="benefit-card">
+            <span className="benefit-icon">📋</span>
+            <div className="benefit-title">Audit Trail</div>
+            <div className="benefit-desc">Track all changes with user attribution</div>
           </div>
         </div>
       </div>

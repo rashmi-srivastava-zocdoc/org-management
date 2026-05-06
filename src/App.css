@@ -1332,6 +1332,173 @@ body {
   color: var(--zd-text-muted);
 }
 
+/* Proposed Flows */
+.proposed-flows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.flow-section {
+  background: var(--zd-bg);
+  border-radius: 12px;
+  padding: 24px;
+  border: 2px solid var(--zd-border);
+}
+
+.flow-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--zd-border);
+}
+
+.flow-header.commercial {
+  border-bottom-color: #0176d3;
+}
+
+.flow-header.customer {
+  border-bottom-color: var(--zd-green);
+}
+
+.flow-icon {
+  font-size: 24px;
+}
+
+.flow-header h3 {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.flow-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--zd-bg);
+  color: var(--zd-text-secondary);
+  border: 1px solid var(--zd-border);
+}
+
+.flow-scenario {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.flow-scenario:last-child {
+  margin-bottom: 0;
+}
+
+.scenario-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--zd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.scenario-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--zd-bg);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.flow-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--zd-green);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flow-step-text {
+  font-size: 13px;
+  color: var(--zd-text-primary);
+}
+
+.flow-arrow {
+  color: var(--zd-text-muted);
+  font-size: 16px;
+}
+
+.scenario-note {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--zd-text-muted);
+  font-style: italic;
+}
+
+/* Flow Benefits */
+.flow-benefits {
+  background: var(--zd-bg);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.flow-benefits h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.benefit-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--zd-border);
+}
+
+.benefit-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.benefit-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--zd-text-primary);
+  margin-bottom: 6px;
+}
+
+.benefit-desc {
+  font-size: 12px;
+  color: var(--zd-text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {
