@@ -890,14 +890,6 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
     }
   }
 
-  const getStepLabel = () => {
-    switch (step) {
-      case 'list': case 'type-modal': return 'Start with Prospect'
-      case 'form': return 'Create Account'
-      case 'detail': case 'success': return 'Convert to Product Account'
-    }
-  }
-
   const resetDemo = () => {
     setStep('list')
     setSelectedType('HealthSystem')
@@ -990,7 +982,7 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
                   <div className="sf-col sf-col-active">Is active practice?</div>
                 </div>
                 <div className="sf-table-body">
-                  {filteredAccounts.map((account, idx) => (
+                  {filteredAccounts.map((account) => (
                     <div key={account.id} className="sf-table-row">
                       <div className="sf-col sf-col-check"><input type="checkbox" /></div>
                       <div className="sf-col sf-col-name">
