@@ -1783,12 +1783,12 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
             <div className="demo-progress">
               <div className={`progress-step ${getStepNumber() >= 1 ? 'active' : ''} ${getStepNumber() > 1 ? 'completed' : ''}`}>
                 <span className="progress-num">1</span>
-                <span className="progress-label">Start with Prospect</span>
+                <span className="progress-label">Create Prospect</span>
               </div>
               <div className="progress-connector" />
               <div className={`progress-step ${getStepNumber() >= 2 ? 'active' : ''} ${getStepNumber() > 2 ? 'completed' : ''}`}>
                 <span className="progress-num">2</span>
-                <span className="progress-label">Create Account</span>
+                <span className="progress-label">Create Client</span>
               </div>
               <div className="progress-connector" />
               <div className={`progress-step ${getStepNumber() >= 3 ? 'active' : ''}`}>
@@ -2461,12 +2461,12 @@ function ProposedWorkflow() {
             <div className="scenario-steps">
               <div className="flow-step">
                 <span className="flow-step-num">1</span>
-                <span className="flow-step-text">Start with Prospect</span>
+                <span className="flow-step-text">Create Prospect</span>
               </div>
               <span className="flow-arrow">→</span>
               <div className="flow-step">
                 <span className="flow-step-num">2</span>
-                <span className="flow-step-text">Create Account</span>
+                <span className="flow-step-text">Create Client</span>
               </div>
               <span className="flow-arrow">→</span>
               <div className="flow-step">
@@ -2486,7 +2486,7 @@ function ProposedWorkflow() {
               <span className="flow-arrow">→</span>
               <div className="flow-step">
                 <span className="flow-step-num">2</span>
-                <span className="flow-step-text">Create Child Account</span>
+                <span className="flow-step-text">Create Child Client</span>
               </div>
               <span className="flow-arrow">→</span>
               <div className="flow-step">
