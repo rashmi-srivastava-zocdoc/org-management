@@ -23,7 +23,7 @@ const AVAILABLE_PRODUCTS: { value: ProductType; label: string }[] = [
   { value: 'BookableDirectory', label: 'Bookable Directory' },
 ]
 
-type ViewMode = 'org-management' | 'current-workflow' | 'proposed-workflow'
+type ViewMode = 'org-management' | 'workflow-comparison'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('org-management')
@@ -313,24 +313,17 @@ function App() {
             Org Hierarchy
           </button>
           <button
-            className={`view-tab ${viewMode === 'current-workflow' ? 'active' : ''}`}
-            onClick={() => setViewMode('current-workflow')}
+            className={`view-tab ${viewMode === 'workflow-comparison' ? 'active' : ''}`}
+            onClick={() => setViewMode('workflow-comparison')}
           >
-            Current Workflow
-          </button>
-          <button
-            className={`view-tab ${viewMode === 'proposed-workflow' ? 'active' : ''}`}
-            onClick={() => setViewMode('proposed-workflow')}
-          >
-            Proposed Workflow
+            Workflow Comparison
           </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="main-content">
-        {viewMode === 'current-workflow' && <CurrentWorkflow />}
-        {viewMode === 'proposed-workflow' && <ProposedWorkflow />}
+        {viewMode === 'workflow-comparison' && <WorkflowComparison />}
         {viewMode === 'org-management' && (
         <>
         {/* Search Bar */}
@@ -756,7 +749,438 @@ function PracticeForm({
   )
 }
 
-// Current Workflow Component
+// Workflow Comparison Component
+function WorkflowComparison() {
+  const [showCurrentDemo, setShowCurrentDemo] = useState(false)
+  const [showProposedDemo, setShowProposedDemo] = useState(false)
+  const [currentDemoType, setCurrentDemoType] = useState<'new-org' | 'child-org'>('new-org')
+
+  return (
+    <div className="workflow-comparison-container">
+      <div className="comparison-intro">
+        <h2>Workflow Comparison: Current vs Proposed</h2>
+        <p>Compare how organization management works today versus the proposed unified approach.</p>
+      </div>
+
+      {/* Section 1: New Org Creation */}
+      <div className="comparison-section">
+        <div className="section-header">
+          <h3>Creating a New Organization</h3>
+          <p>When onboarding a brand new customer with no existing relationship</p>
+        </div>
+
+        <div className="comparison-columns">
+          <div className="comparison-column current">
+            <div className="column-header">
+              <span className="column-badge current">Current</span>
+              <h4>Today's Process</h4>
+            </div>
+            <div className="column-content">
+              <div className="process-steps">
+                <div className="process-step">
+                  <span className="step-num">1</span>
+                  <div className="step-info">
+                    <strong>Create Account in Salesforce</strong>
+                    <span className="step-system">Salesforce</span>
+                  </div>
+                </div>
+                <div className="step-arrow">↓</div>
+                <div className="process-step">
+                  <span className="step-num">2</span>
+                  <div className="step-info">
+                    <strong>Create Strategic Contact</strong>
+                    <span className="step-system">Salesforce</span>
+                  </div>
+                </div>
+                <div className="step-arrow">↓</div>
+                <div className="process-step">
+                  <span className="step-num">3</span>
+                  <div className="step-info">
+                    <strong>Create Account in CSR</strong>
+                    <span className="step-system">CSR (Retool)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pain-points">
+                <div className="pain-point">
+                  <span className="pain-icon">✗</span>
+                  <span>Manual copy/paste between systems</span>
+                </div>
+                <div className="pain-point">
+                  <span className="pain-icon">✗</span>
+                  <span>"Forbidden access" error on first attempt</span>
+                </div>
+                <div className="pain-point">
+                  <span className="pain-icon">✗</span>
+                  <span>No visibility until synced to POGS</span>
+                </div>
+              </div>
+              <button className="btn btn-demo-current" onClick={() => { setCurrentDemoType('new-org'); setShowCurrentDemo(true); }}>
+                View Current Demo
+              </button>
+            </div>
+          </div>
+
+          <div className="comparison-column proposed">
+            <div className="column-header">
+              <span className="column-badge proposed">Proposed</span>
+              <h4>Unified Process</h4>
+            </div>
+            <div className="column-content">
+              <div className="process-steps">
+                <div className="process-step">
+                  <span className="step-num">1</span>
+                  <div className="step-info">
+                    <strong>Create Prospect</strong>
+                    <span className="step-system">Salesforce</span>
+                  </div>
+                </div>
+                <div className="step-arrow">↓</div>
+                <div className="process-step">
+                  <span className="step-num">2</span>
+                  <div className="step-info">
+                    <strong>Convert to Client/Product Account</strong>
+                    <span className="step-system">Automated sync to CSR & POGS</span>
+                  </div>
+                </div>
+              </div>
+              <div className="benefits">
+                <div className="benefit">
+                  <span className="benefit-icon">✓</span>
+                  <span>Single entry point in Salesforce</span>
+                </div>
+                <div className="benefit">
+                  <span className="benefit-icon">✓</span>
+                  <span>Automated sync to downstream systems</span>
+                </div>
+                <div className="benefit">
+                  <span className="benefit-icon">✓</span>
+                  <span>Real-time visibility of org hierarchy</span>
+                </div>
+              </div>
+              <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
+                View Proposed Demo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 2: Child Org Creation */}
+      <div className="comparison-section">
+        <div className="section-header">
+          <h3>Creating a Child Organization</h3>
+          <p>When expanding an existing customer relationship with a new sub-organization</p>
+        </div>
+
+        <div className="comparison-columns">
+          <div className="comparison-column current">
+            <div className="column-header">
+              <span className="column-badge current">Current</span>
+              <h4>Today's Process</h4>
+            </div>
+            <div className="column-content">
+              <div className="process-steps">
+                <div className="process-step">
+                  <span className="step-num">1</span>
+                  <div className="step-info">
+                    <strong>Find Parent Account</strong>
+                    <span className="step-system">Salesforce</span>
+                  </div>
+                </div>
+                <div className="step-arrow">↓</div>
+                <div className="process-step">
+                  <span className="step-num">2</span>
+                  <div className="step-info">
+                    <strong>Create Child Account</strong>
+                    <span className="step-system">Salesforce</span>
+                  </div>
+                </div>
+                <div className="step-arrow">↓</div>
+                <div className="process-step">
+                  <span className="step-num">3</span>
+                  <div className="step-info">
+                    <strong>Link in CSR with Parent Org ID</strong>
+                    <span className="step-system">CSR (Retool)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pain-points">
+                <div className="pain-point">
+                  <span className="pain-icon">✗</span>
+                  <span>Must know parent org ID in CSR</span>
+                </div>
+                <div className="pain-point">
+                  <span className="pain-icon">✗</span>
+                  <span>Hierarchy not visible until POGS sync</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="comparison-column proposed">
+            <div className="column-header">
+              <span className="column-badge proposed">Proposed</span>
+              <h4>Unified Process</h4>
+            </div>
+            <div className="column-content">
+              <div className="process-steps">
+                <div className="process-step">
+                  <span className="step-num">1</span>
+                  <div className="step-info">
+                    <strong>Create Child Prospect</strong>
+                    <span className="step-system">Salesforce (parent auto-linked)</span>
+                  </div>
+                </div>
+                <div className="step-arrow">↓</div>
+                <div className="process-step">
+                  <span className="step-num">2</span>
+                  <div className="step-info">
+                    <strong>Convert to Child Client</strong>
+                    <span className="step-system">Automated hierarchy sync</span>
+                  </div>
+                </div>
+              </div>
+              <div className="benefits">
+                <div className="benefit">
+                  <span className="benefit-icon">✓</span>
+                  <span>Parent relationship auto-detected</span>
+                </div>
+                <div className="benefit">
+                  <span className="benefit-icon">✓</span>
+                  <span>Hierarchy visible immediately</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 3: Locked Hierarchy */}
+      <div className="comparison-section">
+        <div className="section-header">
+          <h3>Hierarchy Locking Rules</h3>
+          <p>What happens when a prospect becomes a customer</p>
+        </div>
+
+        <div className="comparison-columns">
+          <div className="comparison-column current">
+            <div className="column-header">
+              <span className="column-badge current">Current</span>
+              <h4>Today's Behavior</h4>
+            </div>
+            <div className="column-content">
+              <div className="hierarchy-rules">
+                <div className="rule">
+                  <div className="rule-header">
+                    <span className="rule-icon">🔒</span>
+                    <strong>Full Lock on Conversion</strong>
+                  </div>
+                  <p>Once an account is created in CSR, the entire hierarchy becomes immutable in Salesforce.</p>
+                </div>
+                <div className="rule-issue">
+                  <span className="issue-icon">⚠️</span>
+                  <span>No way to restructure or correct mistakes</span>
+                </div>
+                <div className="rule-issue">
+                  <span className="issue-icon">⚠️</span>
+                  <span>Must involve engineering for any changes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="comparison-column proposed">
+            <div className="column-header">
+              <span className="column-badge proposed">Proposed</span>
+              <h4>Smart Locking</h4>
+            </div>
+            <div className="column-content">
+              <div className="hierarchy-rules">
+                <div className="rule">
+                  <div className="rule-header">
+                    <span className="rule-icon">🔐</span>
+                    <strong>Customer Hierarchy Protection</strong>
+                  </div>
+                  <p>Once a prospect converts to a customer/client, that customer's position in the hierarchy is locked.</p>
+                </div>
+                <div className="rule-allowed">
+                  <span className="allowed-icon">✓</span>
+                  <strong>Allowed:</strong>
+                  <ul>
+                    <li>Create new prospects underneath existing customers</li>
+                    <li>Convert prospects to customers (adds to hierarchy)</li>
+                    <li>Add practices to existing organizations</li>
+                  </ul>
+                </div>
+                <div className="rule-blocked">
+                  <span className="blocked-icon">✗</span>
+                  <strong>Blocked:</strong>
+                  <ul>
+                    <li>Moving a customer to a different parent</li>
+                    <li>Deleting a customer from the hierarchy</li>
+                    <li>Changing parent-child relationships for customers</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Demo Modals */}
+      {showCurrentDemo && (
+        <CurrentWorkflowDemo onClose={() => setShowCurrentDemo(false)} />
+      )}
+      {showProposedDemo && (
+        <CommercialTeamDemo onClose={() => setShowProposedDemo(false)} />
+      )}
+    </div>
+  )
+}
+
+// Current Workflow Demo Modal
+function CurrentWorkflowDemo({ onClose }: { onClose: () => void }) {
+  const [currentStep, setCurrentStep] = useState(0)
+
+  const steps = [
+    {
+      system: 'Salesforce',
+      title: 'Create Account',
+      images: [
+        { src: `${import.meta.env.BASE_URL}images/workflow/step1a-accounts-list.png`, caption: '1a: Click "New" on Accounts list' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step1b-select-type.png`, caption: '1b: Select account type' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step1c-account-form.png`, caption: '1c: Fill account form' }
+      ]
+    },
+    {
+      system: 'Salesforce',
+      title: 'Create Strategic Contact',
+      images: [
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2a-related-tab.png`, caption: '2a: Go to Related tab' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2b-contacts.png`, caption: '2b: Click Contacts' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2c-new-contact.png`, caption: '2c: Click New' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2d-record-type.png`, caption: '2d: Select Strategic record type' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step2e-contact-form.png`, caption: '2e: Fill contact details' }
+      ]
+    },
+    {
+      system: 'CSR (Retool)',
+      title: 'Create Account in CSR',
+      images: [
+        { src: `${import.meta.env.BASE_URL}images/workflow/step3a-copy-url.png`, caption: '3a: Copy Classic URL from Salesforce' },
+        { src: `${import.meta.env.BASE_URL}images/workflow/step3b-csr-signup.png`, caption: '3b: Paste URL and Sign Up' }
+      ]
+    }
+  ]
+
+  const allImages = steps.flatMap((step, stepIdx) =>
+    step.images.map((img, imgIdx) => ({
+      ...img,
+      stepNumber: stepIdx + 1,
+      stepTitle: step.title,
+      system: step.system,
+    }))
+  )
+
+  const currentImage = allImages[currentStep]
+  const totalSteps = allImages.length
+
+  return (
+    <div className="demo-overlay" onClick={onClose}>
+      <div className="demo-modal" onClick={e => e.stopPropagation()}>
+        <div className="demo-header">
+          <div className="demo-progress">
+            <div className="demo-progress-bar">
+              <div
+                className="demo-progress-fill"
+                style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+              />
+            </div>
+            <span className="demo-progress-text">
+              Step {currentStep + 1} of {totalSteps}
+            </span>
+          </div>
+          <button className="demo-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="demo-content">
+          <div className="demo-sidebar">
+            <div className="demo-nav-title">Current Workflow</div>
+            {steps.map((step, idx) => {
+              const stepStartIdx = allImages.findIndex(img => img.stepNumber === idx + 1)
+              const isCurrentStep = currentImage?.stepNumber === idx + 1
+              return (
+                <div
+                  key={idx}
+                  className={`demo-nav-item ${isCurrentStep ? 'active' : ''}`}
+                  onClick={() => setCurrentStep(stepStartIdx)}
+                >
+                  <div className="demo-nav-number">{idx + 1}</div>
+                  <div className="demo-nav-info">
+                    <div className="demo-nav-label">{step.title}</div>
+                    <div className="demo-nav-system">{step.system}</div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="demo-main">
+            <div className="demo-step-header">
+              <span className={`demo-system-badge ${currentImage?.system.toLowerCase().replace(/[^a-z]/g, '')}`}>
+                {currentImage?.system}
+              </span>
+              <span className="demo-step-name">{currentImage?.stepTitle}</span>
+            </div>
+            <div className="demo-image-container">
+              <img
+                src={currentImage?.src}
+                alt={currentImage?.caption}
+                className="demo-image"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                }}
+              />
+            </div>
+            <div className="demo-caption">{currentImage?.caption}</div>
+          </div>
+        </div>
+
+        <div className="demo-footer">
+          <button
+            className="demo-nav-btn prev"
+            onClick={() => setCurrentStep(prev => prev - 1)}
+            disabled={currentStep === 0}
+          >
+            ← Previous
+          </button>
+          <div className="demo-step-dots">
+            {allImages.map((_, idx) => (
+              <button
+                key={idx}
+                className={`demo-dot ${idx === currentStep ? 'active' : ''}`}
+                onClick={() => setCurrentStep(idx)}
+              />
+            ))}
+          </div>
+          {currentStep < totalSteps - 1 ? (
+            <button className="demo-nav-btn next" onClick={() => setCurrentStep(prev => prev + 1)}>
+              Next →
+            </button>
+          ) : (
+            <button className="demo-nav-btn finish" onClick={onClose}>
+              Done
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Current Workflow Component (keeping for reference, not used in tabs)
 function CurrentWorkflow() {
   const [expandedImages, setExpandedImages] = useState<Set<number>>(new Set())
   const [lightboxImage, setLightboxImage] = useState<{ src: string; caption: string } | null>(null)
