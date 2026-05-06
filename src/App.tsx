@@ -596,8 +596,8 @@ function App() {
 // Modal Component
 function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+    <div className="modal-overlay">
+      <div className="modal">
         <div className="modal-header">
           <h2>{title}</h2>
           <button className="modal-close" onClick={onClose}>×</button>
@@ -1199,8 +1199,8 @@ function AddChildOrgWizard({
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal new-client-wizard" onClick={e => e.stopPropagation()}>
+    <div className="modal-overlay">
+      <div className="modal new-client-wizard">
         <div className="modal-header">
           <h2>Add Child Organization</h2>
           <button className="modal-close" onClick={onClose}>×</button>
@@ -1479,8 +1479,8 @@ function CreateNewClientWizard({
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal new-client-wizard" onClick={e => e.stopPropagation()}>
+    <div className="modal-overlay">
+      <div className="modal new-client-wizard">
         <div className="modal-header">
           <h2>Create New Client</h2>
           <button className="modal-close" onClick={onClose}>×</button>
@@ -1813,8 +1813,8 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
   const stepDetails = getStepDetails()
 
   return (
-    <div className="demo-overlay" onClick={onClose}>
-      <div className="proposed-demo-modal" onClick={e => e.stopPropagation()}>
+    <div className="demo-overlay">
+      <div className="proposed-demo-modal">
         {/* Header */}
         <div className="proposed-demo-header">
           <h2>Commercial Team Flow: New Client</h2>
