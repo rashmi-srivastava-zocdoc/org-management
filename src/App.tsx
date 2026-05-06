@@ -1416,8 +1416,6 @@ function AddChildOrgWizard({
 }
 
 // Create New Client Wizard Component
-type CreateMode = 'create-child' | 'create-practice'
-
 function CreateNewClientWizard({
   onClose,
   onCreateOrg,
@@ -1427,13 +1425,12 @@ function CreateNewClientWizard({
   onCreateOrg: (org: Partial<Organization>) => void
   onCreatePractice: (orgId: string, practice: { name: string; products?: ProductType[] }) => void
 }) {
-  const [mode, setMode] = useState<CreateMode>('create-child')
   const [showSuccess, setShowSuccess] = useState(false)
   const [orgData, setOrgData] = useState({
     name: '',
     type: 'HealthSystem' as Organization['type'],
   })
-  const [childOrgName, setChildOrgName] = useState('')
+  const [addPractice, setAddPractice] = useState(true)
   const [practiceData, setPracticeData] = useState({
     name: '',
     products: [] as ProductType[],
@@ -1451,20 +1448,12 @@ function CreateNewClientWizard({
   const handleCreate = () => {
     const newOrgId = `org_${Math.random().toString(36).substr(2, 12)}`
 
-    // Create the parent org
+    // Create the org
     onCreateOrg({ ...orgData, id: newOrgId } as Partial<Organization>)
 
-    // Determine where to attach the practice
-    let practiceParentId = newOrgId
-
-    if (mode === 'create-child' && childOrgName.trim()) {
-      const newChildId = `org_${Math.random().toString(36).substr(2, 12)}`
-      practiceParentId = newChildId
-      // Note: Child org creation handled by parent component
-    }
-
-    if (practiceData.name.trim()) {
-      onCreatePractice(practiceParentId, {
+    // Create practice if enabled and has name
+    if (addPractice && practiceData.name.trim()) {
+      onCreatePractice(newOrgId, {
         name: practiceData.name,
         products: practiceData.products.length > 0 ? practiceData.products : undefined,
       })
@@ -1473,11 +1462,7 @@ function CreateNewClientWizard({
     setShowSuccess(true)
   }
 
-  const canCreate = orgData.name.trim() && (
-    mode === 'create-practice'
-      ? practiceData.name.trim()
-      : true
-  )
+  const canCreate = orgData.name.trim() && (!addPractice || practiceData.name.trim())
 
   if (showSuccess) {
     return (
@@ -1500,16 +1485,7 @@ function CreateNewClientWizard({
                   <label>Segment</label>
                   <span>{TYPE_ABBREV[orgData.type] || orgData.type}</span>
                 </div>
-                {mode === 'create-child' && childOrgName && (
-                  <>
-                    <div className="success-divider" />
-                    <div className="success-detail">
-                      <label>Child Organization</label>
-                      <span>{childOrgName}</span>
-                    </div>
-                  </>
-                )}
-                {practiceData.name && (
+                {addPractice && practiceData.name && (
                   <>
                     <div className="success-divider" />
                     <div className="success-detail">
@@ -1556,33 +1532,8 @@ function CreateNewClientWizard({
                   <span className="type-badge ultimate">{TYPE_ABBREV[orgData.type] || orgData.type}</span>
                 </div>
 
-                {/* Child Org (if create-child mode) */}
-                {mode === 'create-child' && (
-                  <div style={{ marginLeft: 20 }}>
-                    <span className="hierarchy-connector">└─</span>
-                    <div className="hierarchy-node org-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                      <span className="node-icon">🏢</span>
-                      <span className="node-name">{childOrgName || 'New Child Org'}</span>
-                      <span className="type-badge child">LPG</span>
-                      {!childOrgName && <span className="new-badge">← Creating here</span>}
-                    </div>
-
-                    {/* Practice under child */}
-                    {practiceData.name && (
-                      <div style={{ marginLeft: 20 }}>
-                        <span className="hierarchy-connector">└─</span>
-                        <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                          <span className="node-icon">🏥</span>
-                          <span className="node-name">{practiceData.name}</span>
-                          <span className="type-badge practice">Practice</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Practice directly under org (if create-practice mode) */}
-                {mode === 'create-practice' && (
+                {/* Practice (if enabled) */}
+                {addPractice && (
                   <div style={{ marginLeft: 20 }}>
                     <span className="hierarchy-connector">└─</span>
                     <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
@@ -1599,31 +1550,9 @@ function CreateNewClientWizard({
 
           {/* Right: Form */}
           <div className="split-right">
-            {/* Mode Toggle */}
-            <div className="mode-toggle">
-              <label className={`mode-option ${mode === 'create-child' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="create-mode"
-                  checked={mode === 'create-child'}
-                  onChange={() => setMode('create-child')}
-                />
-                <span>Create Child Org</span>
-              </label>
-              <label className={`mode-option ${mode === 'create-practice' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="create-mode"
-                  checked={mode === 'create-practice'}
-                  onChange={() => setMode('create-practice')}
-                />
-                <span>Create Practice Only</span>
-              </label>
-            </div>
-
-            {/* Parent Org Fields */}
+            {/* Organization Fields */}
             <div className="form-section">
-              <h4>Parent Organization</h4>
+              <h4>Organization</h4>
               <div className="form-group">
                 <label>Organization Name *</label>
                 <input
@@ -1648,49 +1577,47 @@ function CreateNewClientWizard({
               </div>
             </div>
 
-            {/* Child Org Fields (if create-child mode) */}
-            {mode === 'create-child' && (
-              <div className="form-section">
-                <h4>Child Organization</h4>
-                <div className="form-group">
-                  <label>Child Org Name</label>
-                  <input
-                    type="text"
-                    value={childOrgName}
-                    onChange={e => setChildOrgName(e.target.value)}
-                    placeholder="Enter child organization name"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Practice Fields */}
+            {/* Practice Toggle & Fields */}
             <div className="form-section">
-              <h4>Practice {mode === 'create-practice' ? '*' : '(Optional)'}</h4>
-              <div className="form-group">
-                <label>Practice Name {mode === 'create-practice' ? '*' : ''}</label>
-                <input
-                  type="text"
-                  value={practiceData.name}
-                  onChange={e => setPracticeData({ ...practiceData, name: e.target.value })}
-                  placeholder="Enter practice name"
-                />
+              <div className="form-group practice-toggle">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={addPractice}
+                    onChange={e => setAddPractice(e.target.checked)}
+                  />
+                  <span>Add a practice under this organization</span>
+                </label>
               </div>
-              <div className="form-group">
-                <label>Products</label>
-                <div className="product-checkboxes">
-                  {AVAILABLE_PRODUCTS.map(product => (
-                    <label key={product.value} className="product-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={practiceData.products.includes(product.value)}
-                        onChange={() => toggleProduct(product.value)}
-                      />
-                      <span>{product.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+
+              {addPractice && (
+                <>
+                  <div className="form-group">
+                    <label>Practice Name *</label>
+                    <input
+                      type="text"
+                      value={practiceData.name}
+                      onChange={e => setPracticeData({ ...practiceData, name: e.target.value })}
+                      placeholder="Enter practice name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Products</label>
+                    <div className="product-checkboxes">
+                      {AVAILABLE_PRODUCTS.map(product => (
+                        <label key={product.value} className="product-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={practiceData.products.includes(product.value)}
+                            onChange={() => toggleProduct(product.value)}
+                          />
+                          <span>{product.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
