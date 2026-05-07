@@ -945,6 +945,9 @@ function WorkflowComparison() {
                 <div className="rule-details">
                   <span className="blocked-item"><span className="blocked-icon">✗</span> Cannot add child org under a prospect (must convert to CSR first)</span>
                 </div>
+                <div className="rule-details">
+                  <span className="blocked-item"><span className="blocked-icon">✗</span> Account segment changes not allowed at child level</span>
+                </div>
               </div>
               <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
                 View Demo
