@@ -849,7 +849,7 @@ function WorkflowComparison() {
                 <div className="inline-step">
                   <span className="step-num">1</span>
                   <div className="step-info">
-                    <strong>Create Account in Salesforce</strong>
+                    <strong>Create Prospect Account</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
@@ -857,7 +857,7 @@ function WorkflowComparison() {
                 <div className="inline-step">
                   <span className="step-num">2</span>
                   <div className="step-info">
-                    <strong>Create Strategic Contact</strong>
+                    <strong>Add Contact to Prospect</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
@@ -865,7 +865,7 @@ function WorkflowComparison() {
                 <div className="inline-step">
                   <span className="step-num">3</span>
                   <div className="step-info">
-                    <strong>Create Account in CSR</strong>
+                    <strong>Convert to Client/CSR Account</strong>
                     <span className="step-system">CSR (Retool)</span>
                   </div>
                 </div>
@@ -880,7 +880,7 @@ function WorkflowComparison() {
                 <div className="inline-step">
                   <span className="step-num">1</span>
                   <div className="step-info">
-                    <strong>Create Prospect</strong>
+                    <strong>Create Prospect Account</strong>
                     <span className="step-system">Salesforce</span>
                   </div>
                 </div>
@@ -889,7 +889,7 @@ function WorkflowComparison() {
                   <span className="step-num">2</span>
                   <div className="step-info">
                     <strong>Convert to Client/Product Account</strong>
-                    <span className="step-system">Product Tool</span>
+                    <span className="step-system">Product Tool (no contact required)</span>
                   </div>
                 </div>
               </div>
