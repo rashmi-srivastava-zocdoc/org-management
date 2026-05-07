@@ -901,12 +901,12 @@ function WorkflowComparison() {
         )}
       </div>
 
-      {/* Section 3: Locked Hierarchy */}
+      {/* Section 2: Hierarchy Locking Rules */}
       <div className="scenario-accordion">
         <button className="accordion-header" onClick={() => toggleSection('locking')}>
           <div className="accordion-title">
             <h3>Hierarchy Locking Rules</h3>
-            <p>What happens when a prospect becomes a customer</p>
+            <p>How hierarchy changes are controlled after CSR account creation</p>
           </div>
           <span className="accordion-icon">{expandedSections.has('locking') ? '−' : '+'}</span>
         </button>
@@ -918,11 +918,11 @@ function WorkflowComparison() {
                 <div className="rule-summary">
                   <span className="rule-icon">🔒</span>
                   <strong>Full Lock on Conversion</strong>
-                  <span className="rule-desc">— Entire hierarchy becomes immutable in Salesforce once in CSR</span>
+                  <span className="rule-desc">— Entire hierarchy locked in Salesforce once in CSR</span>
                 </div>
                 <div className="rule-issues">
-                  <span className="issue-item"><span className="issue-icon">⚠️</span> No restructuring</span>
-                  <span className="issue-item"><span className="issue-icon">⚠️</span> Requires engineering</span>
+                  <span className="issue-item"><span className="issue-icon">⚠️</span> No restructuring possible</span>
+                  <span className="issue-item"><span className="issue-icon">⚠️</span> Requires engineering to change</span>
                 </div>
               </div>
               <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
@@ -934,12 +934,16 @@ function WorkflowComparison() {
               <div className="locking-rules-inline">
                 <div className="rule-summary">
                   <span className="rule-icon">🔐</span>
-                  <strong>Smart Locking</strong>
-                  <span className="rule-desc">— Only customer's position is locked, not entire hierarchy</span>
+                  <strong>Controlled Hierarchy Changes</strong>
                 </div>
                 <div className="rule-details">
-                  <span className="allowed-item"><span className="allowed-icon">✓</span> Add prospects/practices</span>
-                  <span className="blocked-item"><span className="blocked-icon">✗</span> Move/delete customers</span>
+                  <span className="blocked-item"><span className="blocked-icon">✗</span> Hierarchy changes blocked if org has CSR account or child with CSR</span>
+                </div>
+                <div className="rule-details">
+                  <span className="allowed-item"><span className="allowed-icon">✓</span> "Change Parent" button at account level for controlled changes</span>
+                </div>
+                <div className="rule-details">
+                  <span className="blocked-item"><span className="blocked-icon">✗</span> Cannot add child org under a prospect (must convert to CSR first)</span>
                 </div>
               </div>
               <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
