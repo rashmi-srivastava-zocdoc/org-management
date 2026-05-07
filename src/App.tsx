@@ -943,6 +943,9 @@ function WorkflowComparison() {
                   <span className="allowed-item"><span className="allowed-icon">✓</span> "Change Parent" button at account level for controlled changes</span>
                 </div>
                 <div className="rule-details">
+                  <span className="allowed-item"><span className="allowed-icon">✓</span> Contact creation not required before CSR account creation</span>
+                </div>
+                <div className="rule-details">
                   <span className="blocked-item"><span className="blocked-icon">✗</span> Cannot add child org under a prospect (must convert to CSR first)</span>
                 </div>
                 <div className="rule-details">
