@@ -1982,22 +1982,6 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
   }
 
   const handleCreateCSRAccount = () => {
-    // In fullscreen mode, redirect to Org Management with Create Org modal
-    if (fullscreen) {
-      const orgName = encodeURIComponent(formData.accountName || 'New Organization')
-      // Map segment display value to type value
-      const segmentMap: Record<string, string> = {
-        'Health System': 'HealthSystem',
-        'Large Provider Group': 'LargeProviderGroup',
-        'Mid-Market': 'MidMarket',
-        'Local': 'Local',
-      }
-      const orgType = segmentMap[formData.accountSegment] || 'LargeProviderGroup'
-      const baseUrl = window.location.origin + window.location.pathname
-      window.location.href = `${baseUrl}?createOrg=true&orgName=${orgName}&orgType=${orgType}`
-      return
-    }
-
     const scenario = determineCSRScenario()
     setCsrScenario(scenario)
     // Pre-fill org data from account
@@ -2629,79 +2613,70 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
           </div>
         )}
 
-        {/* CSR Wizard: Create Org */}
+        {/* CSR Wizard: Create Org - Product Tool Style */}
         {step === 'csr-org' && (
           <div className="proposed-demo-screen">
-            <div className="csr-wizard">
-              <div className="csr-wizard-header">
-                <div className="csr-wizard-icon">🏢</div>
-                <div className="csr-wizard-title">
+            <div className="product-tool-modal">
+              <div className="product-tool-header">
+                <div className="product-tool-icon">🏢</div>
+                <div className="product-tool-title">
                   <h3>Create Organization</h3>
-                  <p className="csr-scenario-badge">
-                    {csrScenario === 'new-customer' && 'New Customer → Creating Ultimate Parent Org'}
-                    {csrScenario === 'existing-no-parent-org' && `Existing Customer → Creating Child Org under ${formData.parentAccount}`}
-                  </p>
+                  <p>New Customer → Creating Ultimate Parent Org</p>
                 </div>
-                <div className="csr-wizard-steps">
-                  <span className="csr-step active">1. Create Org</span>
-                  <span className="csr-step-arrow">→</span>
-                  <span className="csr-step">2. Add Practice</span>
+                <div className="product-tool-steps">
+                  <span className="pt-step active">1. Create Org</span>
+                  <span className="pt-step-arrow">→</span>
+                  <span className="pt-step">2. Add Practice</span>
                 </div>
               </div>
 
-              <div className="csr-wizard-body">
-                <div className="csr-form">
-                  <div className="modal-hint">
-                    {csrScenario === 'new-customer'
-                      ? 'This creates a top-level organization with no parent. A practice will be added in the next step.'
-                      : `This creates a child organization under "${formData.parentAccount}". A practice will be added in the next step.`
-                    }
-                  </div>
+              <div className="product-tool-body">
+                <div className="product-tool-hint">
+                  This creates a top-level organization with no parent. A practice will be added in the next step.
+                </div>
 
-                  <div className="form-group">
+                <div className="product-tool-form">
+                  <div className="pt-form-group">
                     <label>Organization Name *</label>
-                    <input
-                      type="text"
-                      className="sf-input"
-                      value={csrOrgData.name}
-                      onChange={e => setCsrOrgData({ ...csrOrgData, name: e.target.value })}
-                      placeholder="Enter organization name"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Organization Type *</label>
-                    <select
-                      className="sf-select"
-                      value={csrOrgData.type}
-                      onChange={e => setCsrOrgData({ ...csrOrgData, type: e.target.value })}
-                    >
-                      <option value="Health System">Health System (HS)</option>
-                      <option value="Large Provider Group">Large Provider Group (LPG)</option>
-                      <option value="Mid-Market">Mid-Market (MM)</option>
-                      <option value="Local">Local</option>
-                    </select>
-                  </div>
-
-                  {csrScenario === 'existing-no-parent-org' && (
-                    <div className="form-group">
-                      <label>Parent Organization</label>
-                      <div className="sf-form-value">
-                        <span className="parent-org-badge">{formData.parentAccount}</span>
-                      </div>
+                    <div className="pt-locked-field">
+                      <input
+                        type="text"
+                        className="pt-input locked"
+                        value={csrOrgData.name}
+                        disabled
+                      />
+                      <span className="pt-lock-icon">🔒</span>
+                      <span className="pt-lock-hint">From Salesforce</span>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="pt-form-group">
+                    <label>Organization Type *</label>
+                    <div className="pt-locked-field">
+                      <select
+                        className="pt-select locked"
+                        value={csrOrgData.type}
+                        disabled
+                      >
+                        <option value="Health System">Health System (HS)</option>
+                        <option value="Large Provider Group">Large Provider Group (LPG)</option>
+                        <option value="Mid-Market">Mid-Market (MM)</option>
+                        <option value="Local">Local</option>
+                      </select>
+                      <span className="pt-lock-icon">🔒</span>
+                      <span className="pt-lock-hint">From Salesforce</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="csr-wizard-footer">
-                <button className="btn btn-sf" onClick={() => setStep('detail')}>Cancel</button>
+              <div className="product-tool-footer">
+                <button className="btn btn-outline" onClick={() => setStep('detail')}>Cancel</button>
                 <button
-                  className="btn btn-sf-primary"
+                  className="btn btn-primary"
                   onClick={handleOrgCreated}
-                  disabled={!csrOrgData.name.trim()}
                 >
-                  {csrScenario === 'new-customer' ? 'Create Ultimate Parent' : 'Create Child Org'} →
+                  Create Ultimate Parent →
                 </button>
               </div>
             </div>
