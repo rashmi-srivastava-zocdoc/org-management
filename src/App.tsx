@@ -1884,7 +1884,7 @@ function CreateNewClientWizard({
 
 // Commercial Team Demo Component
 type WorkflowType = 'new-account' | 'child-account' | 'change-prospect' | 'change-client'
-type DemoStep = 'workflow-select' | 'list' | 'type-modal' | 'form' | 'detail' | 'csr-org' | 'csr-practice' | 'success' | 'select-item' | 'change-parent' | 'access-impact' | 'change-success'
+type DemoStep = 'workflow-select' | 'list' | 'type-modal' | 'form' | 'detail' | 'csr-org' | 'csr-practice' | 'org-created' | 'success' | 'select-item' | 'change-parent' | 'access-impact' | 'change-success'
 type AccountType = 'Practice' | 'BusinessDevelopment' | 'HealthSystem'
 type CSRScenario = 'new-customer' | 'existing-no-parent-org' | 'existing-with-parent-org'
 
@@ -2007,7 +2007,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
   const handleOrgCreated = () => {
     // Generate a mock org ID
     setCreatedOrgId(`org_${Math.random().toString(36).substr(2, 8)}`)
-    setStep('csr-practice')
+    setStep('org-created')
   }
 
   const resetDemo = () => {
@@ -2832,6 +2832,95 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                   Create CSR Account
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Org Created - Shows Org Management with created hierarchy */}
+        {step === 'org-created' && (
+          <div className="proposed-demo-screen org-mgmt-result">
+            {/* Full Org Management App */}
+            <div className="org-mgmt-full">
+              {/* App Header */}
+              <div className="preview-header">
+                <div className="preview-logo">
+                  <div className="preview-logo-icon">Z</div>
+                  <span>Zocdoc</span>
+                </div>
+                <nav className="preview-nav">
+                  <span className="preview-nav-item">Home</span>
+                  <span className="preview-nav-item active">Org Management</span>
+                  <span className="preview-nav-item">Providers</span>
+                </nav>
+              </div>
+
+              {/* Page Header */}
+              <div className="preview-page-header">
+                <h1>Organization Management</h1>
+                <button className="btn btn-outline">+ Create New Client</button>
+              </div>
+
+              {/* View Tabs */}
+              <div className="preview-tabs">
+                <button className="preview-tab active">Org Hierarchy</button>
+                <button className="preview-tab">Workflow Comparison</button>
+              </div>
+
+              {/* Content with Created Org */}
+              <div className="org-mgmt-content">
+                <div className="org-search-bar">
+                  <label>Search</label>
+                  <input type="text" value="TunaHealth" readOnly className="search-filled" />
+                </div>
+
+                {/* Hierarchy Section */}
+                <div className="org-hierarchy-result">
+                  <div className="hierarchy-header-result">
+                    <h2>Organization Hierarchy</h2>
+                    <div className="hierarchy-ids">
+                      <span>Organization ID: {createdOrgId}</span>
+                    </div>
+                  </div>
+
+                  {/* Success Banner */}
+                  <div className="creation-success-banner">
+                    <span className="success-check">✓</span>
+                    <span>Organization "TunaHealth" and practice "TunaHealth Practice" created successfully!</span>
+                  </div>
+
+                  {/* Hierarchy Tree */}
+                  <div className="org-tree-result">
+                    <div className="tree-node org selected">
+                      <span className="tree-expand">▼</span>
+                      <span className="tree-icon">🏢</span>
+                      <span className="tree-name">TunaHealth</span>
+                      <span className="tree-badge lpg">LPG</span>
+                      <span className="tree-new">NEW</span>
+                    </div>
+                    <div className="tree-children">
+                      <div className="tree-node practice">
+                        <span className="tree-icon">🏥</span>
+                        <span className="tree-name">TunaHealth Practice</span>
+                        <span className="tree-products">Marketplace, Wellhive</span>
+                        <span className="tree-new">NEW</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="hierarchy-actions">
+                    <button className="btn btn-action">Add Practice</button>
+                    <button className="btn btn-action">Add Child Org</button>
+                    <button className="btn btn-action">Change Parent</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Demo Complete Overlay */}
+            <div className="demo-complete-bar">
+              <span className="complete-text">✓ Demo Complete - Client created in Org Management</span>
+              <button className="btn btn-primary" onClick={resetDemo}>Start Over</button>
             </div>
           </div>
         )}
