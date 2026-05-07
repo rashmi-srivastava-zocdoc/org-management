@@ -1961,11 +1961,12 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
     ? MOCK_ACCOUNTS.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : MOCK_ACCOUNTS
 
-  const getStepNumber = () => {
+  const getStepNumber = (): number => {
     switch (step) {
       case 'list': case 'type-modal': return 1
       case 'form': return 2
       case 'detail': case 'csr-org': case 'csr-practice': case 'success': return 3
+      default: return 1
     }
   }
 
