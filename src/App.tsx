@@ -811,7 +811,7 @@ function AddPracticeModal({
 function WorkflowComparison() {
   const [showCurrentDemo, setShowCurrentDemo] = useState(false)
   const [showProposedDemo, setShowProposedDemo] = useState(false)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['new-org', 'child-org', 'locking']))
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['create-org', 'locking']))
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => {
@@ -832,16 +832,16 @@ function WorkflowComparison() {
         <p>Compare how organization management works today versus the proposed unified approach.</p>
       </div>
 
-      {/* Section 1: New Org Creation */}
+      {/* Section 1: Creating Organizations */}
       <div className="scenario-accordion">
-        <button className="accordion-header" onClick={() => toggleSection('new-org')}>
+        <button className="accordion-header" onClick={() => toggleSection('create-org')}>
           <div className="accordion-title">
-            <h3>Creating a New Organization</h3>
-            <p>When onboarding a brand new customer with no existing relationship</p>
+            <h3>Creating Organizations</h3>
+            <p>New organization or child org under an existing client</p>
           </div>
-          <span className="accordion-icon">{expandedSections.has('new-org') ? '−' : '+'}</span>
+          <span className="accordion-icon">{expandedSections.has('create-org') ? '−' : '+'}</span>
         </button>
-        {expandedSections.has('new-org') && (
+        {expandedSections.has('create-org') && (
           <div className="accordion-content">
             <div className="workflow-row current">
               <span className="workflow-badge current">Current</span>
@@ -890,75 +890,6 @@ function WorkflowComparison() {
                   <div className="step-info">
                     <strong>Convert to Client/Product Account</strong>
                     <span className="step-system">Automated sync to CSR & POGS</span>
-                  </div>
-                </div>
-              </div>
-              <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
-                View Demo
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Section 2: Child Org Creation */}
-      <div className="scenario-accordion">
-        <button className="accordion-header" onClick={() => toggleSection('child-org')}>
-          <div className="accordion-title">
-            <h3>Creating a Child Organization</h3>
-            <p>When expanding an existing customer relationship with a new sub-organization</p>
-          </div>
-          <span className="accordion-icon">{expandedSections.has('child-org') ? '−' : '+'}</span>
-        </button>
-        {expandedSections.has('child-org') && (
-          <div className="accordion-content">
-            <div className="workflow-row current">
-              <span className="workflow-badge current">Current</span>
-              <div className="workflow-steps-inline">
-                <div className="inline-step">
-                  <span className="step-num">1</span>
-                  <div className="step-info">
-                    <strong>Find Parent Account</strong>
-                    <span className="step-system">Salesforce</span>
-                  </div>
-                </div>
-                <span className="step-arrow-inline">→</span>
-                <div className="inline-step">
-                  <span className="step-num">2</span>
-                  <div className="step-info">
-                    <strong>Create Child Account</strong>
-                    <span className="step-system">Salesforce</span>
-                  </div>
-                </div>
-                <span className="step-arrow-inline">→</span>
-                <div className="inline-step">
-                  <span className="step-num">3</span>
-                  <div className="step-info">
-                    <strong>Link in CSR with Parent Org ID</strong>
-                    <span className="step-system">CSR (Retool)</span>
-                  </div>
-                </div>
-              </div>
-              <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
-                View Demo
-              </button>
-            </div>
-            <div className="workflow-row proposed">
-              <span className="workflow-badge proposed">Proposed</span>
-              <div className="workflow-steps-inline">
-                <div className="inline-step">
-                  <span className="step-num">1</span>
-                  <div className="step-info">
-                    <strong>Create Child Prospect</strong>
-                    <span className="step-system">Salesforce (parent auto-linked)</span>
-                  </div>
-                </div>
-                <span className="step-arrow-inline">→</span>
-                <div className="inline-step">
-                  <span className="step-num">2</span>
-                  <div className="step-info">
-                    <strong>Convert to Child Client</strong>
-                    <span className="step-system">Automated hierarchy sync</span>
                   </div>
                 </div>
               </div>
