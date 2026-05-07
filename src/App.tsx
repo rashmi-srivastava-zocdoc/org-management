@@ -2613,71 +2613,115 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
           </div>
         )}
 
-        {/* CSR Wizard: Create Org - Product Tool Style */}
+        {/* CSR Wizard: Create Org - Shows actual Org Management UI */}
         {step === 'csr-org' && (
-          <div className="proposed-demo-screen product-tool-screen">
-            <div className="product-tool-modal">
-              <div className="product-tool-header">
-                <div className="product-tool-icon">🏢</div>
-                <div className="product-tool-title">
-                  <h3>Create Organization</h3>
-                  <p>New Customer → Creating Ultimate Parent Org</p>
+          <div className="proposed-demo-screen org-mgmt-screen">
+            {/* Org Management App Preview */}
+            <div className="org-mgmt-preview">
+              {/* App Header */}
+              <div className="preview-header">
+                <div className="preview-logo">
+                  <div className="preview-logo-icon">Z</div>
+                  <span>Zocdoc</span>
                 </div>
-                <div className="product-tool-steps">
-                  <span className="pt-step active">1. Create Org</span>
-                  <span className="pt-step-arrow">→</span>
-                  <span className="pt-step">2. Add Practice</span>
-                </div>
+                <nav className="preview-nav">
+                  <span className="preview-nav-item">Home</span>
+                  <span className="preview-nav-item active">Org Management</span>
+                  <span className="preview-nav-item">Providers</span>
+                </nav>
               </div>
 
-              <div className="product-tool-body">
-                <div className="product-tool-hint">
-                  This creates a top-level organization with no parent. A practice will be added in the next step.
-                </div>
-
-                <div className="product-tool-form">
-                  <div className="pt-form-group">
-                    <label>Organization Name *</label>
-                    <div className="pt-locked-field">
-                      <input
-                        type="text"
-                        className="pt-input locked"
-                        value={csrOrgData.name}
-                        disabled
-                      />
-                      <span className="pt-lock-icon">🔒</span>
-                      <span className="pt-lock-hint">From Salesforce</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-form-group">
-                    <label>Organization Type *</label>
-                    <div className="pt-locked-field">
-                      <select
-                        className="pt-select locked"
-                        value={csrOrgData.type}
-                        disabled
-                      >
-                        <option value="Health System">Health System (HS)</option>
-                        <option value="Large Provider Group">Large Provider Group (LPG)</option>
-                        <option value="Mid-Market">Mid-Market (MM)</option>
-                        <option value="Local">Local</option>
-                      </select>
-                      <span className="pt-lock-icon">🔒</span>
-                      <span className="pt-lock-hint">From Salesforce</span>
-                    </div>
-                  </div>
-                </div>
+              {/* Page Header */}
+              <div className="preview-page-header">
+                <h1>Organization Management</h1>
+                <button className="btn btn-outline btn-disabled">+ Create New Client</button>
               </div>
 
-              <div className="product-tool-footer">
-                <button className="btn btn-outline" onClick={() => setStep('detail')}>Cancel</button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleOrgCreated}
-                >
-                  Create Ultimate Parent →
-                </button>
+              {/* View Tabs */}
+              <div className="preview-tabs">
+                <button className="preview-tab active">Org Hierarchy</button>
+                <button className="preview-tab">Workflow Comparison</button>
+              </div>
+
+              {/* Content Area (dimmed) */}
+              <div className="preview-content">
+                <div className="preview-search">
+                  <label>Search</label>
+                  <input type="text" placeholder="Search Org by Name" disabled />
+                </div>
+                <div className="preview-empty">
+                  <p>Select or create an organization to view hierarchy</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Create New Client Modal Overlay */}
+            <div className="demo-modal-overlay">
+              <div className="demo-create-modal">
+                <div className="demo-modal-header">
+                  <h2>Create New Client</h2>
+                  <button className="demo-modal-close" onClick={() => setStep('detail')}>×</button>
+                </div>
+                <div className="demo-modal-body">
+                  <div className="demo-wizard-content">
+                    {/* Left: Hierarchy Preview */}
+                    <div className="demo-hierarchy-preview">
+                      <div className="demo-preview-label">Hierarchy Preview</div>
+                      <div className="demo-tree-preview">
+                        <div className="demo-tree-item root">
+                          <span className="demo-tree-icon">🏢</span>
+                          <span className="demo-tree-name">{csrOrgData.name || 'New Organization'}</span>
+                          <span className="demo-tree-badge">{csrOrgData.type === 'Health System' ? 'HS' : csrOrgData.type === 'Large Provider Group' ? 'LPG' : 'LPG'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Form */}
+                    <div className="demo-form-section">
+                      <div className="demo-form-hint">
+                        This creates a top-level organization with no parent. A practice will be added in the next step.
+                      </div>
+
+                      <div className="demo-form-group">
+                        <label>Organization Name *</label>
+                        <div className="demo-locked-input">
+                          <input
+                            type="text"
+                            value={csrOrgData.name}
+                            disabled
+                          />
+                          <span className="demo-lock-badge">🔒 From Salesforce</span>
+                        </div>
+                      </div>
+
+                      <div className="demo-form-group">
+                        <label>Organization Type *</label>
+                        <div className="demo-locked-input">
+                          <select value={csrOrgData.type} disabled>
+                            <option value="Health System">Health System (HS)</option>
+                            <option value="Large Provider Group">Large Provider Group (LPG)</option>
+                            <option value="Mid-Market">Mid-Market (MM)</option>
+                            <option value="Local">Local</option>
+                          </select>
+                          <span className="demo-lock-badge">🔒 From Salesforce</span>
+                        </div>
+                      </div>
+
+                      <div className="demo-form-group">
+                        <label className="demo-checkbox-label">
+                          <input type="checkbox" disabled />
+                          <span>Also create a practice</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="demo-modal-footer">
+                  <button className="btn btn-outline" onClick={() => setStep('detail')}>Cancel</button>
+                  <button className="btn btn-primary" onClick={handleOrgCreated}>
+                    Create Ultimate Parent →
+                  </button>
+                </div>
               </div>
             </div>
           </div>
