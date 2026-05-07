@@ -1851,8 +1851,14 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   flex-shrink: 0;
-  min-width: 65px;
+  min-width: 110px;
   text-align: center;
+}
+
+.workflow-badge .step-count {
+  font-weight: 500;
+  opacity: 0.9;
+  text-transform: none;
 }
 
 .workflow-badge.current {
