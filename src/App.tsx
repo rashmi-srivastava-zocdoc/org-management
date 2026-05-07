@@ -2613,12 +2613,11 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
           </div>
         )}
 
-        {/* CSR Wizard: Create Org - Shows actual Org Management UI */}
+        {/* CSR Wizard: Create Org - Uses actual app modal structure */}
         {step === 'csr-org' && (
           <div className="proposed-demo-screen org-mgmt-screen">
-            {/* Org Management App Preview */}
+            {/* Org Management App Preview (dimmed background) */}
             <div className="org-mgmt-preview">
-              {/* App Header */}
               <div className="preview-header">
                 <div className="preview-logo">
                   <div className="preview-logo-icon">Z</div>
@@ -2630,115 +2629,107 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                   <span className="preview-nav-item">Providers</span>
                 </nav>
               </div>
-
-              {/* Page Header */}
               <div className="preview-page-header">
                 <h1>Organization Management</h1>
-                <button className="btn btn-outline btn-disabled">+ Create New Client</button>
               </div>
-
-              {/* View Tabs */}
               <div className="preview-tabs">
                 <button className="preview-tab active">Org Hierarchy</button>
                 <button className="preview-tab">Workflow Comparison</button>
               </div>
-
-              {/* Content Area (dimmed) */}
-              <div className="preview-content">
-                <div className="preview-search">
-                  <label>Search</label>
-                  <input type="text" placeholder="Search Org by Name" disabled />
-                </div>
-                <div className="preview-empty">
-                  <p>Select or create an organization to view hierarchy</p>
-                </div>
-              </div>
+              <div className="preview-content"></div>
             </div>
 
-            {/* Create New Client Modal Overlay */}
-            <div className="demo-modal-overlay">
-              <div className="demo-create-modal">
-                <div className="demo-modal-header">
+            {/* Actual Create New Client Modal */}
+            <div className="modal-overlay demo-modal-active">
+              <div className="modal new-client-wizard wide-modal">
+                <div className="modal-header">
                   <h2>Create New Client</h2>
-                  <button className="demo-modal-close" onClick={() => setStep('detail')}>×</button>
+                  <button className="modal-close" onClick={() => setStep('detail')}>×</button>
                 </div>
-                <div className="demo-modal-body">
-                  <div className="demo-wizard-content">
-                    {/* Left: Hierarchy Preview */}
-                    <div className="demo-hierarchy-preview">
-                      <div className="demo-preview-label">Hierarchy Preview</div>
-                      <div className="demo-tree-preview">
-                        <div className="demo-tree-item root">
-                          <span className="demo-tree-icon">🏢</span>
-                          <span className="demo-tree-name">TunaHealth</span>
-                          <span className="demo-tree-badge">LPG</span>
+
+                <div className="modal-body split-view">
+                  {/* Left: Hierarchy Preview */}
+                  <div className="split-left">
+                    <div className="org-hierarchy-preview">
+                      <div className="hierarchy-preview-title">Organization Hierarchy</div>
+                      <div className="hierarchy-preview-tree">
+                        <div className="hierarchy-node org-node">
+                          <span className="node-icon">🏢</span>
+                          <span className="node-name">TunaHealth</span>
+                          <span className="type-badge ultimate">LPG</span>
                         </div>
-                        <div className="demo-tree-child">
-                          <div className="demo-tree-connector"></div>
-                          <div className="demo-tree-item practice">
-                            <span className="demo-tree-icon">🏥</span>
-                            <span className="demo-tree-name">TunaHealth Practice</span>
+                        <div style={{ marginLeft: 20 }}>
+                          <span className="hierarchy-connector">└─</span>
+                          <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                            <span className="node-icon">🏥</span>
+                            <span className="node-name">TunaHealth Practice</span>
+                            <span className="type-badge practice">Practice</span>
+                            <span className="new-badge">← Creating here</span>
                           </div>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Right: Form */}
-                    <div className="demo-form-section">
-                      <div className="demo-form-hint">
-                        This creates a top-level organization with no parent.
+                  {/* Right: Form */}
+                  <div className="split-right">
+                    <div className="form-section">
+                      <h4>Organization</h4>
+                      <div className="form-group">
+                        <label>Organization Name * <span className="locked-badge">🔒 From Salesforce</span></label>
+                        <input
+                          type="text"
+                          value="TunaHealth"
+                          disabled
+                          className="locked-input"
+                        />
                       </div>
-
-                      <div className="demo-form-group">
-                        <label>Organization Name *</label>
-                        <div className="demo-locked-input">
-                          <input
-                            type="text"
-                            value="TunaHealth"
-                            disabled
-                          />
-                          <span className="demo-lock-badge">🔒 From Salesforce</span>
-                        </div>
+                      <div className="form-group">
+                        <label>Segment * <span className="locked-badge">🔒 From Salesforce</span></label>
+                        <select value="LargeProviderGroup" disabled className="locked-input">
+                          <option value="HealthSystem">Health System (HS)</option>
+                          <option value="LargeProviderGroup">Large Provider Group (LPG)</option>
+                          <option value="MidMarket">Mid-Market (MM)</option>
+                          <option value="Local">Local</option>
+                        </select>
                       </div>
+                    </div>
 
-                      <div className="demo-form-group">
-                        <label>Organization Type *</label>
-                        <div className="demo-locked-input">
-                          <select value="Large Provider Group" disabled>
-                            <option value="Health System">Health System (HS)</option>
-                            <option value="Large Provider Group">Large Provider Group (LPG)</option>
-                            <option value="Mid-Market">Mid-Market (MM)</option>
-                            <option value="Local">Local</option>
-                          </select>
-                          <span className="demo-lock-badge">🔒 From Salesforce</span>
-                        </div>
-                      </div>
-
-                      <div className="demo-form-group">
-                        <label className="demo-checkbox-label checked">
+                    <div className="form-section">
+                      <div className="form-group practice-toggle">
+                        <label className="checkbox-label">
                           <input type="checkbox" checked disabled />
-                          <span>Also create a practice</span>
+                          <span>Add a practice under this organization</span>
                         </label>
                       </div>
 
-                      <div className="demo-practice-fields">
-                        <div className="demo-form-group">
-                          <label>Practice Name *</label>
-                          <input
-                            type="text"
-                            className="demo-input"
-                            value="TunaHealth Practice"
-                            disabled
-                          />
+                      <div className="form-group">
+                        <label>Practice Name *</label>
+                        <input
+                          type="text"
+                          value="TunaHealth Practice"
+                          onChange={() => {}}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Products</label>
+                        <div className="product-checkboxes">
+                          {AVAILABLE_PRODUCTS.map(product => (
+                            <label key={product.value} className="product-checkbox">
+                              <input type="checkbox" />
+                              <span>{product.label}</span>
+                            </label>
+                          ))}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="demo-modal-footer">
-                  <button className="btn btn-outline" onClick={() => setStep('detail')}>Cancel</button>
+
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={() => setStep('detail')}>Cancel</button>
                   <button className="btn btn-primary" onClick={handleOrgCreated}>
-                    Create Ultimate Parent →
+                    Create Client
                   </button>
                 </div>
               </div>
