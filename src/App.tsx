@@ -42,8 +42,7 @@ function App() {
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
   const [showAddChildModal, setShowAddChildModal] = useState(false)
   const [showAddPracticeModal, setShowAddPracticeModal] = useState(false)
-  const [showEditOrgModal, setShowEditOrgModal] = useState(false)
-  const [showChangeParentModal, setShowChangeParentModal] = useState(false)
+  const [showEditHierarchyModal, setShowEditHierarchyModal] = useState(false)
 
   // Flatten all orgs for search
   const flattenOrgs = (orgs: Organization[]): Organization[] => {
@@ -392,14 +391,7 @@ function App() {
                 </button>
                 <button
                   className="btn btn-action-bar"
-                  onClick={() => setShowChangeParentModal(true)}
-                  disabled={selectedItems.size === 0}
-                >
-                  Change Parent
-                </button>
-                <button
-                  className="btn btn-action-bar"
-                  onClick={() => setShowEditOrgModal(true)}
+                  onClick={() => setShowEditHierarchyModal(true)}
                   disabled={selectedItems.size !== 1}
                 >
                   Edit
@@ -523,27 +515,6 @@ function App() {
         )
       })()}
 
-      {/* Edit Org Modal */}
-      {showEditOrgModal && selectedOrg && (
-        <Modal title="Update Organization" onClose={() => setShowEditOrgModal(false)}>
-          <OrgForm
-            initialValues={selectedOrg}
-            onSubmit={(updated) => {
-              const updateOrg = (org: Organization): Organization => {
-                if (org.id === selectedOrg.id) return { ...org, ...updated }
-                if (org.children) return { ...org, children: org.children.map(updateOrg) }
-                return org
-              }
-              setOrganizations(organizations.map(updateOrg))
-              setSelectedOrg({ ...selectedOrg, ...updated })
-              setShowEditOrgModal(false)
-            }}
-            onCancel={() => setShowEditOrgModal(false)}
-            submitLabel="Update Organization"
-          />
-        </Modal>
-      )}
-
       {/* Add Practice Modal */}
       {showAddPracticeModal && selectedOrg && (() => {
         const targetOrg = getTargetOrgForPractice()
@@ -558,28 +529,71 @@ function App() {
         )
       })()}
 
-      {/* Change Parent Modal */}
-      {showChangeParentModal && selectedOrg && (
-        <Modal title="Change Parent Organization" onClose={() => setShowChangeParentModal(false)}>
-          <div className="form-group">
-            <label>Selected Items</label>
-            <input type="text" value={`${selectedItems.size} item(s) selected`} disabled />
-          </div>
-          <div className="form-group">
-            <label>New Parent Organization</label>
-            <select>
-              <option value="">Select parent...</option>
-              {allOrgs.filter(o => !selectedItems.has(o.id)).map(org => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="modal-actions">
-            <button className="btn btn-secondary" onClick={() => setShowChangeParentModal(false)}>Cancel</button>
-            <button className="btn btn-primary" onClick={() => setShowChangeParentModal(false)}>Change Parent</button>
-          </div>
-        </Modal>
-      )}
+      {/* Edit Hierarchy Modal */}
+      {showEditHierarchyModal && selectedOrg && (() => {
+        const selectedId = Array.from(selectedItems)[0]
+        const isOrg = selectedId?.startsWith('org')
+        const selectedOrgItem = isOrg ? allOrgs.find(o => o.id === selectedId) : null
+        const selectedPractice = !isOrg ? practices.find(p => p.id === selectedId) : null
+        const currentPath = selectedOrgItem ? getOrgPath(selectedOrgItem.id) :
+                           selectedPractice ? getOrgPath(selectedPractice.parentOrgId) : []
+
+        return (
+          <EditHierarchyModal
+            selectedItem={selectedOrgItem || selectedPractice}
+            isOrg={isOrg}
+            currentPath={currentPath}
+            allOrgs={allOrgs}
+            practices={practices}
+            onClose={() => setShowEditHierarchyModal(false)}
+            onMoveOrg={(orgId, newParentId) => {
+              // Move org to new parent
+              const moveOrg = (orgs: Organization[]): Organization[] => {
+                // First, remove org from its current location
+                let movedOrg: Organization | null = null
+                const removeOrg = (orgList: Organization[]): Organization[] => {
+                  return orgList.filter(org => {
+                    if (org.id === orgId) {
+                      movedOrg = org
+                      return false
+                    }
+                    if (org.children) {
+                      org.children = removeOrg(org.children)
+                    }
+                    return true
+                  })
+                }
+                let updated = removeOrg([...orgs])
+
+                // Then add to new parent
+                if (movedOrg && newParentId) {
+                  const addToParent = (orgList: Organization[]): Organization[] => {
+                    return orgList.map(org => {
+                      if (org.id === newParentId) {
+                        return { ...org, children: [...(org.children || []), movedOrg!] }
+                      }
+                      if (org.children) {
+                        return { ...org, children: addToParent(org.children) }
+                      }
+                      return org
+                    })
+                  }
+                  updated = addToParent(updated)
+                }
+                return updated
+              }
+              setOrganizations(moveOrg(organizations))
+              setShowEditHierarchyModal(false)
+            }}
+            onMovePractice={(practiceId, newParentOrgId) => {
+              setPractices(practices.map(p =>
+                p.id === practiceId ? { ...p, parentOrgId: newParentOrgId } : p
+              ))
+              setShowEditHierarchyModal(false)
+            }}
+          />
+        )
+      })()}
     </div>
   )
 }
@@ -800,6 +814,322 @@ function AddPracticeModal({
             disabled={!name.trim()}
           >
             Add Practice
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Mock Users Data for Access Impact
+const MOCK_USERS = [
+  { id: 'u1', name: 'John Smith', email: 'john.smith@northwell.com', role: 'Admin' },
+  { id: 'u2', name: 'Sarah Johnson', email: 'sarah.j@northwell.com', role: 'Manager' },
+  { id: 'u3', name: 'Mike Chen', email: 'mchen@northwell.com', role: 'User' },
+  { id: 'u4', name: 'Lisa Park', email: 'lisa.park@lifestance.com', role: 'Admin' },
+  { id: 'u5', name: 'David Williams', email: 'd.williams@lifestance.com', role: 'Manager' },
+  { id: 'u6', name: 'Emily Brown', email: 'ebrown@zocdoc.com', role: 'Super Admin' },
+]
+
+// Edit Hierarchy Modal Component
+function EditHierarchyModal({
+  selectedItem,
+  isOrg,
+  currentPath,
+  allOrgs,
+  practices,
+  onClose,
+  onMoveOrg,
+  onMovePractice,
+}: {
+  selectedItem: Organization | Practice | null | undefined
+  isOrg: boolean
+  currentPath: Organization[]
+  allOrgs: Organization[]
+  practices: Practice[]
+  onClose: () => void
+  onMoveOrg: (orgId: string, newParentId: string | null) => void
+  onMovePractice: (practiceId: string, newParentOrgId: string) => void
+}) {
+  const [moveOption, setMoveOption] = useState<'within' | 'different'>('within')
+  const [newParentId, setNewParentId] = useState<string>('')
+  const [showAccessImpact, setShowAccessImpact] = useState(false)
+
+  if (!selectedItem) return null
+
+  const currentParentId = isOrg
+    ? currentPath.length > 1 ? currentPath[currentPath.length - 2]?.id : null
+    : (selectedItem as Practice).parentOrgId
+
+  const currentParentOrg = currentParentId
+    ? allOrgs.find(o => o.id === currentParentId)
+    : null
+
+  const ultimateParentId = currentPath[0]?.id
+
+  const getValidParents = () => {
+    if (isOrg) {
+      const org = selectedItem as Organization
+      const descendants = new Set<string>()
+      const collectDescendants = (o: Organization) => {
+        descendants.add(o.id)
+        o.children?.forEach(collectDescendants)
+      }
+      collectDescendants(org)
+
+      if (moveOption === 'within') {
+        return allOrgs.filter(o =>
+          currentPath.some(p => p.id === o.id || allOrgs.find(a => a.id === ultimateParentId)?.children?.some(c => c.id === o.id)) &&
+          !descendants.has(o.id) &&
+          o.id !== org.id
+        )
+      } else {
+        return allOrgs.filter(o =>
+          !descendants.has(o.id) &&
+          o.id !== org.id &&
+          !currentPath.some(p => p.id === o.id)
+        )
+      }
+    } else {
+      if (moveOption === 'within') {
+        return allOrgs.filter(o =>
+          currentPath.some(p => p.id === o.id) ||
+          currentPath[currentPath.length - 1]?.children?.some(c => c.id === o.id)
+        )
+      } else {
+        return allOrgs.filter(o =>
+          !currentPath.some(p => p.id === o.id)
+        )
+      }
+    }
+  }
+
+  const validParents = getValidParents()
+
+  const getAccessImpact = () => {
+    const currentUsers = MOCK_USERS.slice(0, 3)
+    const newUsers = moveOption === 'different'
+      ? MOCK_USERS.slice(3, 6)
+      : MOCK_USERS.slice(0, 3)
+
+    const gaining = newUsers.filter(u => !currentUsers.some(cu => cu.id === u.id))
+    const losing = currentUsers.filter(u => !newUsers.some(nu => nu.id === u.id))
+
+    return { gaining, losing }
+  }
+
+  const accessImpact = getAccessImpact()
+
+  const handleConfirmMove = () => {
+    if (isOrg) {
+      onMoveOrg(selectedItem.id, newParentId || null)
+    } else {
+      if (newParentId) {
+        onMovePractice(selectedItem.id, newParentId)
+      }
+    }
+  }
+
+  const newParentOrg = newParentId ? allOrgs.find(o => o.id === newParentId) : null
+
+  if (showAccessImpact) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal new-client-wizard">
+          <div className="modal-header">
+            <h2>Confirm Access Changes</h2>
+            <button className="modal-close" onClick={() => setShowAccessImpact(false)}>×</button>
+          </div>
+          <div className="modal-body">
+            <div className="access-impact-content">
+              <div className="impact-summary">
+                <p>Moving <strong>{selectedItem.name}</strong> from <strong>{currentParentOrg?.name || 'Root'}</strong> to <strong>{newParentOrg?.name || 'Root'}</strong></p>
+              </div>
+
+              {accessImpact.gaining.length > 0 && (
+                <div className="impact-section gaining">
+                  <h4>
+                    <span className="impact-icon">✓</span>
+                    Users who will gain access ({accessImpact.gaining.length})
+                  </h4>
+                  <div className="impact-users">
+                    {accessImpact.gaining.map(user => (
+                      <div key={user.id} className="impact-user">
+                        <div className="user-avatar">{user.name[0]}</div>
+                        <div className="user-info">
+                          <div className="user-name">{user.name}</div>
+                          <div className="user-email">{user.email}</div>
+                        </div>
+                        <div className="user-role">{user.role}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {accessImpact.losing.length > 0 && (
+                <div className="impact-section losing">
+                  <h4>
+                    <span className="impact-icon">✗</span>
+                    Users who will lose access ({accessImpact.losing.length})
+                  </h4>
+                  <div className="impact-users">
+                    {accessImpact.losing.map(user => (
+                      <div key={user.id} className="impact-user">
+                        <div className="user-avatar">{user.name[0]}</div>
+                        <div className="user-info">
+                          <div className="user-name">{user.name}</div>
+                          <div className="user-email">{user.email}</div>
+                        </div>
+                        <div className="user-role">{user.role}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {accessImpact.gaining.length === 0 && accessImpact.losing.length === 0 && (
+                <div className="impact-section no-change">
+                  <p>No access changes will occur with this move.</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={() => setShowAccessImpact(false)}>
+              Cancel
+            </button>
+            <button className="btn btn-primary" onClick={handleConfirmMove}>
+              Confirm Move
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal new-client-wizard wide-modal">
+        <div className="modal-header">
+          <h2>Edit Hierarchy</h2>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="modal-body split-view">
+          {/* Left: Current Hierarchy */}
+          <div className="split-left">
+            <div className="org-hierarchy-preview">
+              <div className="hierarchy-preview-title">Current Position</div>
+              <div className="hierarchy-preview-tree">
+                {currentPath.map((org, index) => (
+                  <div key={org.id} className="hierarchy-row" style={{ paddingLeft: index * 20 }}>
+                    {index > 0 && <span className="hierarchy-connector">└─</span>}
+                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex' }}>
+                      <span className="node-icon">🏢</span>
+                      <span className="node-name">{org.name}</span>
+                      <span className={`type-badge ${index === 0 ? 'ultimate' : 'child'}`}>
+                        {TYPE_ABBREV[org.type] || org.type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {/* Selected Item */}
+                <div className="hierarchy-row" style={{ paddingLeft: currentPath.length * 20 }}>
+                  <span className="hierarchy-connector">└─</span>
+                  <div className={`hierarchy-node ${isOrg ? 'org-node' : 'practice-node'} selected-node`} style={{ display: 'inline-flex' }}>
+                    <span className="node-icon">{isOrg ? '🏢' : '🏥'}</span>
+                    <span className="node-name">{selectedItem.name}</span>
+                    <span className={`type-badge ${isOrg ? 'child' : 'practice'}`}>
+                      {isOrg ? TYPE_ABBREV[(selectedItem as Organization).type] || (selectedItem as Organization).type : 'Practice'}
+                    </span>
+                    <span className="selected-badge">← Selected</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Move Options */}
+          <div className="split-right">
+            <div className="form-section">
+              <h4>Move {isOrg ? 'Organization' : 'Practice'}</h4>
+
+              <div className="form-group">
+                <label>Where do you want to move this {isOrg ? 'organization' : 'practice'}?</label>
+                <div className="radio-options">
+                  <label className="radio-option">
+                    <input
+                      type="radio"
+                      name="moveOption"
+                      checked={moveOption === 'within'}
+                      onChange={() => { setMoveOption('within'); setNewParentId('') }}
+                    />
+                    <span>Within current hierarchy</span>
+                  </label>
+                  <label className="radio-option">
+                    <input
+                      type="radio"
+                      name="moveOption"
+                      checked={moveOption === 'different'}
+                      onChange={() => { setMoveOption('different'); setNewParentId('') }}
+                    />
+                    <span>Move to a different organization</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Select New Parent *</label>
+                <select
+                  value={newParentId}
+                  onChange={e => setNewParentId(e.target.value)}
+                  className="parent-select"
+                >
+                  <option value="">-- Select Parent --</option>
+                  {validParents.map(org => (
+                    <option key={org.id} value={org.id}>
+                      {org.name} ({TYPE_ABBREV[org.type] || org.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {newParentId && (
+                <div className="new-position-preview">
+                  <h5>New Position Preview</h5>
+                  <div className="preview-box">
+                    <div className="hierarchy-node org-node" style={{ display: 'inline-flex' }}>
+                      <span className="node-icon">🏢</span>
+                      <span className="node-name">{newParentOrg?.name}</span>
+                      <span className="type-badge child">{TYPE_ABBREV[newParentOrg?.type || ''] || newParentOrg?.type}</span>
+                    </div>
+                    <div style={{ paddingLeft: 20 }}>
+                      <span className="hierarchy-connector">└─</span>
+                      <div className={`hierarchy-node ${isOrg ? 'org-node' : 'practice-node'}`} style={{ display: 'inline-flex' }}>
+                        <span className="node-icon">{isOrg ? '🏢' : '🏥'}</span>
+                        <span className="node-name">{selectedItem.name}</span>
+                        <span className={`type-badge ${isOrg ? 'child' : 'practice'}`}>
+                          {isOrg ? TYPE_ABBREV[(selectedItem as Organization).type] || (selectedItem as Organization).type : 'Practice'}
+                        </span>
+                        <span className="new-badge">← Will move here</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowAccessImpact(true)}
+            disabled={!newParentId}
+          >
+            Preview Access Changes
           </button>
         </div>
       </div>
