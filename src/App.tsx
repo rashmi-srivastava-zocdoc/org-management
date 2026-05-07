@@ -394,7 +394,7 @@ function App() {
                   onClick={() => setShowEditHierarchyModal(true)}
                   disabled={selectedItems.size !== 1}
                 >
-                  Edit
+                  Change Parent
                 </button>
                 <button
                   className="btn btn-action-bar btn-danger"
@@ -1112,7 +1112,7 @@ function WorkflowComparison() {
         {expandedSections.has('create-org') && (
           <div className="accordion-content">
             <div className="workflow-row current">
-              <span className="workflow-badge current">Current</span>
+              <span className="workflow-badge current">Current <span className="step-count">(3 steps)</span></span>
               <div className="workflow-steps-inline">
                 <div className="inline-step">
                   <span className="step-num">1</span>
@@ -1143,7 +1143,7 @@ function WorkflowComparison() {
               </button>
             </div>
             <div className="workflow-row proposed">
-              <span className="workflow-badge proposed">Proposed</span>
+              <span className="workflow-badge proposed">Proposed <span className="step-count">(2 steps)</span></span>
               <div className="workflow-steps-inline">
                 <div className="inline-step">
                   <span className="step-num">1</span>
