@@ -2615,7 +2615,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
 
         {/* CSR Wizard: Create Org - Product Tool Style */}
         {step === 'csr-org' && (
-          <div className="proposed-demo-screen">
+          <div className="proposed-demo-screen product-tool-screen">
             <div className="product-tool-modal">
               <div className="product-tool-header">
                 <div className="product-tool-icon">🏢</div>

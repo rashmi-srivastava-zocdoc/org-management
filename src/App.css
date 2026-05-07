@@ -3371,16 +3371,22 @@ body {
   align-items: center;
 }
 
+/* Product Tool Screen Background */
+.product-tool-screen {
+  background: #f3f4f6;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
 /* Product Tool Modal (Org Management Style) */
 .product-tool-modal {
   background: white;
-  margin: 24px;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  width: 100%;
   max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .product-tool-header {
