@@ -889,7 +889,7 @@ function WorkflowComparison() {
                   <span className="step-num">2</span>
                   <div className="step-info">
                     <strong>Convert to Client/Product Account</strong>
-                    <span className="step-system">Automated sync to CSR & POGS</span>
+                    <span className="step-system">Product Tool</span>
                   </div>
                 </div>
               </div>
