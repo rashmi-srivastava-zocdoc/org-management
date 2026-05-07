@@ -2670,8 +2670,15 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                       <div className="demo-tree-preview">
                         <div className="demo-tree-item root">
                           <span className="demo-tree-icon">🏢</span>
-                          <span className="demo-tree-name">{csrOrgData.name || 'New Organization'}</span>
-                          <span className="demo-tree-badge">{csrOrgData.type === 'Health System' ? 'HS' : csrOrgData.type === 'Large Provider Group' ? 'LPG' : 'LPG'}</span>
+                          <span className="demo-tree-name">TunaHealth</span>
+                          <span className="demo-tree-badge">LPG</span>
+                        </div>
+                        <div className="demo-tree-child">
+                          <div className="demo-tree-connector"></div>
+                          <div className="demo-tree-item practice">
+                            <span className="demo-tree-icon">🏥</span>
+                            <span className="demo-tree-name">TunaHealth Practice</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2679,7 +2686,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                     {/* Right: Form */}
                     <div className="demo-form-section">
                       <div className="demo-form-hint">
-                        This creates a top-level organization with no parent. A practice will be added in the next step.
+                        This creates a top-level organization with no parent.
                       </div>
 
                       <div className="demo-form-group">
@@ -2687,7 +2694,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                         <div className="demo-locked-input">
                           <input
                             type="text"
-                            value={csrOrgData.name}
+                            value="TunaHealth"
                             disabled
                           />
                           <span className="demo-lock-badge">🔒 From Salesforce</span>
@@ -2697,7 +2704,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                       <div className="demo-form-group">
                         <label>Organization Type *</label>
                         <div className="demo-locked-input">
-                          <select value={csrOrgData.type} disabled>
+                          <select value="Large Provider Group" disabled>
                             <option value="Health System">Health System (HS)</option>
                             <option value="Large Provider Group">Large Provider Group (LPG)</option>
                             <option value="Mid-Market">Mid-Market (MM)</option>
@@ -2708,10 +2715,22 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                       </div>
 
                       <div className="demo-form-group">
-                        <label className="demo-checkbox-label">
-                          <input type="checkbox" disabled />
+                        <label className="demo-checkbox-label checked">
+                          <input type="checkbox" checked disabled />
                           <span>Also create a practice</span>
                         </label>
+                      </div>
+
+                      <div className="demo-practice-fields">
+                        <div className="demo-form-group">
+                          <label>Practice Name *</label>
+                          <input
+                            type="text"
+                            className="demo-input"
+                            value="TunaHealth Practice"
+                            disabled
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

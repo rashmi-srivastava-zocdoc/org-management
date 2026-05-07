@@ -3624,6 +3624,54 @@ body {
   border-radius: 4px;
 }
 
+.demo-tree-child {
+  display: flex;
+  align-items: stretch;
+  margin-top: 4px;
+  margin-left: 16px;
+}
+
+.demo-tree-connector {
+  width: 20px;
+  border-left: 2px solid #d1d5db;
+  border-bottom: 2px solid #d1d5db;
+  border-bottom-left-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.demo-tree-item.practice {
+  flex: 1;
+  border-left: 3px solid #3b82f6;
+}
+
+.demo-practice-fields {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.demo-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+}
+
+.demo-input:disabled {
+  background: #f9fafb;
+  color: #374151;
+}
+
+.demo-checkbox-label.checked {
+  color: #1f2937;
+}
+
+.demo-checkbox-label.checked input {
+  accent-color: var(--zd-green, #00a870);
+}
+
 .demo-form-section {
   display: flex;
   flex-direction: column;
