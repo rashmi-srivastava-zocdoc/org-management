@@ -530,13 +530,15 @@ function App() {
       })()}
 
       {/* Edit Hierarchy Modal */}
-      {showEditHierarchyModal && selectedOrg && (() => {
+      {showEditHierarchyModal && selectedItems.size === 1 && (() => {
         const selectedId = Array.from(selectedItems)[0]
         const isOrg = selectedId?.startsWith('org')
         const selectedOrgItem = isOrg ? allOrgs.find(o => o.id === selectedId) : null
         const selectedPractice = !isOrg ? practices.find(p => p.id === selectedId) : null
         const currentPath = selectedOrgItem ? getOrgPath(selectedOrgItem.id) :
                            selectedPractice ? getOrgPath(selectedPractice.parentOrgId) : []
+
+        if (!selectedOrgItem && !selectedPractice) return null
 
         return (
           <EditHierarchyModal
