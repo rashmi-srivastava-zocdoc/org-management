@@ -598,70 +598,6 @@ function App() {
   )
 }
 
-// Modal Component
-function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
-  return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <div className="modal-header">
-          <h2>{title}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        <div className="modal-body">
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Org Form Component
-function OrgForm({
-  initialValues,
-  onSubmit,
-  onCancel,
-  submitLabel,
-  isUltimateParent = false
-}: {
-  initialValues?: Partial<Organization>
-  onSubmit: (org: Partial<Organization>) => void
-  onCancel: () => void
-  submitLabel: string
-  isUltimateParent?: boolean
-}) {
-  const [name, setName] = useState(initialValues?.name || '')
-  const [type, setType] = useState(initialValues?.type || (isUltimateParent ? 'HealthSystem' : 'LargeProviderGroup'))
-
-  return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit({ name, type }) }}>
-      <div className="form-group">
-        <label>Organization Name *</label>
-        <input
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Enter organization name"
-          required
-          autoFocus
-        />
-      </div>
-      <div className="form-group">
-        <label>Organization Type *</label>
-        <select value={type} onChange={e => setType(e.target.value as Organization['type'])}>
-          <option value="HealthSystem">Health System (HS)</option>
-          <option value="LargeProviderGroup">Large Provider Group (LPG)</option>
-          <option value="MidMarket">Mid-Market (MM)</option>
-          <option value="Local">Local</option>
-        </select>
-      </div>
-      <div className="modal-actions">
-        <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary" disabled={!name.trim()}>{submitLabel}</button>
-      </div>
-    </form>
-  )
-}
-
 // Add Practice Modal Component
 function AddPracticeModal({
   parentOrg,
@@ -837,7 +773,7 @@ function EditHierarchyModal({
   isOrg,
   currentPath,
   allOrgs,
-  practices,
+  practices: _practices,
   onClose,
   onMoveOrg,
   onMovePractice,
