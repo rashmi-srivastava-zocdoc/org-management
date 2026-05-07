@@ -1656,6 +1656,28 @@ body {
   background: var(--zd-text-muted);
 }
 
+/* Fullscreen Demo Mode */
+.fullscreen-demo {
+  width: 100vw;
+  height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fullscreen-demo .demo-overlay {
+  position: static;
+  background: transparent;
+}
+
+.fullscreen-demo .proposed-demo-modal {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 /* Proposed Demo Modal (Commercial Team Flow) */
 .proposed-demo-modal {
   background: white;

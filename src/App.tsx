@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Organization, Practice, ProductType } from './types'
 import { mockOrganizations } from './data/mockData'
 
@@ -43,6 +43,34 @@ function App() {
   const [showAddChildModal, setShowAddChildModal] = useState(false)
   const [showAddPracticeModal, setShowAddPracticeModal] = useState(false)
   const [showEditHierarchyModal, setShowEditHierarchyModal] = useState(false)
+
+  // Pre-populated create org data (from URL params)
+  const [prefilledOrgData, setPrefilledOrgData] = useState<{ name: string; type: string } | null>(null)
+
+  // Fullscreen demo mode
+  const [fullscreenDemo, setFullscreenDemo] = useState<'proposed' | null>(null)
+
+  // Handle URL parameters on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    // Check for fullscreen demo mode
+    if (params.get('demo') === 'proposed') {
+      setFullscreenDemo('proposed')
+      return
+    }
+
+    // Check for create org with prefilled data
+    if (params.get('createOrg') === 'true') {
+      const orgName = params.get('orgName') || ''
+      const orgType = params.get('orgType') || 'LargeProviderGroup'
+      setPrefilledOrgData({ name: orgName, type: orgType })
+      setViewMode('org-management')
+      setShowCreateOrgModal(true)
+      // Clear URL params after reading
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   // Flatten all orgs for search
   const flattenOrgs = (orgs: Organization[]): Organization[] => {
@@ -273,6 +301,18 @@ function App() {
     )
   }
 
+  // Fullscreen demo mode - render demo without app chrome
+  if (fullscreenDemo === 'proposed') {
+    return (
+      <div className="fullscreen-demo">
+        <CommercialTeamDemo
+          onClose={() => window.close()}
+          fullscreen
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       {/* Header */}
@@ -436,7 +476,10 @@ function App() {
       {/* Create New Client Wizard */}
       {showCreateOrgModal && (
         <CreateNewClientWizard
-          onClose={() => setShowCreateOrgModal(false)}
+          onClose={() => {
+            setShowCreateOrgModal(false)
+            setPrefilledOrgData(null)
+          }}
           onCreateOrg={handleCreateOrg}
           onCreatePractice={(orgId, practice) => {
             const newPractice: Practice = {
@@ -448,6 +491,7 @@ function App() {
             setPractices([...practices, newPractice])
             setExpandedOrgs(prev => new Set([...prev, orgId]))
           }}
+          initialData={prefilledOrgData}
         />
       )}
 
@@ -1161,7 +1205,10 @@ function WorkflowComparison() {
                   </div>
                 </div>
               </div>
-              <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
+              <button className="btn btn-demo-proposed" onClick={() => {
+                  const baseUrl = window.location.origin + window.location.pathname
+                  window.open(`${baseUrl}?demo=proposed`, '_blank', 'width=1400,height=900')
+                }}>
                 View Demo
               </button>
             </div>
@@ -1220,7 +1267,10 @@ function WorkflowComparison() {
                   <span className="blocked-item"><span className="blocked-icon">✗</span> Account segment changes not allowed at child level</span>
                 </div>
               </div>
-              <button className="btn btn-demo-proposed" onClick={() => setShowProposedDemo(true)}>
+              <button className="btn btn-demo-proposed" onClick={() => {
+                  const baseUrl = window.location.origin + window.location.pathname
+                  window.open(`${baseUrl}?demo=proposed`, '_blank', 'width=1400,height=900')
+                }}>
                 View Demo
               </button>
             </div>
@@ -1613,15 +1663,17 @@ function CreateNewClientWizard({
   onClose,
   onCreateOrg,
   onCreatePractice,
+  initialData,
 }: {
   onClose: () => void
   onCreateOrg: (org: Partial<Organization>) => void
   onCreatePractice: (orgId: string, practice: { name: string; products?: ProductType[] }) => void
+  initialData?: { name: string; type: string } | null
 }) {
   const [showSuccess, setShowSuccess] = useState(false)
   const [orgData, setOrgData] = useState({
-    name: '',
-    type: 'LargeProviderGroup' as Organization['type'],
+    name: initialData?.name || '',
+    type: (initialData?.type || 'LargeProviderGroup') as Organization['type'],
   })
   const [addPractice, setAddPractice] = useState(false)
   const [practiceData, setPracticeData] = useState({
@@ -1846,7 +1898,7 @@ const MOCK_ACCOUNTS = [
   { id: 8, name: 'Orlando Health Physician Associates', segment: 'Health System', practiceId: '75919', phone: '', website: '', state: 'FL', lastActivity: '6/26/2023', isActive: true },
 ]
 
-function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
+function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => void; fullscreen?: boolean }) {
   const [step, setStep] = useState<DemoStep>('list')
   const [selectedType, setSelectedType] = useState<AccountType>('HealthSystem')
   const [formData, setFormData] = useState({
@@ -1898,6 +1950,22 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
   }
 
   const handleCreateCSRAccount = () => {
+    // In fullscreen mode, redirect to Org Management with Create Org modal
+    if (fullscreen) {
+      const orgName = encodeURIComponent(formData.accountName || 'New Organization')
+      // Map segment display value to type value
+      const segmentMap: Record<string, string> = {
+        'Health System': 'HealthSystem',
+        'Large Provider Group': 'LargeProviderGroup',
+        'Mid-Market': 'MidMarket',
+        'Local': 'Local',
+      }
+      const orgType = segmentMap[formData.accountSegment] || 'LargeProviderGroup'
+      const baseUrl = window.location.origin + window.location.pathname
+      window.location.href = `${baseUrl}?createOrg=true&orgName=${orgName}&orgType=${orgType}`
+      return
+    }
+
     const scenario = determineCSRScenario()
     setCsrScenario(scenario)
     // Pre-fill org data from account
@@ -1975,7 +2043,11 @@ function CommercialTeamDemo({ onClose }: { onClose: () => void }) {
         {/* Header */}
         <div className="proposed-demo-header">
           <h2>Commercial Team Flow: New Client</h2>
-          <button className="demo-close" onClick={onClose}>×</button>
+          {fullscreen ? (
+            <button className="btn btn-sm" onClick={onClose}>Close Window</button>
+          ) : (
+            <button className="demo-close" onClick={onClose}>×</button>
+          )}
         </div>
 
         <div className="proposed-demo-body">
