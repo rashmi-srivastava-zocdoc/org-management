@@ -1353,7 +1353,7 @@ function CreateNewClientWizard({
   const [showSuccess, setShowSuccess] = useState(false)
   const [orgData, setOrgData] = useState({
     name: '',
-    type: 'HealthSystem' as Organization['type'],
+    type: 'LargeProviderGroup' as Organization['type'],
   })
   const [addPractice, setAddPractice] = useState(false)
   const [practiceData, setPracticeData] = useState({
