@@ -1883,9 +1883,37 @@ function CreateNewClientWizard({
 }
 
 // Commercial Team Demo Component
-type DemoStep = 'list' | 'type-modal' | 'form' | 'detail' | 'csr-org' | 'csr-practice' | 'success'
+type WorkflowType = 'new-account' | 'child-account' | 'change-prospect' | 'change-client'
+type DemoStep = 'workflow-select' | 'list' | 'type-modal' | 'form' | 'detail' | 'csr-org' | 'csr-practice' | 'success' | 'select-item' | 'change-parent' | 'access-impact' | 'change-success'
 type AccountType = 'Practice' | 'BusinessDevelopment' | 'HealthSystem'
 type CSRScenario = 'new-customer' | 'existing-no-parent-org' | 'existing-with-parent-org'
+
+const WORKFLOW_OPTIONS = [
+  {
+    id: 'new-account' as WorkflowType,
+    title: 'New Account (New Relationship)',
+    description: 'Create a brand new customer account with no existing relationship',
+    icon: '🆕'
+  },
+  {
+    id: 'child-account' as WorkflowType,
+    title: 'New Child Account (Existing Client)',
+    description: 'Add a new opportunity under an existing client relationship',
+    icon: '📎'
+  },
+  {
+    id: 'change-prospect' as WorkflowType,
+    title: 'Change Hierarchy for Prospect',
+    description: 'Move a prospect account to a different parent organization',
+    icon: '🔄'
+  },
+  {
+    id: 'change-client' as WorkflowType,
+    title: 'Change Hierarchy for Client',
+    description: 'Move a client and its children to a different parent organization',
+    icon: '🏗️'
+  },
+]
 
 const MOCK_ACCOUNTS = [
   { id: 1, name: 'Lifestance - Texas', segment: 'Large Provider Group', practiceId: '118864', phone: '', website: '', state: 'TX', lastActivity: '6/19/2025', isActive: false },
@@ -1899,8 +1927,11 @@ const MOCK_ACCOUNTS = [
 ]
 
 function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => void; fullscreen?: boolean }) {
-  const [step, setStep] = useState<DemoStep>('list')
+  const [workflow, setWorkflow] = useState<WorkflowType | null>(null)
+  const [step, setStep] = useState<DemoStep>('workflow-select')
   const [selectedType, setSelectedType] = useState<AccountType>('HealthSystem')
+  const [selectedAccountForChange, setSelectedAccountForChange] = useState<typeof MOCK_ACCOUNTS[0] | null>(null)
+  const [newParentAccount, setNewParentAccount] = useState<string>('')
   const [formData, setFormData] = useState({
     accountName: '',
     accountSegment: 'Health System',
@@ -1995,12 +2026,15 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
   }
 
   const resetDemo = () => {
-    setStep('list')
+    setWorkflow(null)
+    setStep('workflow-select')
     setSelectedType('HealthSystem')
     setCsrScenario('new-customer')
     setCsrOrgData({ name: '', type: 'Health System' })
     setCsrPracticeData({ name: '', npi: '', products: [] })
     setCreatedOrgId('')
+    setSelectedAccountForChange(null)
+    setNewParentAccount('')
     setFormData({
       accountName: '',
       accountSegment: 'Health System',
@@ -2014,10 +2048,38 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
     setSearchQuery('')
   }
 
+  const selectWorkflow = (w: WorkflowType) => {
+    setWorkflow(w)
+    if (w === 'change-prospect' || w === 'change-client') {
+      setStep('select-item')
+    } else {
+      setStep('list')
+    }
+  }
+
+  const getWorkflowTitle = () => {
+    const wf = WORKFLOW_OPTIONS.find(w => w.id === workflow)
+    return wf?.title || 'Commercial Team Flow'
+  }
+
   const getStepDetails = () => {
+    if (workflow === 'change-prospect' || workflow === 'change-client') {
+      switch (step) {
+        case 'select-item':
+          return { phase: 1, title: 'Select Account', desc: `Select a ${workflow === 'change-prospect' ? 'prospect' : 'client'} to move` }
+        case 'change-parent':
+          return { phase: 2, title: 'Change Parent', desc: 'Select new parent organization' }
+        case 'access-impact':
+          return { phase: 3, title: 'Access Impact', desc: 'Review access changes' }
+        case 'change-success':
+          return { phase: 3, title: 'Success', desc: 'Hierarchy changed!' }
+        default:
+          return { phase: 1, title: '', desc: '' }
+      }
+    }
     switch (step) {
       case 'list':
-        return { phase: 1, title: 'Accounts List', desc: 'Click "New" to create a new prospect' }
+        return { phase: 1, title: 'Accounts List', desc: workflow === 'child-account' ? 'Select existing client' : 'Click "New" to create a new prospect' }
       case 'type-modal':
         return { phase: 1, title: 'Select Type', desc: 'Choose the type of account' }
       case 'form':
@@ -2037,12 +2099,49 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
 
   const stepDetails = getStepDetails()
 
+  // Workflow selector screen
+  if (step === 'workflow-select') {
+    return (
+      <div className="demo-overlay">
+        <div className="proposed-demo-modal workflow-selector-modal">
+          <div className="proposed-demo-header">
+            <h2>Commercial Team Workflows</h2>
+            {fullscreen ? (
+              <button className="btn btn-sm" onClick={onClose}>Close Window</button>
+            ) : (
+              <button className="demo-close" onClick={onClose}>×</button>
+            )}
+          </div>
+          <div className="workflow-selector">
+            <p className="workflow-selector-intro">Select a workflow to demo:</p>
+            <div className="workflow-options">
+              {WORKFLOW_OPTIONS.map(w => (
+                <div
+                  key={w.id}
+                  className="workflow-option"
+                  onClick={() => selectWorkflow(w.id)}
+                >
+                  <div className="workflow-option-icon">{w.icon}</div>
+                  <div className="workflow-option-content">
+                    <div className="workflow-option-title">{w.title}</div>
+                    <div className="workflow-option-desc">{w.description}</div>
+                  </div>
+                  <div className="workflow-option-arrow">→</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="demo-overlay">
       <div className="proposed-demo-modal">
         {/* Header */}
         <div className="proposed-demo-header">
-          <h2>Commercial Team Flow: New Client</h2>
+          <h2>{getWorkflowTitle()}</h2>
           {fullscreen ? (
             <button className="btn btn-sm" onClick={onClose}>Close Window</button>
           ) : (
@@ -2055,34 +2154,81 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
           <div className="proposed-demo-sidebar">
             <div className="demo-nav-title">Workflow Steps</div>
 
-            <div
-              className={`demo-nav-item ${stepDetails.phase === 1 ? 'active' : ''} ${getStepNumber() > 1 ? 'completed' : ''}`}
-              onClick={() => setStep('list')}
-            >
-              <div className="demo-nav-number">1</div>
-              <div className="demo-nav-info">
-                <div className="demo-nav-label">Create Prospect</div>
-                <div className="demo-nav-system">Salesforce</div>
-                {stepDetails.phase === 1 && (
-                  <div className="demo-nav-substep">{stepDetails.title}</div>
-                )}
-              </div>
-            </div>
+            {(workflow === 'change-prospect' || workflow === 'change-client') ? (
+              <>
+                <div
+                  className={`demo-nav-item ${stepDetails.phase === 1 ? 'active' : ''} ${stepDetails.phase > 1 ? 'completed' : ''}`}
+                  onClick={() => setStep('select-item')}
+                >
+                  <div className="demo-nav-number">1</div>
+                  <div className="demo-nav-info">
+                    <div className="demo-nav-label">Select {workflow === 'change-prospect' ? 'Prospect' : 'Client'}</div>
+                    <div className="demo-nav-system">Salesforce</div>
+                    {stepDetails.phase === 1 && (
+                      <div className="demo-nav-substep">{stepDetails.title}</div>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className={`demo-nav-item ${stepDetails.phase === 2 ? 'active' : ''} ${stepDetails.phase > 2 ? 'completed' : ''}`}
+                  onClick={() => selectedAccountForChange ? setStep('change-parent') : null}
+                  style={{ cursor: selectedAccountForChange ? 'pointer' : 'not-allowed', opacity: selectedAccountForChange ? 1 : 0.5 }}
+                >
+                  <div className="demo-nav-number">2</div>
+                  <div className="demo-nav-info">
+                    <div className="demo-nav-label">Change Parent</div>
+                    <div className="demo-nav-system">Product Tool</div>
+                    {stepDetails.phase === 2 && (
+                      <div className="demo-nav-substep">{stepDetails.title}</div>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className={`demo-nav-item ${stepDetails.phase === 3 ? 'active' : ''}`}
+                  style={{ opacity: stepDetails.phase >= 3 ? 1 : 0.5 }}
+                >
+                  <div className="demo-nav-number">3</div>
+                  <div className="demo-nav-info">
+                    <div className="demo-nav-label">Confirm Changes</div>
+                    <div className="demo-nav-system">Access Impact</div>
+                    {stepDetails.phase === 3 && (
+                      <div className="demo-nav-substep">{stepDetails.title}</div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div
+                  className={`demo-nav-item ${stepDetails.phase === 1 ? 'active' : ''} ${getStepNumber() > 1 ? 'completed' : ''}`}
+                  onClick={() => setStep('list')}
+                >
+                  <div className="demo-nav-number">1</div>
+                  <div className="demo-nav-info">
+                    <div className="demo-nav-label">{workflow === 'child-account' ? 'Select Existing Client' : 'Create Prospect'}</div>
+                    <div className="demo-nav-system">Salesforce</div>
+                    {stepDetails.phase === 1 && (
+                      <div className="demo-nav-substep">{stepDetails.title}</div>
+                    )}
+                  </div>
+                </div>
 
-            <div
-              className={`demo-nav-item ${stepDetails.phase === 2 ? 'active' : ''}`}
-              onClick={() => formData.accountName ? setStep('detail') : null}
-              style={{ cursor: formData.accountName ? 'pointer' : 'not-allowed', opacity: formData.accountName ? 1 : 0.5 }}
-            >
-              <div className="demo-nav-number">2</div>
-              <div className="demo-nav-info">
-                <div className="demo-nav-label">Convert to Client</div>
-                <div className="demo-nav-system">CSR / Product Account</div>
-                {stepDetails.phase === 2 && (
-                  <div className="demo-nav-substep">{stepDetails.title}</div>
-                )}
-              </div>
-            </div>
+                <div
+                  className={`demo-nav-item ${stepDetails.phase === 2 ? 'active' : ''}`}
+                  onClick={() => formData.accountName ? setStep('detail') : null}
+                  style={{ cursor: formData.accountName ? 'pointer' : 'not-allowed', opacity: formData.accountName ? 1 : 0.5 }}
+                >
+                  <div className="demo-nav-number">2</div>
+                  <div className="demo-nav-info">
+                    <div className="demo-nav-label">{workflow === 'child-account' ? 'Add Child Account' : 'Convert to Client'}</div>
+                    <div className="demo-nav-system">CSR / Product Account</div>
+                    {stepDetails.phase === 2 && (
+                      <div className="demo-nav-substep">{stepDetails.title}</div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="demo-sidebar-footer">
               <button className="btn btn-sm" onClick={resetDemo}>Reset Demo</button>
@@ -2708,6 +2854,301 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                   <div className="success-detail">
                     <label>Products</label>
                     <span>{csrPracticeData.products.join(', ')}</span>
+                  </div>
+                )}
+              </div>
+              <div className="success-actions">
+                <button className="btn btn-sf" onClick={resetDemo}>Start Over</button>
+                <button className="btn btn-sf-primary" onClick={onClose}>Done</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hierarchy Change: Select Item */}
+        {step === 'select-item' && (
+          <div className="proposed-demo-screen">
+            <div className="sf-header">
+              <div className="sf-header-left">
+                <span className="sf-cloud-icon">☁️</span>
+                <span className="sf-title">Sales Console</span>
+                <span className="sf-subtitle">Accounts</span>
+              </div>
+            </div>
+            <div className="sf-page">
+              <div className="sf-page-header">
+                <div className="sf-page-title">
+                  <span className="sf-icon">📋</span>
+                  <span>Select {workflow === 'change-prospect' ? 'Prospect' : 'Client'} to Move</span>
+                </div>
+              </div>
+              <div className="sf-filter-bar">
+                <input
+                  type="text"
+                  placeholder="Search accounts..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="sf-filter-input"
+                />
+              </div>
+              <div className="hierarchy-select-list">
+                {filteredAccounts.map(account => (
+                  <div
+                    key={account.id}
+                    className={`hierarchy-select-item ${selectedAccountForChange?.id === account.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedAccountForChange(account)}
+                  >
+                    <div className="hierarchy-select-radio">
+                      <input
+                        type="radio"
+                        name="selectAccount"
+                        checked={selectedAccountForChange?.id === account.id}
+                        onChange={() => setSelectedAccountForChange(account)}
+                      />
+                    </div>
+                    <div className="hierarchy-select-info">
+                      <div className="hierarchy-select-name">{account.name}</div>
+                      <div className="hierarchy-select-meta">
+                        <span className="segment-badge">{account.segment}</span>
+                        {account.isActive && <span className="status-badge active">Active</span>}
+                        {!account.isActive && <span className="status-badge prospect">Prospect</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hierarchy-select-actions">
+                <button className="btn btn-sf" onClick={resetDemo}>Cancel</button>
+                <button
+                  className="btn btn-sf-primary"
+                  onClick={() => setStep('change-parent')}
+                  disabled={!selectedAccountForChange}
+                >
+                  Next: Select New Parent →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hierarchy Change: Change Parent */}
+        {step === 'change-parent' && selectedAccountForChange && (
+          <div className="proposed-demo-screen">
+            <div className="change-parent-screen">
+              <div className="change-parent-header">
+                <h3>Change Parent for: {selectedAccountForChange.name}</h3>
+                <p>Current Segment: {selectedAccountForChange.segment}</p>
+              </div>
+              <div className="change-parent-content">
+                <div className="current-hierarchy-box">
+                  <h4>Current Hierarchy</h4>
+                  <div className="hierarchy-tree-mini">
+                    <div className="hierarchy-node-mini root">
+                      <span className="node-icon">🏢</span>
+                      <span>Root Organization</span>
+                    </div>
+                    <div className="hierarchy-node-mini current" style={{ marginLeft: 24 }}>
+                      <span className="hierarchy-connector">└─</span>
+                      <span className="node-icon">{workflow === 'change-client' ? '🏥' : '📋'}</span>
+                      <span>{selectedAccountForChange.name}</span>
+                      <span className="current-badge">← Current</span>
+                    </div>
+                    {workflow === 'change-client' && (
+                      <div className="hierarchy-node-mini child" style={{ marginLeft: 48 }}>
+                        <span className="hierarchy-connector">└─</span>
+                        <span className="node-icon">🏥</span>
+                        <span>Child Practice (will move with parent)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="new-parent-selection">
+                  <h4>Select New Parent Organization</h4>
+                  <div className="parent-options">
+                    {['Northwell Health', 'LifeStance Health', 'Privia Health', 'Orlando Health'].map(parent => (
+                      <label
+                        key={parent}
+                        className={`parent-option ${newParentAccount === parent ? 'selected' : ''}`}
+                      >
+                        <input
+                          type="radio"
+                          name="newParent"
+                          value={parent}
+                          checked={newParentAccount === parent}
+                          onChange={e => setNewParentAccount(e.target.value)}
+                        />
+                        <span className="parent-option-icon">🏢</span>
+                        <span className="parent-option-name">{parent}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {newParentAccount && (
+                  <div className="new-hierarchy-preview">
+                    <h4>New Hierarchy Preview</h4>
+                    <div className="hierarchy-tree-mini">
+                      <div className="hierarchy-node-mini root">
+                        <span className="node-icon">🏢</span>
+                        <span>{newParentAccount}</span>
+                        <span className="new-parent-badge">← New Parent</span>
+                      </div>
+                      <div className="hierarchy-node-mini moved" style={{ marginLeft: 24 }}>
+                        <span className="hierarchy-connector">└─</span>
+                        <span className="node-icon">{workflow === 'change-client' ? '🏥' : '📋'}</span>
+                        <span>{selectedAccountForChange.name}</span>
+                        <span className="moved-badge">← Will Move Here</span>
+                      </div>
+                      {workflow === 'change-client' && (
+                        <div className="hierarchy-node-mini child" style={{ marginLeft: 48 }}>
+                          <span className="hierarchy-connector">└─</span>
+                          <span className="node-icon">🏥</span>
+                          <span>Child Practice</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="change-parent-actions">
+                <button className="btn btn-sf" onClick={() => setStep('select-item')}>← Back</button>
+                <button
+                  className="btn btn-sf-primary"
+                  onClick={() => setStep('access-impact')}
+                  disabled={!newParentAccount}
+                >
+                  Preview Access Impact →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hierarchy Change: Access Impact */}
+        {step === 'access-impact' && selectedAccountForChange && (
+          <div className="proposed-demo-screen">
+            <div className="access-impact-screen">
+              <div className="access-impact-header">
+                <h3>Access Impact Preview</h3>
+                <p>Moving <strong>{selectedAccountForChange.name}</strong> to <strong>{newParentAccount}</strong></p>
+              </div>
+              <div className="access-impact-body">
+                <div className="impact-section gaining">
+                  <h4>
+                    <span className="impact-icon">✓</span>
+                    Users who will gain access (3)
+                  </h4>
+                  <div className="impact-users">
+                    <div className="impact-user">
+                      <div className="user-avatar">L</div>
+                      <div className="user-info">
+                        <div className="user-name">Lisa Park</div>
+                        <div className="user-email">lisa.park@{newParentAccount.toLowerCase().replace(/\s/g, '')}.com</div>
+                      </div>
+                      <div className="user-role">Admin</div>
+                    </div>
+                    <div className="impact-user">
+                      <div className="user-avatar">D</div>
+                      <div className="user-info">
+                        <div className="user-name">David Williams</div>
+                        <div className="user-email">d.williams@{newParentAccount.toLowerCase().replace(/\s/g, '')}.com</div>
+                      </div>
+                      <div className="user-role">Manager</div>
+                    </div>
+                    <div className="impact-user">
+                      <div className="user-avatar">E</div>
+                      <div className="user-info">
+                        <div className="user-name">Emily Brown</div>
+                        <div className="user-email">ebrown@zocdoc.com</div>
+                      </div>
+                      <div className="user-role">Super Admin</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="impact-section losing">
+                  <h4>
+                    <span className="impact-icon">✗</span>
+                    Users who will lose access (2)
+                  </h4>
+                  <div className="impact-users">
+                    <div className="impact-user">
+                      <div className="user-avatar">J</div>
+                      <div className="user-info">
+                        <div className="user-name">John Smith</div>
+                        <div className="user-email">john.smith@oldorg.com</div>
+                      </div>
+                      <div className="user-role">Admin</div>
+                    </div>
+                    <div className="impact-user">
+                      <div className="user-avatar">S</div>
+                      <div className="user-info">
+                        <div className="user-name">Sarah Johnson</div>
+                        <div className="user-email">sarah.j@oldorg.com</div>
+                      </div>
+                      <div className="user-role">Manager</div>
+                    </div>
+                  </div>
+                </div>
+
+                {workflow === 'change-client' && (
+                  <div className="impact-section children">
+                    <h4>
+                      <span className="impact-icon">📎</span>
+                      Child items that will also move (2)
+                    </h4>
+                    <div className="child-items">
+                      <div className="child-item">
+                        <span className="child-icon">🏥</span>
+                        <span>{selectedAccountForChange.name} - Main Practice</span>
+                      </div>
+                      <div className="child-item">
+                        <span className="child-icon">🏥</span>
+                        <span>{selectedAccountForChange.name} - Satellite Office</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="access-impact-actions">
+                <button className="btn btn-sf" onClick={() => setStep('change-parent')}>← Back</button>
+                <button className="btn btn-sf-primary" onClick={() => setStep('change-success')}>
+                  Confirm Move
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hierarchy Change: Success */}
+        {step === 'change-success' && selectedAccountForChange && (
+          <div className="proposed-demo-screen">
+            <div className="demo-success">
+              <div className="success-icon">✓</div>
+              <h3>Hierarchy Changed Successfully!</h3>
+              <p>{selectedAccountForChange.name} has been moved to {newParentAccount}</p>
+              <div className="success-details">
+                <div className="success-detail">
+                  <label>Account Moved</label>
+                  <span>{selectedAccountForChange.name}</span>
+                </div>
+                <div className="success-detail">
+                  <label>New Parent</label>
+                  <span>{newParentAccount}</span>
+                </div>
+                <div className="success-detail">
+                  <label>Users Gained Access</label>
+                  <span>3 users</span>
+                </div>
+                <div className="success-detail">
+                  <label>Users Lost Access</label>
+                  <span>2 users</span>
+                </div>
+                {workflow === 'change-client' && (
+                  <div className="success-detail">
+                    <label>Child Items Moved</label>
+                    <span>2 practices</span>
                   </div>
                 )}
               </div>
