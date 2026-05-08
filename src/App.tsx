@@ -2938,19 +2938,19 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
 
                   {/* Hierarchy Tree */}
                   <div className="org-tree-result">
-                    <div className="tree-node org selected">
-                      <span className="tree-expand">▼</span>
-                      <span className="tree-icon">🏢</span>
-                      <span className="tree-name">TunaHealth</span>
-                      <span className="tree-badge lpg">LPG</span>
-                      <span className="tree-new">NEW</span>
+                    <div className="demo-tree-node org selected">
+                      <span className="demo-tree-expand">▼</span>
+                      <span className="demo-tree-icon">🏢</span>
+                      <span className="demo-tree-name">TunaHealth</span>
+                      <span className="demo-tree-badge lpg">LPG</span>
+                      <span className="demo-tree-new">NEW</span>
                     </div>
-                    <div className="tree-children">
-                      <div className="tree-node practice">
-                        <span className="tree-icon">🏥</span>
-                        <span className="tree-name">TunaHealth Practice</span>
-                        <span className="tree-products">Marketplace, Wellhive</span>
-                        <span className="tree-new">NEW</span>
+                    <div className="demo-tree-children">
+                      <div className="demo-tree-node practice">
+                        <span className="demo-tree-icon">🏥</span>
+                        <span className="demo-tree-name">TunaHealth Practice</span>
+                        <span className="demo-tree-products">Marketplace, Wellhive</span>
+                        <span className="demo-tree-new">NEW</span>
                       </div>
                     </div>
                   </div>
