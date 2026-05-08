@@ -3562,11 +3562,12 @@ body {
   font-weight: bold;
 }
 
+/* Demo mockup tree - scoped to org-tree-result only */
 .org-tree-result {
   margin-bottom: 20px;
 }
 
-.tree-node {
+.org-tree-result .demo-tree-node {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3575,39 +3576,39 @@ body {
   font-size: 14px;
 }
 
-.tree-node.org {
+.org-tree-result .demo-tree-node.org {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
 }
 
-.tree-node.org.selected {
+.org-tree-result .demo-tree-node.org.selected {
   background: #f0fdf4;
   border-color: var(--zd-green, #00a870);
   border-left: 3px solid var(--zd-green, #00a870);
 }
 
-.tree-node.practice {
+.org-tree-result .demo-tree-node.practice {
   background: white;
   border: 1px solid #e5e7eb;
   border-left: 3px solid #3b82f6;
 }
 
-.tree-expand {
+.org-tree-result .demo-tree-expand {
   color: #6b7280;
   font-size: 10px;
 }
 
-.tree-icon {
+.org-tree-result .demo-tree-icon {
   font-size: 18px;
 }
 
-.tree-name {
+.org-tree-result .demo-tree-name {
   flex: 1;
   font-weight: 500;
   color: #1f2937;
 }
 
-.tree-badge {
+.org-tree-result .demo-tree-badge {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
@@ -3616,17 +3617,17 @@ body {
   color: #6b7280;
 }
 
-.tree-badge.lpg {
+.org-tree-result .demo-tree-badge.lpg {
   background: #fef3c7;
   color: #92400e;
 }
 
-.tree-products {
+.org-tree-result .demo-tree-products {
   font-size: 12px;
   color: #6b7280;
 }
 
-.tree-new {
+.org-tree-result .demo-tree-new {
   font-size: 10px;
   font-weight: 600;
   background: var(--zd-green, #00a870);
@@ -3635,7 +3636,7 @@ body {
   border-radius: 4px;
 }
 
-.tree-children {
+.org-tree-result .demo-tree-children {
   margin-left: 40px;
   margin-top: 4px;
 }
