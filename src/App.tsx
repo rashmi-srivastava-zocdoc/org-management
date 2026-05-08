@@ -50,6 +50,9 @@ function App() {
   // Fullscreen demo mode
   const [fullscreenDemo, setFullscreenDemo] = useState<'proposed' | null>(null)
 
+  // State for showing newly created org banner
+  const [newlyCreatedOrg, setNewlyCreatedOrg] = useState<{ orgName: string; practiceName: string } | null>(null)
+
   // Handle URL parameters on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -57,6 +60,39 @@ function App() {
     // Check for fullscreen demo mode
     if (params.get('demo') === 'proposed') {
       setFullscreenDemo('proposed')
+      return
+    }
+
+    // Check for newly created org from demo flow
+    const newOrgName = params.get('newOrg')
+    const newPracticeName = params.get('newPractice')
+    if (newOrgName) {
+      const newOrgId = `org_${Math.random().toString(36).substr(2, 8)}`
+      const newOrg: Organization = {
+        id: newOrgId,
+        name: newOrgName,
+        type: 'LargeProviderGroup',
+        children: [],
+      }
+      setOrganizations(prev => [newOrg, ...prev])
+
+      if (newPracticeName) {
+        const newPractice: Practice = {
+          id: `p_${Math.random().toString(36).substr(2, 8)}`,
+          name: newPracticeName,
+          parentOrgId: newOrgId,
+          products: ['Marketplace', 'Wellhive'],
+        }
+        setPractices(prev => [newPractice, ...prev])
+      }
+
+      setSelectedOrg(newOrg)
+      setSelectedItems(new Set([newOrgId]))
+      setExpandedOrgs(prev => new Set([...prev, newOrgId]))
+      setNewlyCreatedOrg({ orgName: newOrgName, practiceName: newPracticeName || '' })
+      setViewMode('org-management')
+      // Clear URL params after reading
+      window.history.replaceState({}, '', window.location.pathname)
       return
     }
 
@@ -399,13 +435,25 @@ function App() {
           <div className="hierarchy-section">
             <div className="hierarchy-header">
               <div className="hierarchy-info">
-                <h2>Edit Organization Hierarchy</h2>
+                <h2>Organization Hierarchy</h2>
                 <div className="org-ids">
                   <span>Organization ID: {selectedOrg.id}</span>
-                  <span>Parent Organization ID: {parentOrg?.id || selectedOrg.id}</span>
                 </div>
               </div>
             </div>
+
+            {/* Success Banner for newly created org */}
+            {newlyCreatedOrg && selectedOrg.name === newlyCreatedOrg.orgName && (
+              <div className="creation-success-banner">
+                <span className="success-check-icon">✓</span>
+                <span>
+                  Organization "{newlyCreatedOrg.orgName}"
+                  {newlyCreatedOrg.practiceName && ` and practice "${newlyCreatedOrg.practiceName}"`}
+                  {' '}created successfully!
+                </span>
+                <button className="banner-close" onClick={() => setNewlyCreatedOrg(null)}>×</button>
+              </div>
+            )}
 
             {/* Action Bar */}
             <div className="action-bar">
@@ -2005,9 +2053,9 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
   }
 
   const handleOrgCreated = () => {
-    // Generate a mock org ID
-    setCreatedOrgId(`org_${Math.random().toString(36).substr(2, 8)}`)
-    setStep('org-created')
+    // Redirect to actual Org Management app with the created org
+    const baseUrl = window.location.origin + window.location.pathname
+    window.location.href = `${baseUrl}?newOrg=TunaHealth&newPractice=TunaHealth%20Practice`
   }
 
   const resetDemo = () => {
