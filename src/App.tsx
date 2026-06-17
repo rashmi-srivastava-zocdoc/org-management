@@ -23,7 +23,7 @@ const AVAILABLE_PRODUCTS: { value: ProductType; label: string }[] = [
   { value: 'BookableDirectory', label: 'Bookable Directory' },
 ]
 
-type ViewMode = 'org-management' | 'workflow-comparison'
+type ViewMode = 'org-management' | 'workflow-comparison' | 'flow-walkthrough'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('org-management')
@@ -393,12 +393,19 @@ function App() {
           >
             Workflow Comparison
           </button>
+          <button
+            className={`view-tab ${viewMode === 'flow-walkthrough' ? 'active' : ''}`}
+            onClick={() => setViewMode('flow-walkthrough')}
+          >
+            Flow Walkthrough
+          </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="main-content">
         {viewMode === 'workflow-comparison' && <WorkflowComparison />}
+        {viewMode === 'flow-walkthrough' && <FlowWalkthrough />}
         {viewMode === 'org-management' && (
         <>
         {/* Search Bar */}
@@ -1167,6 +1174,51 @@ function EditHierarchyModal({
   )
 }
 
+// Flow Walkthrough Component - selector page that launches a full-screen walkthrough
+function FlowWalkthrough() {
+  const [showCurrentDemo, setShowCurrentDemo] = useState(false)
+
+  const launchProposed = () => {
+    const baseUrl = window.location.origin + window.location.pathname
+    window.open(`${baseUrl}?demo=proposed`, '_blank', 'width=1400,height=900')
+  }
+
+  return (
+    <div className="flow-walkthrough-container">
+      <div className="flow-walkthrough-intro">
+        <h2>Choose a Flow to Walk Through</h2>
+        <p>Select which workflow you'd like to experience step by step in full-screen mode.</p>
+      </div>
+
+      <div className="flow-choice-grid">
+        <button className="flow-choice-card current" onClick={() => setShowCurrentDemo(true)}>
+          <span className="flow-choice-badge current">Current</span>
+          <span className="flow-choice-steps">3 steps</span>
+          <span className="flow-choice-desc">
+            Create Prospect Account → Add Contact to Prospect → Convert to Client/CSR Account
+          </span>
+          <span className="flow-choice-systems">Salesforce → Salesforce → CSR (Retool)</span>
+          <span className="flow-choice-cta">Start walkthrough →</span>
+        </button>
+
+        <button className="flow-choice-card proposed" onClick={launchProposed}>
+          <span className="flow-choice-badge proposed">Proposed</span>
+          <span className="flow-choice-steps">2 steps</span>
+          <span className="flow-choice-desc">
+            Create Prospect Account → Convert to Client/Product Account
+          </span>
+          <span className="flow-choice-systems">Salesforce → Product Tool (no contact required)</span>
+          <span className="flow-choice-cta">Start walkthrough →</span>
+        </button>
+      </div>
+
+      {showCurrentDemo && (
+        <CurrentWorkflowDemo fullscreen onClose={() => setShowCurrentDemo(false)} />
+      )}
+    </div>
+  )
+}
+
 // Workflow Comparison Component
 function WorkflowComparison() {
   const [showCurrentDemo, setShowCurrentDemo] = useState(false)
@@ -1338,7 +1390,7 @@ function WorkflowComparison() {
 }
 
 // Current Workflow Demo Modal
-function CurrentWorkflowDemo({ onClose }: { onClose: () => void }) {
+function CurrentWorkflowDemo({ onClose, fullscreen = false }: { onClose: () => void; fullscreen?: boolean }) {
   const [currentStep, setCurrentStep] = useState(0)
 
   const steps = [
@@ -1385,7 +1437,7 @@ function CurrentWorkflowDemo({ onClose }: { onClose: () => void }) {
   const totalSteps = allImages.length
 
   return (
-    <div className="demo-overlay" onClick={onClose}>
+    <div className={`demo-overlay ${fullscreen ? 'fullscreen' : ''}`} onClick={onClose}>
       <div className="demo-modal" onClick={e => e.stopPropagation()}>
         <div className="demo-header">
           <div className="demo-progress">
