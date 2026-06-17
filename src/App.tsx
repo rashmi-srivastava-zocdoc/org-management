@@ -1974,6 +1974,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
   const [formData, setFormData] = useState({
     accountName: '',
     accountSegment: 'Health System',
+    parentKey: '',
     parentAccount: '',
     ultimateParentOrgId: '',
     parentOrgId: '',
@@ -2072,6 +2073,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
     setFormData({
       accountName: '',
       accountSegment: 'Health System',
+      parentKey: '',
       parentAccount: '',
       ultimateParentOrgId: '',
       parentOrgId: '',
@@ -2473,17 +2475,17 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                     <label>Parent Account</label>
                     <select
                       className="sf-select"
-                      value={formData.parentAccount}
+                      value={formData.parentKey}
                       onChange={e => {
                         const val = e.target.value
                         if (val === '') {
-                          setFormData({ ...formData, parentAccount: '', ultimateParentOrgId: '', parentOrgId: '' })
+                          setFormData({ ...formData, parentKey: '', parentAccount: '', ultimateParentOrgId: '', parentOrgId: '' })
                         } else if (val === 'northwell-child') {
-                          setFormData({ ...formData, parentAccount: 'Northwell Health (Child Org)', ultimateParentOrgId: 'org_northwell', parentOrgId: 'org_northwell_child' })
+                          setFormData({ ...formData, parentKey: val, parentAccount: 'Northwell Health (Child Org)', ultimateParentOrgId: 'org_northwell', parentOrgId: 'org_northwell_child' })
                         } else if (val === 'northwell') {
-                          setFormData({ ...formData, parentAccount: 'Northwell Health', ultimateParentOrgId: 'org_northwell', parentOrgId: '' })
+                          setFormData({ ...formData, parentKey: val, parentAccount: 'Northwell Health', ultimateParentOrgId: 'org_northwell', parentOrgId: '' })
                         } else if (val === 'lifestance') {
-                          setFormData({ ...formData, parentAccount: 'LifeStance Health', ultimateParentOrgId: 'org_lifestance', parentOrgId: '' })
+                          setFormData({ ...formData, parentKey: val, parentAccount: 'LifeStance Health', ultimateParentOrgId: 'org_lifestance', parentOrgId: '' })
                         }
                       }}
                     >
@@ -2617,7 +2619,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                       </div>
                       <div className="sf-detail-field">
                         <label>Parent Account</label>
-                        <span>—</span>
+                        <span>{formData.parentAccount || '—'}</span>
                       </div>
                       <div className="sf-detail-field">
                         <label>Is active practice?</label>
