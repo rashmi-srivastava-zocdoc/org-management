@@ -2496,7 +2496,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                     </select>
                     <span className="sf-hint csr-hint">
                       {!formData.ultimateParentOrgId && '→ Will create: Org + Practice'}
-                      {formData.ultimateParentOrgId && !formData.parentOrgId && '→ Will create: Child Org + Practice'}
+                      {formData.ultimateParentOrgId && !formData.parentOrgId && '→ Add a new child practice under an existing org'}
                       {formData.parentOrgId && '→ Will create: Practice only'}
                     </span>
                   </div>
