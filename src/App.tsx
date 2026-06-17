@@ -56,7 +56,7 @@ function App() {
     if (params.get('demo') === 'proposed') {
       setFullscreenDemo('proposed')
       const wf = params.get('workflow')
-      if (wf === 'new-account' || wf === 'child-account' || wf === 'change-prospect' || wf === 'change-client') {
+      if (wf === 'new-account' || wf === 'child-account' || wf === 'existing-org-prospect' || wf === 'change-prospect' || wf === 'change-client') {
         setDemoWorkflow(wf)
       }
       return
@@ -1295,13 +1295,13 @@ function FlowWalkthrough() {
                 <span className="flow-choice-cta">Start walkthrough →</span>
               </button>
 
-              <button className="flow-choice-card proposed" onClick={() => launchProposed('new-account')}>
+              <button className="flow-choice-card proposed" onClick={() => launchProposed('existing-org-prospect')}>
                 <span className="flow-choice-badge proposed">Proposed</span>
                 <span className="flow-choice-steps">2 steps</span>
                 <span className="flow-choice-desc">
-                  Create Prospect Account (pick Parent Account) → Convert to Client/Product Account
+                  Search &amp; open the existing Account → Add CSR Account
                 </span>
-                <span className="flow-choice-systems">Salesforce → Product Tool (parent set on the form)</span>
+                <span className="flow-choice-systems">Salesforce → Product Tool</span>
                 <span className="flow-choice-cta">Start walkthrough →</span>
               </button>
             </div>
@@ -1910,7 +1910,7 @@ function CreateNewClientWizard({
 }
 
 // Commercial Team Demo Component
-type WorkflowType = 'new-account' | 'child-account' | 'change-prospect' | 'change-client'
+type WorkflowType = 'new-account' | 'child-account' | 'existing-org-prospect' | 'change-prospect' | 'change-client'
 type DemoStep = 'workflow-select' | 'list' | 'type-modal' | 'form' | 'detail' | 'csr-org' | 'csr-practice' | 'org-created' | 'success' | 'select-item' | 'change-parent' | 'access-impact' | 'change-success'
 type AccountType = 'Practice' | 'BusinessDevelopment' | 'HealthSystem'
 type CSRScenario = 'new-customer' | 'existing-no-parent-org' | 'existing-with-parent-org'
@@ -1927,6 +1927,12 @@ const WORKFLOW_OPTIONS = [
     title: 'New Child Account (Existing Client)',
     description: 'Add a new opportunity under an existing client relationship',
     icon: '📎'
+  },
+  {
+    id: 'existing-org-prospect' as WorkflowType,
+    title: 'New Prospect Under an Existing ORG',
+    description: 'Search an existing account and add a CSR account under it',
+    icon: '🔍'
   },
   {
     id: 'change-prospect' as WorkflowType,
@@ -2049,6 +2055,18 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
     }
   }
 
+  // existing-org-prospect: open an existing account from search straight into its Account page
+  const openExistingAccount = (account: typeof MOCK_ACCOUNTS[0]) => {
+    setFormData({
+      ...formData,
+      accountName: account.name,
+      accountSegment: account.segment,
+      website: account.website || '',
+      phone: account.phone || '',
+    })
+    setStep('detail')
+  }
+
   const handleOrgCreated = () => {
     // Redirect to actual Org Management app with the created org
     const baseUrl = window.location.origin + window.location.pathname
@@ -2115,13 +2133,19 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
     }
     switch (step) {
       case 'list':
-        return { phase: 1, title: 'Accounts List', desc: workflow === 'child-account' ? 'Select existing client' : 'Click "New" to create a new prospect' }
+        return {
+          phase: 1,
+          title: workflow === 'existing-org-prospect' ? 'Account Search' : 'Accounts List',
+          desc: workflow === 'existing-org-prospect'
+            ? 'Search and open the existing account'
+            : workflow === 'child-account' ? 'Select existing client' : 'Click "New" to create a new prospect'
+        }
       case 'type-modal':
         return { phase: 1, title: 'Select Type', desc: 'Choose the type of account' }
       case 'form':
         return { phase: 1, title: 'Account Form', desc: 'Fill in prospect details' }
       case 'detail':
-        return { phase: 2, title: 'Account Detail', desc: 'Click "Create CSR Account"' }
+        return { phase: 2, title: 'Account Detail', desc: workflow === 'existing-org-prospect' ? 'Click "Add CSR Account"' : 'Click "Create CSR Account"' }
       case 'csr-org':
         return { phase: 2, title: 'Create Org', desc: 'Set up organization in CSR' }
       case 'csr-practice':
@@ -2241,7 +2265,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                 >
                   <div className="demo-nav-number">1</div>
                   <div className="demo-nav-info">
-                    <div className="demo-nav-label">{workflow === 'child-account' ? 'Select Existing Client' : 'Create Prospect'}</div>
+                    <div className="demo-nav-label">{workflow === 'existing-org-prospect' ? 'Search Account' : workflow === 'child-account' ? 'Select Existing Client' : 'Create Prospect'}</div>
                     <div className="demo-nav-system">Salesforce</div>
                     {stepDetails.phase === 1 && (
                       <div className="demo-nav-substep">{stepDetails.title}</div>
@@ -2256,7 +2280,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                 >
                   <div className="demo-nav-number">2</div>
                   <div className="demo-nav-info">
-                    <div className="demo-nav-label">{workflow === 'child-account' ? 'Add Child Account' : 'Convert to Client'}</div>
+                    <div className="demo-nav-label">{workflow === 'existing-org-prospect' ? 'Add CSR Account' : workflow === 'child-account' ? 'Add Child Account' : 'Convert to Client'}</div>
                     <div className="demo-nav-system">CSR / Product Account</div>
                     {stepDetails.phase === 2 && (
                       <div className="demo-nav-substep">{stepDetails.title}</div>
@@ -2328,7 +2352,13 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                     <div key={account.id} className="sf-table-row">
                       <div className="sf-col sf-col-check"><input type="checkbox" /></div>
                       <div className="sf-col sf-col-name">
-                        <a href="#" onClick={e => e.preventDefault()}>{account.name}</a>
+                        <a
+                          href="#"
+                          onClick={e => {
+                            e.preventDefault()
+                            if (workflow === 'existing-org-prospect') openExistingAccount(account)
+                          }}
+                        >{account.name}</a>
                       </div>
                       <div className="sf-col sf-col-segment">{account.segment}</div>
                       <div className="sf-col sf-col-id">{account.practiceId}</div>
@@ -2571,7 +2601,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = nul
                   <button className="btn btn-sf">Edit</button>
                   <button className="btn btn-sf">Escalate</button>
                   <button className="btn btn-sf">Submit to SalesOps</button>
-                  <button className="btn btn-sf-csr" onClick={handleCreateCSRAccount}>Create CSR Account</button>
+                  <button className="btn btn-sf-csr" onClick={handleCreateCSRAccount}>{workflow === 'existing-org-prospect' ? 'Add CSR Account' : 'Create CSR Account'}</button>
                 </div>
               </div>
 
