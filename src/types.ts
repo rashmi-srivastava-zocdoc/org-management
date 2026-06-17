@@ -14,15 +14,9 @@ export interface Organization {
 }
 
 export type ProductType =
+  | 'BookablePresence'
   | 'Marketplace'
-  | 'BookFromGoogle'
-  | 'Wellhive'
-  | 'Yelp'
-  | 'Healthgrades'
-  | 'ZVS'
-  | 'Intake'
-  | 'Zo'
-  | 'BookableDirectory';
+  | 'PracticeSolutions';
 
 export interface Practice {
   id: string;

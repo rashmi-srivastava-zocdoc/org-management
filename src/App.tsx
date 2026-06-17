@@ -11,16 +11,10 @@ const TYPE_ABBREV: Record<string, string> = {
 }
 
 // Available products for practices
-const AVAILABLE_PRODUCTS: { value: ProductType; label: string }[] = [
+const AVAILABLE_PRODUCTS: { value: ProductType; label: string; free?: boolean }[] = [
+  { value: 'BookablePresence', label: 'Bookable Presence', free: true },
   { value: 'Marketplace', label: 'Marketplace' },
-  { value: 'BookFromGoogle', label: 'Book from Google' },
-  { value: 'Wellhive', label: 'Wellhive' },
-  { value: 'Yelp', label: 'Yelp' },
-  { value: 'Healthgrades', label: 'Healthgrades' },
-  { value: 'ZVS', label: 'ZVS' },
-  { value: 'Intake', label: 'Intake' },
-  { value: 'Zo', label: 'Zo' },
-  { value: 'BookableDirectory', label: 'Bookable Directory' },
+  { value: 'PracticeSolutions', label: 'Practice Solutions' },
 ]
 
 type ViewMode = 'org-management' | 'workflow-comparison' | 'flow-walkthrough'
@@ -81,7 +75,7 @@ function App() {
           id: `p_${Math.random().toString(36).substr(2, 8)}`,
           name: newPracticeName,
           parentOrgId: newOrgId,
-          products: ['Marketplace', 'Wellhive'],
+          products: ['BookablePresence', 'Marketplace'],
         }
         setPractices(prev => [newPractice, ...prev])
       }
@@ -834,7 +828,10 @@ function AddPracticeModal({
                         checked={selectedProducts.includes(product.value)}
                         onChange={() => toggleProduct(product.value)}
                       />
-                      <span>{product.label}</span>
+                      <span>
+                        {product.label}
+                        {product.free && <span className="product-free-badge">Free</span>}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -1732,7 +1729,7 @@ function AddChildOrgWizard({
                             checked={practiceData.products.includes(product.value)}
                             onChange={() => toggleProduct(product.value)}
                           />
-                          <span>{product.label}</span>
+                          <span>{product.label}{product.free && <span className="product-free-badge">Free</span>}</span>
                         </label>
                       ))}
                     </div>
@@ -1956,7 +1953,7 @@ function CreateNewClientWizard({
                             checked={practiceData.products.includes(product.value)}
                             onChange={() => toggleProduct(product.value)}
                           />
-                          <span>{product.label}</span>
+                          <span>{product.label}{product.free && <span className="product-free-badge">Free</span>}</span>
                         </label>
                       ))}
                     </div>
@@ -2817,7 +2814,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                           {AVAILABLE_PRODUCTS.map(product => (
                             <label key={product.value} className="product-checkbox">
                               <input type="checkbox" />
-                              <span>{product.label}</span>
+                              <span>{product.label}{product.free && <span className="product-free-badge">Free</span>}</span>
                             </label>
                           ))}
                         </div>
@@ -2899,20 +2896,27 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                   <div className="form-group">
                     <label>Products</label>
                     <div className="product-checkboxes">
-                      {['Marketplace', 'Book from Google', 'Wellhive', 'Yelp', 'Healthgrades', 'ZVS', 'Intake', 'Zo', 'Bookable Directory'].map(product => (
-                        <label key={product} className="product-checkbox">
+                      {[
+                        { label: 'Bookable Presence', free: true },
+                        { label: 'Marketplace' },
+                        { label: 'Practice Solutions' },
+                      ].map(product => (
+                        <label key={product.label} className="product-checkbox">
                           <input
                             type="checkbox"
-                            checked={csrPracticeData.products.includes(product)}
+                            checked={csrPracticeData.products.includes(product.label)}
                             onChange={e => {
                               if (e.target.checked) {
-                                setCsrPracticeData({ ...csrPracticeData, products: [...csrPracticeData.products, product] })
+                                setCsrPracticeData({ ...csrPracticeData, products: [...csrPracticeData.products, product.label] })
                               } else {
-                                setCsrPracticeData({ ...csrPracticeData, products: csrPracticeData.products.filter(p => p !== product) })
+                                setCsrPracticeData({ ...csrPracticeData, products: csrPracticeData.products.filter(p => p !== product.label) })
                               }
                             }}
                           />
-                          <span>{product}</span>
+                          <span>
+                            {product.label}
+                            {product.free && <span className="product-free-badge">Free</span>}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -3001,7 +3005,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                       <div className="demo-tree-node practice">
                         <span className="demo-tree-icon">🏥</span>
                         <span className="demo-tree-name">TunaHealth Practice</span>
-                        <span className="demo-tree-products">Marketplace, Wellhive</span>
+                        <span className="demo-tree-products">Bookable Presence, Marketplace</span>
                         <span className="demo-tree-new">NEW</span>
                       </div>
                     </div>
