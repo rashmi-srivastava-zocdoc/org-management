@@ -17,7 +17,7 @@ const AVAILABLE_PRODUCTS: { value: ProductType; label: string; free?: boolean }[
   { value: 'PracticeSolutions', label: 'Practice Solutions' },
 ]
 
-type ViewMode = 'org-management' | 'workflow-comparison' | 'flow-walkthrough'
+type ViewMode = 'org-management' | 'flow-walkthrough'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('org-management')
@@ -382,12 +382,6 @@ function App() {
             Org Hierarchy
           </button>
           <button
-            className={`view-tab ${viewMode === 'workflow-comparison' ? 'active' : ''}`}
-            onClick={() => setViewMode('workflow-comparison')}
-          >
-            Workflow Comparison
-          </button>
-          <button
             className={`view-tab ${viewMode === 'flow-walkthrough' ? 'active' : ''}`}
             onClick={() => setViewMode('flow-walkthrough')}
           >
@@ -398,7 +392,6 @@ function App() {
 
       {/* Main Content */}
       <div className="main-content">
-        {viewMode === 'workflow-comparison' && <WorkflowComparison />}
         {viewMode === 'flow-walkthrough' && <FlowWalkthrough />}
         {viewMode === 'org-management' && (
         <>
@@ -1211,176 +1204,6 @@ function FlowWalkthrough() {
 
       {showCurrentDemo && (
         <CurrentWorkflowDemo fullscreen onClose={() => setShowCurrentDemo(false)} />
-      )}
-    </div>
-  )
-}
-
-// Workflow Comparison Component
-function WorkflowComparison() {
-  const [showCurrentDemo, setShowCurrentDemo] = useState(false)
-  const [showProposedDemo, setShowProposedDemo] = useState(false)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['create-org', 'locking']))
-
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev)
-      if (next.has(section)) {
-        next.delete(section)
-      } else {
-        next.add(section)
-      }
-      return next
-    })
-  }
-
-  return (
-    <div className="workflow-comparison-container">
-      <div className="comparison-intro">
-        <h2>Workflow Comparison: Current vs Proposed</h2>
-        <p>Compare how organization management works today versus the proposed unified approach.</p>
-      </div>
-
-      {/* Section 1: Creating Organizations */}
-      <div className="scenario-accordion">
-        <button className="accordion-header" onClick={() => toggleSection('create-org')}>
-          <div className="accordion-title">
-            <h3>Creating Organizations</h3>
-            <p>New organization or child org under an existing client</p>
-          </div>
-          <span className="accordion-icon">{expandedSections.has('create-org') ? '−' : '+'}</span>
-        </button>
-        {expandedSections.has('create-org') && (
-          <div className="accordion-content">
-            <div className="workflow-row current">
-              <span className="workflow-badge current">Current <span className="step-count">(3 steps)</span></span>
-              <div className="workflow-steps-inline">
-                <div className="inline-step">
-                  <span className="step-num">1</span>
-                  <div className="step-info">
-                    <strong>Create Prospect Account</strong>
-                    <span className="step-system">Salesforce</span>
-                  </div>
-                </div>
-                <span className="step-arrow-inline">→</span>
-                <div className="inline-step">
-                  <span className="step-num">2</span>
-                  <div className="step-info">
-                    <strong>Add Contact to Prospect</strong>
-                    <span className="step-system">Salesforce</span>
-                  </div>
-                </div>
-                <span className="step-arrow-inline">→</span>
-                <div className="inline-step">
-                  <span className="step-num">3</span>
-                  <div className="step-info">
-                    <strong>Convert to Client/CSR Account</strong>
-                    <span className="step-system">CSR (Retool)</span>
-                  </div>
-                </div>
-              </div>
-              <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
-                View Demo
-              </button>
-            </div>
-            <div className="workflow-row proposed">
-              <span className="workflow-badge proposed">Proposed <span className="step-count">(2 steps)</span></span>
-              <div className="workflow-steps-inline">
-                <div className="inline-step">
-                  <span className="step-num">1</span>
-                  <div className="step-info">
-                    <strong>Create Prospect Account</strong>
-                    <span className="step-system">Salesforce</span>
-                  </div>
-                </div>
-                <span className="step-arrow-inline">→</span>
-                <div className="inline-step">
-                  <span className="step-num">2</span>
-                  <div className="step-info">
-                    <strong>Convert to Client/Product Account</strong>
-                    <span className="step-system">Product Tool (no contact required)</span>
-                  </div>
-                </div>
-              </div>
-              <button className="btn btn-demo-proposed" onClick={() => {
-                  const baseUrl = window.location.origin + window.location.pathname
-                  window.open(`${baseUrl}?demo=proposed`, '_blank', 'width=1400,height=900')
-                }}>
-                View Demo
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Section 2: Hierarchy Locking Rules */}
-      <div className="scenario-accordion">
-        <button className="accordion-header" onClick={() => toggleSection('locking')}>
-          <div className="accordion-title">
-            <h3>Hierarchy Locking Rules</h3>
-            <p>How hierarchy changes are controlled after CSR account creation</p>
-          </div>
-          <span className="accordion-icon">{expandedSections.has('locking') ? '−' : '+'}</span>
-        </button>
-        {expandedSections.has('locking') && (
-          <div className="accordion-content">
-            <div className="workflow-row current">
-              <span className="workflow-badge current">Current</span>
-              <div className="locking-rules-inline">
-                <div className="rule-summary">
-                  <span className="rule-icon">🔒</span>
-                  <strong>Full Lock on Conversion</strong>
-                  <span className="rule-desc">— Entire hierarchy locked in Salesforce once in CSR</span>
-                </div>
-                <div className="rule-issues">
-                  <span className="issue-item"><span className="issue-icon">⚠️</span> No restructuring possible</span>
-                  <span className="issue-item"><span className="issue-icon">⚠️</span> Requires engineering to change</span>
-                </div>
-              </div>
-              <button className="btn btn-demo-current" onClick={() => setShowCurrentDemo(true)}>
-                View Demo
-              </button>
-            </div>
-            <div className="workflow-row proposed">
-              <span className="workflow-badge proposed">Proposed</span>
-              <div className="locking-rules-inline">
-                <div className="rule-summary">
-                  <span className="rule-icon">🔐</span>
-                  <strong>Controlled Hierarchy Changes</strong>
-                </div>
-                <div className="rule-details">
-                  <span className="blocked-item"><span className="blocked-icon">✗</span> Hierarchy changes blocked if org has CSR account or child with CSR</span>
-                </div>
-                <div className="rule-details">
-                  <span className="allowed-item"><span className="allowed-icon">✓</span> "Change Parent" button at account level for controlled changes</span>
-                </div>
-                <div className="rule-details">
-                  <span className="allowed-item"><span className="allowed-icon">✓</span> Contact creation not required before CSR account creation</span>
-                </div>
-                <div className="rule-details">
-                  <span className="blocked-item"><span className="blocked-icon">✗</span> Cannot add child org under a prospect (must convert to CSR first)</span>
-                </div>
-                <div className="rule-details">
-                  <span className="blocked-item"><span className="blocked-icon">✗</span> Account segment changes not allowed at child level</span>
-                </div>
-              </div>
-              <button className="btn btn-demo-proposed" onClick={() => {
-                  const baseUrl = window.location.origin + window.location.pathname
-                  window.open(`${baseUrl}?demo=proposed`, '_blank', 'width=1400,height=900')
-                }}>
-                View Demo
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Demo Modals */}
-      {showCurrentDemo && (
-        <CurrentWorkflowDemo onClose={() => setShowCurrentDemo(false)} />
-      )}
-      {showProposedDemo && (
-        <CommercialTeamDemo onClose={() => setShowProposedDemo(false)} />
       )}
     </div>
   )
