@@ -1170,7 +1170,8 @@ function FlowWalkthrough() {
 
   const launchProposed = () => {
     const baseUrl = window.location.origin + window.location.pathname
-    window.open(`${baseUrl}?demo=proposed`, '_blank', 'width=1400,height=900')
+    // Cache-bust so the demo window always loads the latest deployed bundle
+    window.open(`${baseUrl}?demo=proposed&v=${Date.now()}`, '_blank', 'width=1400,height=900')
   }
 
   return (
