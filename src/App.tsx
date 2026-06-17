@@ -1167,6 +1167,19 @@ function EditHierarchyModal({
 // Flow Walkthrough Component - selector page that launches a full-screen walkthrough
 function FlowWalkthrough() {
   const [showCurrentDemo, setShowCurrentDemo] = useState(false)
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['new-prospect']))
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev)
+      if (next.has(section)) {
+        next.delete(section)
+      } else {
+        next.add(section)
+      }
+      return next
+    })
+  }
 
   const launchProposed = () => {
     const baseUrl = window.location.origin + window.location.pathname
@@ -1181,26 +1194,40 @@ function FlowWalkthrough() {
         <p>Select which workflow you'd like to experience step by step in full-screen mode.</p>
       </div>
 
-      <div className="flow-choice-grid">
-        <button className="flow-choice-card current" onClick={() => setShowCurrentDemo(true)}>
-          <span className="flow-choice-badge current">Current</span>
-          <span className="flow-choice-steps">3 steps</span>
-          <span className="flow-choice-desc">
-            Create Prospect Account → Add Contact to Prospect → Convert to Client/CSR Account
-          </span>
-          <span className="flow-choice-systems">Salesforce → Salesforce → CSR (Retool)</span>
-          <span className="flow-choice-cta">Start walkthrough →</span>
+      {/* Section 1: Creating a New Prospect */}
+      <div className="scenario-accordion">
+        <button className="accordion-header" onClick={() => toggleSection('new-prospect')}>
+          <div className="accordion-title">
+            <h3>Creating a New Prospect</h3>
+            <p>Completely new relationship with Zocdoc</p>
+          </div>
+          <span className="accordion-icon">{expandedSections.has('new-prospect') ? '−' : '+'}</span>
         </button>
+        {expandedSections.has('new-prospect') && (
+          <div className="accordion-content">
+            <div className="flow-choice-grid">
+              <button className="flow-choice-card current" onClick={() => setShowCurrentDemo(true)}>
+                <span className="flow-choice-badge current">Current</span>
+                <span className="flow-choice-steps">3 steps</span>
+                <span className="flow-choice-desc">
+                  Create Prospect Account → Add Contact to Prospect → Convert to Client/CSR Account
+                </span>
+                <span className="flow-choice-systems">Salesforce → Salesforce → CSR (Retool)</span>
+                <span className="flow-choice-cta">Start walkthrough →</span>
+              </button>
 
-        <button className="flow-choice-card proposed" onClick={launchProposed}>
-          <span className="flow-choice-badge proposed">Proposed</span>
-          <span className="flow-choice-steps">2 steps</span>
-          <span className="flow-choice-desc">
-            Create Prospect Account → Convert to Client/Product Account
-          </span>
-          <span className="flow-choice-systems">Salesforce → Product Tool (no contact required)</span>
-          <span className="flow-choice-cta">Start walkthrough →</span>
-        </button>
+              <button className="flow-choice-card proposed" onClick={launchProposed}>
+                <span className="flow-choice-badge proposed">Proposed</span>
+                <span className="flow-choice-steps">2 steps</span>
+                <span className="flow-choice-desc">
+                  Create Prospect Account → Convert to Client/Product Account
+                </span>
+                <span className="flow-choice-systems">Salesforce → Product Tool (no contact required)</span>
+                <span className="flow-choice-cta">Start walkthrough →</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showCurrentDemo && (
