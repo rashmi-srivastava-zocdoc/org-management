@@ -43,6 +43,7 @@ function App() {
 
   // Fullscreen demo mode
   const [fullscreenDemo, setFullscreenDemo] = useState<'proposed' | null>(null)
+  const [demoWorkflow, setDemoWorkflow] = useState<WorkflowType | null>(null)
 
   // State for showing newly created org banner
   const [newlyCreatedOrg, setNewlyCreatedOrg] = useState<{ orgName: string; practiceName: string } | null>(null)
@@ -54,6 +55,10 @@ function App() {
     // Check for fullscreen demo mode
     if (params.get('demo') === 'proposed') {
       setFullscreenDemo('proposed')
+      const wf = params.get('workflow')
+      if (wf === 'new-account' || wf === 'child-account' || wf === 'change-prospect' || wf === 'change-client') {
+        setDemoWorkflow(wf)
+      }
       return
     }
 
@@ -338,6 +343,7 @@ function App() {
         <CommercialTeamDemo
           onClose={() => window.close()}
           fullscreen
+          initialWorkflow={demoWorkflow}
         />
       </div>
     )
@@ -1181,10 +1187,11 @@ function FlowWalkthrough() {
     })
   }
 
-  const launchProposed = () => {
+  const launchProposed = (workflow: string) => {
     const baseUrl = window.location.origin + window.location.pathname
-    // Cache-bust so the demo window always loads the latest deployed bundle
-    window.open(`${baseUrl}?demo=proposed&v=${Date.now()}`, '_blank', 'width=1400,height=900')
+    // Launch straight into the chosen workflow (skips the workflow-select menu).
+    // Cache-bust so the demo window always loads the latest deployed bundle.
+    window.open(`${baseUrl}?demo=proposed&workflow=${workflow}&v=${Date.now()}`, '_blank', 'width=1400,height=900')
   }
 
   return (
@@ -1216,13 +1223,85 @@ function FlowWalkthrough() {
                 <span className="flow-choice-cta">Start walkthrough →</span>
               </button>
 
-              <button className="flow-choice-card proposed" onClick={launchProposed}>
+              <button className="flow-choice-card proposed" onClick={() => launchProposed('new-account')}>
                 <span className="flow-choice-badge proposed">Proposed</span>
                 <span className="flow-choice-steps">2 steps</span>
                 <span className="flow-choice-desc">
                   Create Prospect Account → Convert to Client/Product Account
                 </span>
                 <span className="flow-choice-systems">Salesforce → Product Tool (no contact required)</span>
+                <span className="flow-choice-cta">Start walkthrough →</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Section 2: New child account under an existing ORG */}
+      <div className="scenario-accordion">
+        <button className="accordion-header" onClick={() => toggleSection('child-account')}>
+          <div className="accordion-title">
+            <h3>Adding a New Child Account Under an Existing ORG</h3>
+            <p>Existing client adds a new account that rolls up under their organization</p>
+          </div>
+          <span className="accordion-icon">{expandedSections.has('child-account') ? '−' : '+'}</span>
+        </button>
+        {expandedSections.has('child-account') && (
+          <div className="accordion-content">
+            <div className="flow-choice-grid">
+              <button className="flow-choice-card current" onClick={() => setShowCurrentDemo(true)}>
+                <span className="flow-choice-badge current">Current</span>
+                <span className="flow-choice-steps">3 steps</span>
+                <span className="flow-choice-desc">
+                  Create Prospect Account → Add Contact to Prospect → Convert &amp; manually link to parent in CSR
+                </span>
+                <span className="flow-choice-systems">Salesforce → Salesforce → CSR (Retool)</span>
+                <span className="flow-choice-cta">Start walkthrough →</span>
+              </button>
+
+              <button className="flow-choice-card proposed" onClick={() => launchProposed('child-account')}>
+                <span className="flow-choice-badge proposed">Proposed</span>
+                <span className="flow-choice-steps">2 steps</span>
+                <span className="flow-choice-desc">
+                  Create Prospect Account → Convert &amp; choose parent ORG (hierarchy set automatically)
+                </span>
+                <span className="flow-choice-systems">Salesforce → Product Tool (parent selected in step 3)</span>
+                <span className="flow-choice-cta">Start walkthrough →</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Section 3: New prospect under an existing ORG */}
+      <div className="scenario-accordion">
+        <button className="accordion-header" onClick={() => toggleSection('prospect-existing-org')}>
+          <div className="accordion-title">
+            <h3>Adding a New Prospect Under an Existing ORG</h3>
+            <p>New prospect that should roll up under an organization already on Zocdoc</p>
+          </div>
+          <span className="accordion-icon">{expandedSections.has('prospect-existing-org') ? '−' : '+'}</span>
+        </button>
+        {expandedSections.has('prospect-existing-org') && (
+          <div className="accordion-content">
+            <div className="flow-choice-grid">
+              <button className="flow-choice-card current" onClick={() => setShowCurrentDemo(true)}>
+                <span className="flow-choice-badge current">Current</span>
+                <span className="flow-choice-steps">3 steps</span>
+                <span className="flow-choice-desc">
+                  Create Prospect Account → Add Contact to Prospect → Convert &amp; manually set parent in CSR
+                </span>
+                <span className="flow-choice-systems">Salesforce → Salesforce → CSR (Retool)</span>
+                <span className="flow-choice-cta">Start walkthrough →</span>
+              </button>
+
+              <button className="flow-choice-card proposed" onClick={() => launchProposed('new-account')}>
+                <span className="flow-choice-badge proposed">Proposed</span>
+                <span className="flow-choice-steps">2 steps</span>
+                <span className="flow-choice-desc">
+                  Create Prospect Account (pick Parent Account) → Convert to Client/Product Account
+                </span>
+                <span className="flow-choice-systems">Salesforce → Product Tool (parent set on the form)</span>
                 <span className="flow-choice-cta">Start walkthrough →</span>
               </button>
             </div>
@@ -1874,9 +1953,21 @@ const MOCK_ACCOUNTS = [
   { id: 8, name: 'Orlando Health Physician Associates', segment: 'Health System', practiceId: '75919', phone: '', website: '', state: 'FL', lastActivity: '6/26/2023', isActive: true },
 ]
 
-function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => void; fullscreen?: boolean }) {
-  const [workflow, setWorkflow] = useState<WorkflowType | null>(null)
-  const [step, setStep] = useState<DemoStep>('workflow-select')
+// Existing organizations a child account can be attached to (sets hierarchy)
+const EXISTING_PARENT_ORGS = [
+  { id: 'org_lifestance', name: 'LifeStance Health', segment: 'LPG' },
+  { id: 'org_northwell', name: 'Northwell Health', segment: 'HS' },
+  { id: 'org_privia', name: 'Privia Health', segment: 'LPG' },
+  { id: 'org_orlando', name: 'Orlando Health', segment: 'HS' },
+]
+
+function CommercialTeamDemo({ onClose, fullscreen = false, initialWorkflow = null }: { onClose: () => void; fullscreen?: boolean; initialWorkflow?: WorkflowType | null }) {
+  const [workflow, setWorkflow] = useState<WorkflowType | null>(initialWorkflow)
+  const [step, setStep] = useState<DemoStep>(
+    initialWorkflow
+      ? (initialWorkflow === 'change-prospect' || initialWorkflow === 'change-client' ? 'select-item' : 'list')
+      : 'workflow-select'
+  )
   const [selectedType, setSelectedType] = useState<AccountType>('HealthSystem')
   const [selectedAccountForChange, setSelectedAccountForChange] = useState<typeof MOCK_ACCOUNTS[0] | null>(null)
   const [newParentAccount, setNewParentAccount] = useState<string>('')
@@ -1904,6 +1995,8 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
     products: [] as string[],
   })
   const [createdOrgId, setCreatedOrgId] = useState('')
+  // For child-account: the existing org chosen as parent in step 3 (sets hierarchy)
+  const [csrParentOrg, setCsrParentOrg] = useState('')
 
   const filteredAccounts = searchQuery
     ? MOCK_ACCOUNTS.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -1943,7 +2036,10 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
       products: [],
     })
 
-    if (scenario === 'existing-with-parent-org') {
+    if (workflow === 'child-account') {
+      // Child account: go to Create Client so the user can choose the parent org (sets hierarchy)
+      setStep('csr-org')
+    } else if (scenario === 'existing-with-parent-org') {
       // Skip org creation, go straight to practice
       setStep('csr-practice')
     } else {
@@ -1955,7 +2051,11 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
   const handleOrgCreated = () => {
     // Redirect to actual Org Management app with the created org
     const baseUrl = window.location.origin + window.location.pathname
-    window.location.href = `${baseUrl}?newOrg=TunaHealth&newPractice=TunaHealth%20Practice`
+    const orgName = workflow === 'child-account'
+      ? (EXISTING_PARENT_ORGS.find(o => o.id === csrParentOrg)?.name ?? 'TunaHealth')
+      : 'TunaHealth'
+    const practiceName = csrPracticeData.name || 'TunaHealth Practice'
+    window.location.href = `${baseUrl}?newOrg=${encodeURIComponent(orgName)}&newPractice=${encodeURIComponent(practiceName)}`
   }
 
   const resetDemo = () => {
@@ -1966,6 +2066,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
     setCsrOrgData({ name: '', type: 'Health System' })
     setCsrPracticeData({ name: '', npi: '', products: [] })
     setCreatedOrgId('')
+    setCsrParentOrg('')
     setSelectedAccountForChange(null)
     setNewParentAccount('')
     setFormData({
@@ -2591,7 +2692,7 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
             <div className="modal-overlay demo-modal-active">
               <div className="modal new-client-wizard wide-modal">
                 <div className="modal-header">
-                  <h2>Create New Client</h2>
+                  <h2>{workflow === 'child-account' ? 'Add Child Account Under Existing Org' : 'Create New Client'}</h2>
                   <button className="modal-close" onClick={() => setStep('detail')}>×</button>
                 </div>
 
@@ -2600,48 +2701,95 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                   <div className="split-left">
                     <div className="org-hierarchy-preview">
                       <div className="hierarchy-preview-title">Organization Hierarchy</div>
-                      <div className="hierarchy-preview-tree">
-                        <div className="hierarchy-node org-node">
-                          <span className="node-icon">🏢</span>
-                          <span className="node-name">TunaHealth</span>
-                          <span className="type-badge ultimate">LPG</span>
+                      {workflow === 'child-account' ? (
+                        <div className="hierarchy-preview-tree">
+                          {(() => {
+                            const parent = EXISTING_PARENT_ORGS.find(o => o.id === csrParentOrg)
+                            return (
+                              <>
+                                <div className={`hierarchy-node org-node ${parent ? 'existing-parent' : 'unselected'}`}>
+                                  <span className="node-icon">🏢</span>
+                                  <span className="node-name">{parent ? parent.name : 'Select a parent organization…'}</span>
+                                  {parent && <span className="type-badge ultimate">{parent.segment}</span>}
+                                  {parent && <span className="existing-badge">Existing</span>}
+                                </div>
+                                <div style={{ marginLeft: 20 }}>
+                                  <span className="hierarchy-connector">└─</span>
+                                  <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                                    <span className="node-icon">🏥</span>
+                                    <span className="node-name">{csrPracticeData.name || 'New Child Account'}</span>
+                                    <span className="type-badge practice">Practice</span>
+                                    <span className="new-badge">← Creating here</span>
+                                  </div>
+                                </div>
+                              </>
+                            )
+                          })()}
                         </div>
-                        <div style={{ marginLeft: 20 }}>
-                          <span className="hierarchy-connector">└─</span>
-                          <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
-                            <span className="node-icon">🏥</span>
-                            <span className="node-name">TunaHealth Practice</span>
-                            <span className="type-badge practice">Practice</span>
-                            <span className="new-badge">← Creating here</span>
+                      ) : (
+                        <div className="hierarchy-preview-tree">
+                          <div className="hierarchy-node org-node">
+                            <span className="node-icon">🏢</span>
+                            <span className="node-name">TunaHealth</span>
+                            <span className="type-badge ultimate">LPG</span>
+                          </div>
+                          <div style={{ marginLeft: 20 }}>
+                            <span className="hierarchy-connector">└─</span>
+                            <div className="hierarchy-node practice-node new-practice" style={{ display: 'inline-flex', marginLeft: 4 }}>
+                              <span className="node-icon">🏥</span>
+                              <span className="node-name">TunaHealth Practice</span>
+                              <span className="type-badge practice">Practice</span>
+                              <span className="new-badge">← Creating here</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Right: Form */}
                   <div className="split-right">
-                    <div className="form-section">
-                      <h4>Organization</h4>
-                      <div className="form-group">
-                        <label>Organization Name * <span className="locked-badge">🔒 From Salesforce</span></label>
-                        <input
-                          type="text"
-                          value="TunaHealth"
-                          disabled
-                          className="locked-input"
-                        />
+                    {workflow === 'child-account' ? (
+                      <div className="form-section">
+                        <h4>Parent Organization</h4>
+                        <div className="form-group">
+                          <label>Parent Organization * <span className="hint-badge">Sets hierarchy</span></label>
+                          <select
+                            value={csrParentOrg}
+                            onChange={e => setCsrParentOrg(e.target.value)}
+                            className="sf-select"
+                          >
+                            <option value="">-- Select an existing organization --</option>
+                            {EXISTING_PARENT_ORGS.map(org => (
+                              <option key={org.id} value={org.id}>{org.name} ({org.segment})</option>
+                            ))}
+                          </select>
+                          <span className="sf-hint">The new account will be created as a child under this organization.</span>
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label>Segment * <span className="locked-badge">🔒 From Salesforce</span></label>
-                        <select value="LargeProviderGroup" disabled className="locked-input">
-                          <option value="HealthSystem">Health System (HS)</option>
-                          <option value="LargeProviderGroup">Large Provider Group (LPG)</option>
-                          <option value="MidMarket">Mid-Market (MM)</option>
-                          <option value="Local">Local</option>
-                        </select>
+                    ) : (
+                      <div className="form-section">
+                        <h4>Organization</h4>
+                        <div className="form-group">
+                          <label>Organization Name * <span className="locked-badge">🔒 From Salesforce</span></label>
+                          <input
+                            type="text"
+                            value="TunaHealth"
+                            disabled
+                            className="locked-input"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Segment * <span className="locked-badge">🔒 From Salesforce</span></label>
+                          <select value="LargeProviderGroup" disabled className="locked-input">
+                            <option value="HealthSystem">Health System (HS)</option>
+                            <option value="LargeProviderGroup">Large Provider Group (LPG)</option>
+                            <option value="MidMarket">Mid-Market (MM)</option>
+                            <option value="Local">Local</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="form-section">
                       <div className="form-group practice-toggle">
@@ -2655,8 +2803,9 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
                         <label>Practice Name *</label>
                         <input
                           type="text"
-                          value="TunaHealth Practice"
-                          onChange={() => {}}
+                          value={csrPracticeData.name}
+                          placeholder="Enter practice name"
+                          onChange={e => setCsrPracticeData({ ...csrPracticeData, name: e.target.value })}
                         />
                       </div>
                       <div className="form-group">
@@ -2676,8 +2825,12 @@ function CommercialTeamDemo({ onClose, fullscreen = false }: { onClose: () => vo
 
                 <div className="modal-footer">
                   <button className="btn btn-secondary" onClick={() => setStep('detail')}>Cancel</button>
-                  <button className="btn btn-primary" onClick={handleOrgCreated}>
-                    Create Client
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleOrgCreated}
+                    disabled={workflow === 'child-account' && !csrParentOrg}
+                  >
+                    {workflow === 'child-account' ? 'Add Child Account' : 'Create Client'}
                   </button>
                 </div>
               </div>
